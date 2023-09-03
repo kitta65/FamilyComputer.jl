@@ -1,5 +1,8 @@
 using Test
+using FamilyComputer
 
 @testset "all" begin
-    @test 2 == 1 + 1
+    @testset "cpu" begin
+        include("cpu.jl")
+    end
 end
