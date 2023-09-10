@@ -71,6 +71,29 @@ function run!(cpu::CPU, program::Vector{UInt8}; post_reset!::Function = cpu::CPU
             tax!(cpu)
         elseif opcode == 0xe8 # INX
             inx!(cpu)
+
+        elseif opcode == 0x85 # STA
+            sta!(cpu, zeropage)
+            cpu.program_counter += 1
+        elseif opcode == 0x95
+            sta!(cpu, zeropage_x)
+            cpu.program_counter += 1
+        elseif opcode == 0x8d
+            sta!(cpu, absolute)
+            cpu.program_counter += 2
+        elseif opcode == 0x9d
+            sta!(cpu, absolute_x)
+            cpu.program_counter += 2
+        elseif opcode == 0x99
+            sta!(cpu, absolute_y)
+            cpu.program_counter += 2
+        elseif opcode == 0x81
+            sta!(cpu, indirect_x)
+            cpu.program_counter += 1
+        elseif opcode == 0x91
+            sta!(cpu, indirect_y)
+            cpu.program_counter += 1
+
         else
             throw(@sprintf "0x%02x is not implemented" opcode)
         end
@@ -101,6 +124,11 @@ end
 function inx!(cpu::CPU)
     cpu.register_x += 0x01
     update_status_zero_and_negative!(cpu, cpu.register_x)
+end
+
+function sta!(cpu::CPU, mode::AddressingMode)
+    addr = address(cpu, mode)
+    write8!(cpu.memory, addr, cpu.register_a)
 end
 
 function update_status_zero_and_negative!(cpu::CPU, result::UInt8)
