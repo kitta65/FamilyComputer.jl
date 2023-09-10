@@ -18,3 +18,12 @@ function test_lda()
 end
 
 test_lda()
+
+function test_tax()
+    cpu = CPU()
+    cpu.register_a = 10
+    run!(cpu, [0xaa, 0x00])
+    @test cpu.register_x == 10
+end
+
+test_tax()

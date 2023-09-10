@@ -38,6 +38,20 @@ function run!(cpu::CPU, program::Vector{UInt8})::Nothing
             else
                 cpu.status = cpu.status & 0b0111_1111
             end
+        elseif opcode == 0xaa # tax
+            cpu.register_x = cpu.register_a
+
+            if cpu.register_x == 0
+                cpu.status = cpu.status | 0b0000_0010
+            else
+                cpu.status = cpu.status & 0b1111_1101
+            end
+
+            if cpu.register_x & 0b1000_0000 != 0
+                cpu.status = cpu.status | 0b1000_0000
+            else
+                cpu.status = cpu.status & 0b0111_1111
+            end
         else
             throw(@sprintf "0x%02x is not implemented" opcode)
         end
