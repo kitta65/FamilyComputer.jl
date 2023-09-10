@@ -19,7 +19,7 @@ function test_lda()
 
     run!(cpu, [0xa5, 0x10, 0x00], post_reset! = function (cpu)
         cpu.program_counter = 0x8000
-        write8!(cpu.memory, 0x0010, 0x55)
+        write8!(cpu.bus, 0x0010, 0x55)
     end)
     @test cpu.register_a == 0x55
 end

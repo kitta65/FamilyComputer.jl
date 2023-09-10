@@ -1,7 +1,5 @@
 export CPU, run!, write8!
 
-Memory = Vector{UInt8} # TODO specify length
-
 @enum AddressingMode begin
     immediate
     zeropage
@@ -20,11 +18,11 @@ mutable struct CPU
     register_y::UInt8
     status::UInt8
     program_counter::UInt16
-    memory::Memory
+    bus::Bus
 
     function CPU()::CPU
         cpu = new()
-        cpu.memory = zeros(UInt8, 0xffff)
+        cpu.bus = Bus()
         cpu
     end
 end
@@ -33,10 +31,12 @@ function run!(cpu::CPU, program::Vector{UInt8}; post_reset!::Function = cpu::CPU
     reset!(cpu)
     post_reset!(cpu)
 
-    cpu.memory[1+0x8000:0x8000+length(program)] = program
+    prg_rom = zeros(UInt8, 0x8000)
+    prg_rom[1:length(program)] = program
+    cpu.bus.prg_rom = prg_rom
 
     while true
-        opcode = cpu.memory[1+cpu.program_counter]
+        opcode = read8(cpu.bus, cpu.program_counter)
         cpu.program_counter += 1
 
         if opcode == 0x00 # BRK
@@ -105,13 +105,13 @@ function reset!(cpu::CPU)
     cpu.register_x = 0
     cpu.register_y = 0
     cpu.status = 0
-    cpu.program_counter = read16(cpu.memory, 0xffc)
+    cpu.program_counter = read16(cpu.bus, 0xffc)
 end
 
 # opcode
 function lda!(cpu::CPU, mode::AddressingMode)
     addr = address(cpu, mode)
-    value = read8(cpu.memory, addr)
+    value = read8(cpu.bus, addr)
     cpu.register_a = value
     update_status_zero_and_negative!(cpu, cpu.register_a)
 end
@@ -128,7 +128,7 @@ end
 
 function sta!(cpu::CPU, mode::AddressingMode)
     addr = address(cpu, mode)
-    write8!(cpu.memory, addr, cpu.register_a)
+    write8!(cpu.bus, addr, cpu.register_a)
 end
 
 function update_status_zero_and_negative!(cpu::CPU, result::UInt8)
@@ -149,51 +149,45 @@ function address(cpu::CPU, mode::AddressingMode)::UInt16
     if mode == immediate
         return cpu.program_counter
     elseif mode == zeropage
-        return read8(cpu.memory, cpu.program_counter)
+        return read8(cpu.bus, cpu.program_counter)
     elseif mode == absolute
-        return read16(cpu.memory, cpu.program_counter)
+        return read16(cpu.bus, cpu.program_counter)
     elseif mode == zeropage_x
-        return read8(cpu.memory, cpu.program_counter) + cpu.register_x
+        return read8(cpu.bus, cpu.program_counter) + cpu.register_x
     elseif mode == zeropage_y
-        return read8(cpu.memory, cpu.program_counter) + cpu.register_y
+        return read8(cpu.bus, cpu.program_counter) + cpu.register_y
     elseif mode == absolute_x
-        return read16(cpu.memory, cpu.program_counter) + cpu.register_x
+        return read16(cpu.bus, cpu.program_counter) + cpu.register_x
     elseif mode == absolute_y
-        return read16(cpu.memory, cpu.program_counter) + cpu.register_y
+        return read16(cpu.bus, cpu.program_counter) + cpu.register_y
     elseif mode == indirect_x
-        base = read8(cpu.memory, cpu.program_counter)
+        base = read8(cpu.bus, cpu.program_counter)
         ptr = base + cpu.register_x
-        lo = read8(cpu.memory, ptr)
-        hi = read8(cpu.memory, ptr + 0x01)
+        lo = read8(cpu.bus, ptr)
+        hi = read8(cpu.bus, ptr + 0x01)
         return (UInt64(hi) << 8) + lo
     elseif mode == indirect_y
-        base = read8(cpu.memory, cpu.program_counter)
-        lo = read8(cpu.memory, base)
-        hi = read8(cpu.memory, base + 0x01)
+        base = read8(cpu.bus, cpu.program_counter)
+        lo = read8(cpu.bus, base)
+        hi = read8(cpu.bus, base + 0x01)
         return (UInt64(hi) << 8) + lo + cpu.register_y
     else
         throw("$mode is not implemented")
     end
 end
 
-# methods for Memory
-function read8(memory::Memory, addr::UInt16)::UInt8
-    memory[addr+1]
+function read8(cpu::CPU, addr::UInt16)::UInt8
+    read8(cpu.bus, addr)
 end
 
-function read16(memory::Memory, addr::UInt16)::UInt16
-    hi = read8(memory, addr + 0x01)
-    lo = read8(memory, addr)
-    (UInt16(hi) << 8) + lo
+function read16(cpu::CPU, addr::UInt16)::UInt16
+    read16(cpu.bus, addr + 0x01)
 end
 
-function write8!(memory::Memory, addr::UInt16, data::UInt8)
-    memory[addr+1] = data
+function write8!(cpu::CPU, addr::UInt16, data::UInt8)
+    write8!(cpu.bus, addr, data)
 end
 
-function write16!(memory::Memory, addr::UInt16, data::UInt16)
-    hi = UInt8(data >> 8)
-    lo = UInt8(data & 0x00ff)
-    write8!(memory, addr + 1, hi)
-    write8!(memory, addr, lo)
+function write16!(cpu::CPU, addr::UInt16, data::UInt16)
+    write16!(cpu.bus, addr, data)
 end
