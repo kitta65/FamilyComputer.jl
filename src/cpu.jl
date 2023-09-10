@@ -26,8 +26,10 @@ function run!(cpu::CPU, program::Vector{UInt8})::Nothing
             param = program[1+cpu.program_conter]
             lda!(cpu, param)
             cpu.program_conter += 1
-        elseif opcode == 0xaa # tax
+        elseif opcode == 0xaa # TAX
             tax!(cpu)
+        elseif opcode == 0xe8 # INX
+            inx!(cpu)
         else
             throw(@sprintf "0x%02x is not implemented" opcode)
         end
@@ -42,6 +44,11 @@ end
 
 function tax!(cpu::CPU)
     cpu.register_x = cpu.register_a
+    update_status_zero_and_negative!(cpu, cpu.register_x)
+end
+
+function inx!(cpu::CPU)
+    cpu.register_x += 0x01
     update_status_zero_and_negative!(cpu, cpu.register_x)
 end
 

@@ -27,3 +27,16 @@ function test_tax()
 end
 
 test_tax()
+
+function test_inx()
+    cpu1 = CPU()
+    run!(cpu1, [0xa9, 0xc0, 0xaa, 0xe8, 0x00])
+    @test cpu1.register_x == 0xc1
+
+    cpu2 = CPU()
+    cpu2.register_x = 0xff
+    run!(cpu2, [0xe8, 0xe8, 0x00])
+    @test cpu2.register_x == 1
+end
+
+test_inx()
