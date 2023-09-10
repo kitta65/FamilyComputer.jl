@@ -1,5 +1,6 @@
 module FamilyComputer
+using Printf
 
-greet() = print("Hello World!")
+include("cpu.jl")
 
 end # module FamilyComputer
