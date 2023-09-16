@@ -21,19 +21,13 @@ mutable struct CPU
     bus::Bus
 
     function CPU()::CPU
-        cpu = new()
-        cpu.bus = Bus()
-        cpu
+        new(0, 0, 0, 0, 0, Bus())
     end
 end
 
-function run!(cpu::CPU, program::Vector{UInt8}; post_reset!::Function = cpu::CPU -> nothing)
+function run!(cpu::CPU; post_reset!::Function = cpu::CPU -> nothing)
     reset!(cpu)
     post_reset!(cpu)
-
-    prg_rom = zeros(UInt8, 0x8000)
-    prg_rom[1:length(program)] = program
-    cpu.bus.prg_rom = prg_rom
 
     while true
         opcode = read8(cpu.bus, cpu.program_counter)

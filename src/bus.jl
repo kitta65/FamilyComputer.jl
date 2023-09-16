@@ -1,12 +1,15 @@
+export Bus, set!
+
 mutable struct Bus
     cpu_vram::Vector{UInt8}
-    prg_rom::Vector{UInt8}
+    rom::Rom
+
+    function Bus(rom::Rom)::Bus
+        new(zeros(UInt8, 2048), rom)
+    end
 
     function Bus()::Bus
-        bus = new()
-        bus.cpu_vram = zeros(UInt8, 2048)
-        bus.prg_rom = zeros(UInt8, 0x8000)
-        bus
+        new(zeros(UInt8, 2048), Rom())
     end
 end
 
@@ -16,7 +19,7 @@ function read8(bus::Bus, addr::UInt16)::UInt8
         bus.cpu_vram[addr+1]
     elseif 0x8000 <= addr <= 0xffff
         addr = addr - 0x8000
-        bus.prg_rom[addr+1]
+        bus.rom.prg_rom[addr+1]
     else
         throw("not implemented")
     end
@@ -44,4 +47,8 @@ function write16!(bus::Bus, addr::UInt16, data::UInt16)
     lo = UInt16(data & 0x00ff)
     write8!(bus, addr + 1, hi)
     write8!(bus, addr, lo)
+end
+
+function set!(bus::Bus, rom::Rom)
+    bus.rom = rom
 end
