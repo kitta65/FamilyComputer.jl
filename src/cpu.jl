@@ -24,6 +24,13 @@ function step!(cpu::CPU; io::IO = devnull)
     if ctx.opcode == 0x00 # BRK
         return
 
+    elseif ctx.opcode == 0xe8 # INX
+        inx!(cpu, ctx)
+
+    elseif ctx.opcode == 0x4c # JMP
+        jmp!(cpu, absolute, ctx)
+        cpu.program_counter += 2
+
     elseif ctx.opcode == 0xa9 # LDA
         lda!(cpu, immediate, ctx)
         cpu.program_counter += 1
@@ -49,12 +56,6 @@ function step!(cpu::CPU; io::IO = devnull)
         lda!(cpu, indirect_y, ctx)
         cpu.program_counter += 1
 
-    elseif ctx.opcode == 0xaa # TAX
-        tax!(cpu, ctx)
-
-    elseif ctx.opcode == 0xe8 # INX
-        inx!(cpu, ctx)
-
     elseif ctx.opcode == 0x85 # STA
         sta!(cpu, zeropage, ctx)
         cpu.program_counter += 1
@@ -77,9 +78,8 @@ function step!(cpu::CPU; io::IO = devnull)
         sta!(cpu, indirect_y, ctx)
         cpu.program_counter += 1
 
-    elseif ctx.opcode == 0x4c # JMP
-        jmp!(cpu, absolute, ctx)
-        cpu.program_counter += 2
+    elseif ctx.opcode == 0xaa # TAX
+        tax!(cpu, ctx)
 
     else
         throw(@sprintf "0x%02x is not implemented" ctx.opcode)
