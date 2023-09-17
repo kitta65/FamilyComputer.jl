@@ -32,7 +32,7 @@ function run!(cpu::CPU; post_reset!::Function = cpu::CPU -> nothing)
 end
 
 function step!(cpu::CPU; io::IO = devnull)
-    log = StepLog()
+    log = StepLog(cpu)
     log.program_counter = cpu.program_counter
     log.opcode = read8(cpu, cpu.program_counter)
 
@@ -102,13 +102,6 @@ function step!(cpu::CPU; io::IO = devnull)
         throw(@sprintf "0x%02x is not implemented" log.opcode)
     end
 
-    log.registers = RegisterLog(
-        cpu.register_a,
-        cpu.register_x,
-        cpu.register_y,
-        cpu.status,
-        cpu.stack_pointer,
-    )
     println(io, log)
 end
 

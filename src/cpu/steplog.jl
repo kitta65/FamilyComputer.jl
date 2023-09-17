@@ -1,31 +1,8 @@
 import Base: print
 
-struct RegisterLog
-    register_a::UInt8
-    register_x::UInt8
-    register_y::UInt8
-    status::UInt8
-    stack_pointer::UInt8
-
-    function RegisterLog()
-        new()
-    end
-    function RegisterLog(a::UInt8, x::UInt8, y::UInt8, p::UInt8, sp::UInt8)
-        new(a, x, y, p, sp)
-    end
-end
-
-function print(io::IO, log::RegisterLog)
-    a = log.register_a
-    x = log.register_x
-    y = log.register_y
-    p = log.status
-    sp = log.stack_pointer
-    str = @sprintf "A:%02X X:%02X Y:%02X P:%02X SP:%02X" a x y p sp
-    print(io, str)
-end
-
 mutable struct StepLog
+    cpu::CPU
+
     program_counter::UInt16
     opcode::UInt8
     lo::UInt8
@@ -33,10 +10,9 @@ mutable struct StepLog
     instruction::String
     # address::UInt16
     mode::AddressingMode
-    registers::RegisterLog
 
-    function StepLog()
-        new(0, 0, 0, 0, "", unspecified, RegisterLog())
+    function StepLog(cpu::CPU)::StepLog
+        new(cpu, 0, 0, 0, 0, "", unspecified)
     end
 end
 
@@ -56,6 +32,14 @@ function print(io::IO, log::StepLog)
         addr = @sprintf "\$%02X%02X" log.hi log.lo
         assembly = assembly[1:4] * addr * assembly[5+length(addr):end]
     end
-    str = "$program_counter  $opcode $params  $assembly  $(log.registers)"
+
+    a = log.cpu.register_a
+    x = log.cpu.register_x
+    y = log.cpu.register_y
+    p = log.cpu.status
+    sp = log.cpu.stack_pointer
+    registers = @sprintf "A:%02X X:%02X Y:%02X P:%02X SP:%02X" a x y p sp
+
+    str = "$program_counter  $opcode $params  $assembly  $registers"
     print(io, str)
 end
