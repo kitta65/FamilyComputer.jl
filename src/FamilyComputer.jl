@@ -1,7 +1,8 @@
 module FamilyComputer
 using Printf
+import Base: print
 
-include("util.jl")
+include("utils.jl")
 include("rom.jl")
 include("bus.jl")
 include("cpu.jl")

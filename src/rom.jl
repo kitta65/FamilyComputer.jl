@@ -1,5 +1,3 @@
-export Rom
-
 const ines_tag = [0x4e, 0x45, 0x53, 0x1a]
 @enum Mirroring vertical horizontal four_screen
 

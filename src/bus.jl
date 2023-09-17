@@ -1,4 +1,4 @@
-export Bus, set!
+export set!
 
 mutable struct Bus
     cpu_vram::Vector{UInt8}

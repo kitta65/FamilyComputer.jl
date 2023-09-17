@@ -1,29 +1,3 @@
-import Base: print
-
-mutable struct StepContext
-    cpu_ref::CPU
-    program_counter::UInt16
-    opcode::UInt8
-    lo::UInt8
-    hi::UInt8
-    instruction::String
-    # address::UInt16
-    mode::AddressingMode
-
-    # should be called in the begging of step!()
-    function StepContext(cpu::CPU)::StepContext
-        new(
-            cpu,
-            cpu.program_counter,
-            read8(cpu, cpu.program_counter),
-            0,
-            0,
-            "",
-            unspecified,
-        )
-    end
-end
-
 function print(io::IO, ctx::StepContext)
     program_counter = @sprintf "%04X" ctx.program_counter
     opcode = @sprintf "%02X" ctx.opcode

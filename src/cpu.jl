@@ -1,24 +1,10 @@
-export CPU, run!, write8!, reset!, step!, brk
+export run!
 
 const init_stack_pointer = 0xfd
 const init_status = 0b0010_0100
 
+include("cpu/types.jl")
 include("cpu/addressmode.jl")
-
-mutable struct CPU
-    register_a::UInt8
-    register_x::UInt8
-    register_y::UInt8
-    status::UInt8
-    program_counter::UInt16
-    stack_pointer::UInt8
-    bus::Bus
-
-    function CPU()::CPU
-        new(0, 0, 0, init_status, 0, init_stack_pointer, Bus())
-    end
-end
-
 include("cpu/stepctx.jl")
 include("cpu/opcode.jl")
 
