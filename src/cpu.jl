@@ -3,18 +3,7 @@ export CPU, run!, write8!, reset!, step!, brk
 const init_stack_pointer = 0xfd
 const init_status = 0b0010_0100
 
-@enum AddressingMode begin
-    immediate
-    zeropage
-    zeropage_x
-    zeropage_y
-    absolute
-    absolute_x
-    absolute_y
-    indirect_x
-    indirect_y
-    unspecified
-end
+include("cpu/addressmode.jl")
 
 mutable struct CPU
     register_a::UInt8
@@ -30,8 +19,8 @@ mutable struct CPU
     end
 end
 
-include("cpu/opcode.jl")
 include("cpu/steplog.jl")
+include("cpu/opcode.jl")
 
 function run!(cpu::CPU; post_reset!::Function = cpu::CPU -> nothing)
     reset!(cpu)
@@ -45,75 +34,72 @@ end
 function step!(cpu::CPU; io::IO = devnull)
     log = StepLog()
     log.program_counter = cpu.program_counter
-    opcode = log.opcode = read8(cpu, cpu.program_counter)
+    log.opcode = read8(cpu, cpu.program_counter)
 
     cpu.program_counter += 1
 
-    if opcode == 0x00 # BRK
+    if log.opcode == 0x00 # BRK
         return
 
-    elseif opcode == 0xa9 # LDA
-        lda!(cpu, immediate)
+    elseif log.opcode == 0xa9 # LDA
+        lda!(cpu, immediate, log)
         cpu.program_counter += 1
-    elseif opcode == 0xa5
-        lda!(cpu, zeropage)
+    elseif log.opcode == 0xa5
+        lda!(cpu, zeropage, log)
         cpu.program_counter += 1
-    elseif opcode == 0xb5
-        lda!(cpu, zeropage_x)
+    elseif log.opcode == 0xb5
+        lda!(cpu, zeropage_x, log)
         cpu.program_counter += 1
-    elseif opcode == 0xad
-        lda!(cpu, absolute)
+    elseif log.opcode == 0xad
+        lda!(cpu, absolute, log)
         cpu.program_counter += 2
-    elseif opcode == 0xbd
-        lda!(cpu, absolute_x)
+    elseif log.opcode == 0xbd
+        lda!(cpu, absolute_x, log)
         cpu.program_counter += 2
-    elseif opcode == 0xb9
-        lda!(cpu, absolute_y)
+    elseif log.opcode == 0xb9
+        lda!(cpu, absolute_y, log)
         cpu.program_counter += 2
-    elseif opcode == 0xa1
-        lda!(cpu, indirect_x)
+    elseif log.opcode == 0xa1
+        lda!(cpu, indirect_x, log)
         cpu.program_counter += 1
-    elseif opcode == 0xb1
-        lda!(cpu, indirect_y)
+    elseif log.opcode == 0xb1
+        lda!(cpu, indirect_y, log)
         cpu.program_counter += 1
 
-    elseif opcode == 0xaa # TAX
-        tax!(cpu)
+    elseif log.opcode == 0xaa # TAX
+        tax!(cpu, log)
 
-    elseif opcode == 0xe8 # INX
-        inx!(cpu)
+    elseif log.opcode == 0xe8 # INX
+        inx!(cpu, log)
 
-    elseif opcode == 0x85 # STA
-        sta!(cpu, zeropage)
+    elseif log.opcode == 0x85 # STA
+        sta!(cpu, zeropage, log)
         cpu.program_counter += 1
-    elseif opcode == 0x95
-        sta!(cpu, zeropage_x)
+    elseif log.opcode == 0x95
+        sta!(cpu, zeropage_x, log)
         cpu.program_counter += 1
-    elseif opcode == 0x8d
-        sta!(cpu, absolute)
+    elseif log.opcode == 0x8d
+        sta!(cpu, absolute, log)
         cpu.program_counter += 2
-    elseif opcode == 0x9d
-        sta!(cpu, absolute_x)
+    elseif log.opcode == 0x9d
+        sta!(cpu, absolute_x, log)
         cpu.program_counter += 2
-    elseif opcode == 0x99
-        sta!(cpu, absolute_y)
+    elseif log.opcode == 0x99
+        sta!(cpu, absolute_y, log)
         cpu.program_counter += 2
-    elseif opcode == 0x81
-        sta!(cpu, indirect_x)
+    elseif log.opcode == 0x81
+        sta!(cpu, indirect_x, log)
         cpu.program_counter += 1
-    elseif opcode == 0x91
-        sta!(cpu, indirect_y)
+    elseif log.opcode == 0x91
+        sta!(cpu, indirect_y, log)
         cpu.program_counter += 1
 
-    elseif opcode == 0x4c # JMP
-        log.instruction = "JMP"
-        mode = log.mode = absolute
-        addr = address(cpu, mode, steplog = log)
-        jmp!(cpu, addr)
+    elseif log.opcode == 0x4c # JMP
+        jmp!(cpu, absolute, log)
         cpu.program_counter += 2
 
     else
-        throw(@sprintf "0x%02x is not implemented" opcode)
+        throw(@sprintf "0x%02x is not implemented" log.opcode)
     end
 
     log.registers = RegisterLog(
@@ -146,57 +132,46 @@ function update_status_zero_and_negative!(cpu::CPU, result::UInt8)
     end
 end
 
-function address(cpu::CPU, mode::AddressingMode; steplog = nothing)::UInt16
+function address(cpu::CPU, mode::AddressingMode, steplog::StepLog)::UInt16
+    steplog.mode = mode
+    steplog.lo = read8(cpu, cpu.program_counter)
+    steplog.hi = read8(cpu, cpu.program_counter + 0x01)
+
     if mode == immediate
         addr = cpu.program_counter
     elseif mode == zeropage
-        addr = read8(cpu, cpu.program_counter, steplog = steplog)
+        addr = steplog.lo
     elseif mode == absolute
-        addr = read16(cpu, cpu.program_counter, steplog = steplog)
+        addr = params2addr(steplog.lo, steplog.hi)
     elseif mode == zeropage_x
-        addr = read8(cpu, cpu.program_counter, steplog = steplog) + cpu.register_x
+        addr = steplog.lo + cpu.register_x
     elseif mode == zeropage_y
-        addr = read8(cpu, cpu.program_counter, steplog = steplog) + cpu.register_y
+        addr = steplog.lo + cpu.register_y
     elseif mode == absolute_x
-        addr = read16(cpu, cpu.program_counter, steplog = steplog) + cpu.register_x
+        addr = params2addr(steplog.lo, steplog.hi) + cpu.register_x
     elseif mode == absolute_y
-        addr = read16(cpu, cpu.program_counter, steplog = steplog) + cpu.register_y
+        addr = params2addr(steplog.lo, steplog.hi) + cpu.register_y
     elseif mode == indirect_x
-        base = read8(cpu, cpu.program_counter, steplog = steplog)
+        base = steplog.lo
         ptr = base + cpu.register_x
         lo = read8(cpu.bus, ptr)
         hi = read8(cpu.bus, ptr + 0x01)
-        addr = (UInt16(hi) << 8) + lo
+        addr = params2addr(lo, hi)
     elseif mode == indirect_y
-        base = read8(cpu, cpu.program_counter, steplog = steplog)
+        base = steplog.lo
         lo = read8(cpu.bus, base)
         hi = read8(cpu.bus, base + 0x01)
-        addr = (UInt16(hi) << 8) + lo + cpu.register_y
+        addr = params2addr(lo, hi) + cpu.register_y
     else
         throw("$mode is not implemented")
     end
 
-    # if !isnothing(steplog)
-    #     steplog.address = addr
-    # end
+    # steplog.address = addr
     addr
 end
 
-function read8(cpu::CPU, addr::UInt16; steplog = nothing)::UInt8
-    ui8 = read8(cpu.bus, addr)
-    if !isnothing(steplog)
-        steplog.params = [ui8]
-    end
-    ui8
-end
-
-function read16(cpu::CPU, addr::UInt16; steplog = nothing)::UInt16
-    hi = read8(cpu.bus, addr + 0x01)
-    lo = read8(cpu.bus, addr)
-    if !isnothing(steplog)
-        steplog.params = [lo, hi]
-    end
-    (UInt16(hi) << 8) + lo
+function read8(cpu::CPU, addr::UInt16)::UInt8
+    read8(cpu.bus, addr)
 end
 
 function write8!(cpu::CPU, addr::UInt16, data::UInt8)

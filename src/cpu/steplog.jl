@@ -28,31 +28,32 @@ end
 mutable struct StepLog
     program_counter::UInt16
     opcode::UInt8
-    params::Vector{UInt8}
+    lo::UInt8
+    hi::UInt8
     instruction::String
     # address::UInt16
     mode::AddressingMode
     registers::RegisterLog
 
     function StepLog()
-        new(0, 0, [], "", unspecified, RegisterLog())
+        new(0, 0, 0, 0, "", unspecified, RegisterLog())
     end
 end
 
 function print(io::IO, log::StepLog)
     program_counter = @sprintf "%04X" log.program_counter
     opcode = @sprintf "%02X" log.opcode
-    if length(log.params) == 0
+    if n_bytes(log.mode) == 0
         params = "     "
-    elseif length(log.params) == 1
-        params = @sprintf "%02X   " log.params[1]
-    elseif length(log.params) == 2
-        params = @sprintf "%02X %02X" log.params[1] log.params[2]
+    elseif n_bytes(log.mode) == 1
+        params = @sprintf "%02X   " log.lo
+    else
+        params = @sprintf "%02X %02X" log.lo log.hi
     end
     assembly = " "^30
     assembly = log.instruction * assembly[4:end]
     if log.mode == absolute
-        addr = @sprintf "\$%02X%02X" log.params[2] log.params[1]
+        addr = @sprintf "\$%02X%02X" log.hi log.lo
         assembly = assembly[1:4] * addr * assembly[5+length(addr):end]
     end
     str = "$program_counter  $opcode $params  $assembly  $(log.registers)"
