@@ -11,7 +11,10 @@ end
 function test_lda()
     cpu = CPU()
     set!(cpu.bus, Rom(0xa9, 0x05, 0x00))
-    run!(cpu, post_reset! = cpu -> cpu.program_counter = 0x8000)
+    run!(cpu, post_reset! = function (cpu)
+        cpu.program_counter = 0x8000
+        cpu.status = 0b0000_0000
+    end)
     @test cpu.register_a == 0x05
     @test cpu.status & 0b0000_0010 == 0
     @test cpu.status & 0b1000_0100 == 0
@@ -71,8 +74,15 @@ function nestest()
     reset!(cpu)
     cpu.program_counter = 0xc000
     io = PipeBuffer()
-    step!(cpu, io = io)
-    @test readline(io) == "0x4c"
+
+    open("../download/nestest.log", "r") do log
+        for _ = 1:1
+            step!(cpu, io = io)
+            actual = readline(io)
+            expected = readline(log)[1:73] # TODO test clock cycle
+            @test actual == expected
+        end
+    end
 end
 
 @testset "nestest" begin

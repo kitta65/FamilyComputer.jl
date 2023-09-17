@@ -3,8 +3,7 @@ function inx!(cpu::CPU)
     update_status_zero_and_negative!(cpu, cpu.register_x)
 end
 
-function jmp!(cpu::CPU, mode::AddressingMode)
-    addr = address(cpu, mode)
+function jmp!(cpu::CPU, addr::UInt16)
     cpu.program_counter = addr
 end
 
