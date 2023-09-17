@@ -25,6 +25,8 @@ mutable struct CPU
     end
 end
 
+include("cpu/opcode.jl")
+
 function run!(cpu::CPU; post_reset!::Function = cpu::CPU -> nothing)
     reset!(cpu)
     post_reset!(cpu)
@@ -113,34 +115,6 @@ function reset!(cpu::CPU)
     cpu.register_y = 0
     cpu.status = 0
     cpu.program_counter = read16(cpu.bus, 0xffc)
-end
-
-# opcode
-function lda!(cpu::CPU, mode::AddressingMode)
-    addr = address(cpu, mode)
-    value = read8(cpu.bus, addr)
-    cpu.register_a = value
-    update_status_zero_and_negative!(cpu, cpu.register_a)
-end
-
-function tax!(cpu::CPU)
-    cpu.register_x = cpu.register_a
-    update_status_zero_and_negative!(cpu, cpu.register_x)
-end
-
-function inx!(cpu::CPU)
-    cpu.register_x += 0x01
-    update_status_zero_and_negative!(cpu, cpu.register_x)
-end
-
-function sta!(cpu::CPU, mode::AddressingMode)
-    addr = address(cpu, mode)
-    write8!(cpu.bus, addr, cpu.register_a)
-end
-
-function jmp!(cpu::CPU, mode::AddressingMode)
-    addr = address(cpu, mode)
-    cpu.program_counter = addr
 end
 
 function update_status_zero_and_negative!(cpu::CPU, result::UInt8)
