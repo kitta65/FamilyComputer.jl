@@ -1,4 +1,4 @@
-export CPU, run!, write8!
+export CPU, run!, write8!, reset!, step!, brk
 
 @enum AddressingMode begin
     immediate
@@ -29,68 +29,81 @@ function run!(cpu::CPU; post_reset!::Function = cpu::CPU -> nothing)
     reset!(cpu)
     post_reset!(cpu)
 
-    while true
-        opcode = read8(cpu.bus, cpu.program_counter)
+    while !brk(cpu)
+        step!(cpu)
+    end
+end
+
+function step!(cpu::CPU; io::Union{IO,Nothing} = nothing)
+    opcode = read8(cpu.bus, cpu.program_counter)
+    cpu.program_counter += 1
+
+    if !isnothing(io)
+        println(io, @sprintf "0x%02x" opcode)
+    end
+
+    if opcode == 0x00 # BRK
+        return
+
+    elseif opcode == 0xa9 # LDA
+        lda!(cpu, immediate)
+        cpu.program_counter += 1
+    elseif opcode == 0xa5
+        lda!(cpu, zeropage)
+        cpu.program_counter += 1
+    elseif opcode == 0xb5
+        lda!(cpu, zeropage_x)
+        cpu.program_counter += 1
+    elseif opcode == 0xad
+        lda!(cpu, absolute)
+        cpu.program_counter += 2
+    elseif opcode == 0xbd
+        lda!(cpu, absolute_x)
+        cpu.program_counter += 2
+    elseif opcode == 0xb9
+        lda!(cpu, absolute_y)
+        cpu.program_counter += 2
+    elseif opcode == 0xa1
+        lda!(cpu, indirect_x)
+        cpu.program_counter += 1
+    elseif opcode == 0xb1
+        lda!(cpu, indirect_y)
         cpu.program_counter += 1
 
-        if opcode == 0x00 # BRK
-            return
+    elseif opcode == 0xaa # TAX
+        tax!(cpu)
 
-        elseif opcode == 0xa9 # LDA
-            lda!(cpu, immediate)
-            cpu.program_counter += 1
-        elseif opcode == 0xa5
-            lda!(cpu, zeropage)
-            cpu.program_counter += 1
-        elseif opcode == 0xb5
-            lda!(cpu, zeropage_x)
-            cpu.program_counter += 1
-        elseif opcode == 0xad
-            lda!(cpu, absolute)
-            cpu.program_counter += 2
-        elseif opcode == 0xbd
-            lda!(cpu, absolute_x)
-            cpu.program_counter += 2
-        elseif opcode == 0xb9
-            lda!(cpu, absolute_y)
-            cpu.program_counter += 2
-        elseif opcode == 0xa1
-            lda!(cpu, indirect_x)
-            cpu.program_counter += 1
-        elseif opcode == 0xb1
-            lda!(cpu, indirect_y)
-            cpu.program_counter += 1
+    elseif opcode == 0xe8 # INX
+        inx!(cpu)
 
-        elseif opcode == 0xaa # TAX
-            tax!(cpu)
-        elseif opcode == 0xe8 # INX
-            inx!(cpu)
+    elseif opcode == 0x85 # STA
+        sta!(cpu, zeropage)
+        cpu.program_counter += 1
+    elseif opcode == 0x95
+        sta!(cpu, zeropage_x)
+        cpu.program_counter += 1
+    elseif opcode == 0x8d
+        sta!(cpu, absolute)
+        cpu.program_counter += 2
+    elseif opcode == 0x9d
+        sta!(cpu, absolute_x)
+        cpu.program_counter += 2
+    elseif opcode == 0x99
+        sta!(cpu, absolute_y)
+        cpu.program_counter += 2
+    elseif opcode == 0x81
+        sta!(cpu, indirect_x)
+        cpu.program_counter += 1
+    elseif opcode == 0x91
+        sta!(cpu, indirect_y)
+        cpu.program_counter += 1
 
-        elseif opcode == 0x85 # STA
-            sta!(cpu, zeropage)
-            cpu.program_counter += 1
-        elseif opcode == 0x95
-            sta!(cpu, zeropage_x)
-            cpu.program_counter += 1
-        elseif opcode == 0x8d
-            sta!(cpu, absolute)
-            cpu.program_counter += 2
-        elseif opcode == 0x9d
-            sta!(cpu, absolute_x)
-            cpu.program_counter += 2
-        elseif opcode == 0x99
-            sta!(cpu, absolute_y)
-            cpu.program_counter += 2
-        elseif opcode == 0x81
-            sta!(cpu, indirect_x)
-            cpu.program_counter += 1
-        elseif opcode == 0x91
-            sta!(cpu, indirect_y)
-            cpu.program_counter += 1
+    elseif opcode == 0x4c # JMP
+        jmp!(cpu, absolute)
+        cpu.program_counter += 2
 
-        else
-            throw(@sprintf "0x%02x is not implemented" opcode)
-        end
+    else
+        throw(@sprintf "0x%02x is not implemented" opcode)
     end
 end
 
@@ -123,6 +136,11 @@ end
 function sta!(cpu::CPU, mode::AddressingMode)
     addr = address(cpu, mode)
     write8!(cpu.bus, addr, cpu.register_a)
+end
+
+function jmp!(cpu::CPU, mode::AddressingMode)
+    addr = address(cpu, mode)
+    cpu.program_counter = addr
 end
 
 function update_status_zero_and_negative!(cpu::CPU, result::UInt8)
@@ -184,4 +202,9 @@ end
 
 function write16!(cpu::CPU, addr::UInt16, data::UInt16)
     write16!(cpu.bus, addr, data)
+end
+
+function brk(cpu::CPU)::Bool
+    opcode = read8(cpu.bus, cpu.program_counter)
+    opcode == 0x00
 end

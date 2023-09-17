@@ -63,3 +63,18 @@ end
 @testset "inx" begin
     test_inx()
 end
+
+function nestest()
+    cpu = CPU()
+    ines = read("../download/nestest.nes")
+    set!(cpu.bus, Rom(ines))
+    reset!(cpu)
+    cpu.program_counter = 0xc000
+    io = PipeBuffer()
+    step!(cpu, io = io)
+    @test readline(io) == "0x4c"
+end
+
+@testset "nestest" begin
+    nestest()
+end

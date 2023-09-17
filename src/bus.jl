@@ -19,6 +19,9 @@ function read8(bus::Bus, addr::UInt16)::UInt8
         bus.cpu_vram[addr+1]
     elseif 0x8000 <= addr <= 0xffff
         addr = addr - 0x8000
+        if length(bus.rom.prg_rom) == 0x4000
+            addr = addr % 0x4000
+        end
         bus.rom.prg_rom[addr+1]
     else
         throw("not implemented")
