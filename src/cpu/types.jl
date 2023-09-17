@@ -40,6 +40,7 @@ mutable struct StepContext
     hi::UInt8
     instruction::String
     # address::UInt16
+    value::UInt8
     mode::AddressingMode
 
     # should be called in the begging of step!()
@@ -55,6 +56,7 @@ mutable struct StepContext
             0,
             0,
             "",
+            0,
             unspecified,
         )
     end

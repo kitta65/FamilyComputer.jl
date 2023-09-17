@@ -81,6 +81,10 @@ function step!(cpu::CPU; io::IO = devnull)
         sta!(cpu, indirect_y, ctx)
         cpu.program_counter += 1
 
+    elseif ctx.opcode == 0x86 # STX
+        stx!(cpu, zeropage, ctx)
+        cpu.program_counter += 1
+
     elseif ctx.opcode == 0xaa # TAX
         tax!(cpu, ctx)
 
@@ -111,7 +115,7 @@ function update_status_zero_and_negative!(cpu::CPU, result::UInt8)
     end
 end
 
-function address(cpu::CPU, mode::AddressingMode, ctx::StepContext)::UInt16
+function address(cpu::CPU, mode::AddressingMode, ctx::StepContext)::Tuple{UInt16,UInt8}
     ctx.mode = mode
     ctx.lo = read8(cpu, cpu.program_counter)
     ctx.hi = read8(cpu, cpu.program_counter + 0x01)
@@ -146,7 +150,8 @@ function address(cpu::CPU, mode::AddressingMode, ctx::StepContext)::UInt16
     end
 
     # ctx.address = addr
-    addr
+    ctx.value = read8(cpu, UInt16(addr))
+    addr, ctx.value
 end
 
 function read8(cpu::CPU, addr::UInt16)::UInt8

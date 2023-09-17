@@ -13,12 +13,18 @@ function print(io::IO, ctx::StepContext)
     assembly = ctx.instruction * assembly[4:end]
     if ctx.mode == immediate
         addr = @sprintf "#\$%02X" ctx.lo
+    elseif ctx.mode == zeropage
+        addr = @sprintf "\$%02X" ctx.lo
     elseif ctx.mode == absolute
         addr = @sprintf "\$%02X%02X" ctx.hi ctx.lo
     else
         addr = ""
     end
+    if ctx.instruction == "STX"
+        addr *= @sprintf " = %02X" 00
+    end
     assembly = assembly[1:4] * addr * assembly[5+length(addr):end]
+
 
     a = ctx.register_a
     x = ctx.register_x
