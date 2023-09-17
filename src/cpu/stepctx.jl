@@ -8,18 +8,23 @@ function print(io::IO, ctx::StepContext)
     else
         params = @sprintf "%02X %02X" ctx.lo ctx.hi
     end
+
     assembly = " "^30
     assembly = ctx.instruction * assembly[4:end]
-    if ctx.mode == absolute
+    if ctx.mode == immediate
+        addr = @sprintf "#\$%02X" ctx.lo
+    elseif ctx.mode == absolute
         addr = @sprintf "\$%02X%02X" ctx.hi ctx.lo
-        assembly = assembly[1:4] * addr * assembly[5+length(addr):end]
+    else
+        addr = ""
     end
+    assembly = assembly[1:4] * addr * assembly[5+length(addr):end]
 
-    a = ctx.cpu_ref.register_a
-    x = ctx.cpu_ref.register_x
-    y = ctx.cpu_ref.register_y
-    p = ctx.cpu_ref.status
-    sp = ctx.cpu_ref.stack_pointer
+    a = ctx.register_a
+    x = ctx.register_x
+    y = ctx.register_y
+    p = ctx.status
+    sp = ctx.stack_pointer
     registers = @sprintf "A:%02X X:%02X Y:%02X P:%02X SP:%02X" a x y p sp
 
     str = "$program_counter  $opcode $params  $assembly  $registers"

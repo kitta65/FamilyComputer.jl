@@ -29,7 +29,6 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif ctx.opcode == 0x4c # JMP
         jmp!(cpu, absolute, ctx)
-        cpu.program_counter += 2
 
     elseif ctx.opcode == 0xa9 # LDA
         lda!(cpu, immediate, ctx)
@@ -54,6 +53,10 @@ function step!(cpu::CPU; io::IO = devnull)
         cpu.program_counter += 1
     elseif ctx.opcode == 0xb1
         lda!(cpu, indirect_y, ctx)
+        cpu.program_counter += 1
+
+    elseif ctx.opcode == 0xa2 # LDX
+        ldx!(cpu, immediate, ctx)
         cpu.program_counter += 1
 
     elseif ctx.opcode == 0x85 # STA
@@ -101,7 +104,7 @@ function update_status_zero_and_negative!(cpu::CPU, result::UInt8)
         cpu.status = cpu.status & 0b1111_1101
     end
 
-    if cpu.register_a & 0b1000_0000 != 0
+    if result & 0b1000_0000 != 0
         cpu.status = cpu.status | 0b1000_0000
     else
         cpu.status = cpu.status & 0b0111_1111

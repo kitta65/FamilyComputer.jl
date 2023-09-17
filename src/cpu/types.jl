@@ -28,8 +28,13 @@ mutable struct CPU
 end
 
 mutable struct StepContext
-    cpu_ref::CPU
+    register_a::UInt8
+    register_x::UInt8
+    register_y::UInt8
+    status::UInt8
     program_counter::UInt16
+    stack_pointer::UInt8
+
     opcode::UInt8
     lo::UInt8
     hi::UInt8
@@ -40,8 +45,12 @@ mutable struct StepContext
     # should be called in the begging of step!()
     function StepContext(cpu::CPU)::StepContext
         new(
-            cpu,
+            cpu.register_a,
+            cpu.register_x,
+            cpu.register_y,
+            cpu.status,
             cpu.program_counter,
+            cpu.stack_pointer,
             read8(cpu, cpu.program_counter),
             0,
             0,

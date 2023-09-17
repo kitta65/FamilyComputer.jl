@@ -18,6 +18,14 @@ function lda!(cpu::CPU, mode::AddressingMode, ctx::StepContext)
     update_status_zero_and_negative!(cpu, cpu.register_a)
 end
 
+function ldx!(cpu::CPU, mode::AddressingMode, ctx::StepContext)
+    ctx.instruction = "LDX"
+    addr = address(cpu, mode, ctx)
+    value = read8(cpu.bus, addr)
+    cpu.register_x = value
+    update_status_zero_and_negative!(cpu, cpu.register_x)
+end
+
 function sta!(cpu::CPU, mode::AddressingMode, ctx::StepContext)
     ctx.instruction = "STA"
     addr = address(cpu, mode, ctx)
