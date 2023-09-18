@@ -30,6 +30,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif ctx.opcode == 0x4c # JMP
         jmp!(cpu, absolute, ctx)
 
+    elseif ctx.opcode == 0x20 # JSR
+        jsr!(cpu, absolute, ctx)
+
     elseif ctx.opcode == 0xa9 # LDA
         lda!(cpu, immediate, ctx)
         cpu.program_counter += 1
@@ -164,6 +167,19 @@ end
 
 function write16!(cpu::CPU, addr::UInt16, data::UInt16)
     write16!(cpu.bus, addr, data)
+end
+
+function stack8!(cpu::CPU, data::UInt8)
+    write8!(cpu, 0x1000 + cpu.stack_pointer, data)
+    cpu.stack_pointer -= 1
+end
+
+function stack16!(cpu::CPU, data::UInt16)
+    hi = UInt8(data >> 8)
+    lo = UInt8(data & 0x00ff)
+    stack8!(cpu, hi)
+    stack8!(cpu, lo)
+
 end
 
 function brk(cpu::CPU)::Bool

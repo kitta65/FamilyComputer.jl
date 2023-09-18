@@ -10,6 +10,13 @@ function jmp!(cpu::CPU, mode::AddressingMode, ctx::StepContext)
     cpu.program_counter = addr
 end
 
+function jsr!(cpu::CPU, mode::AddressingMode, ctx::StepContext)
+    ctx.instruction = "JSR"
+    stack16!(cpu, cpu.stack_pointer + 0x0002 - 0x0001)
+    addr, _ = address(cpu, mode, ctx)
+    cpu.program_counter = addr
+end
+
 function lda!(cpu::CPU, mode::AddressingMode, ctx::StepContext)
     ctx.instruction = "LDA"
     _, value = address(cpu, mode, ctx)
