@@ -62,6 +62,9 @@ function step!(cpu::CPU; io::IO = devnull)
         ldx!(cpu, immediate, ctx)
         cpu.program_counter += 1
 
+    elseif ctx.opcode == 0xea # NOP
+        nop!(cpu, unspecified, ctx)
+
     elseif ctx.opcode == 0x85 # STA
         sta!(cpu, zeropage, ctx)
         cpu.program_counter += 1

@@ -31,6 +31,10 @@ function ldx!(cpu::CPU, mode::AddressingMode, ctx::StepContext)
     update_status_zero_and_negative!(cpu, cpu.register_x)
 end
 
+function nop!(::CPU, ::AddressingMode, ctx::StepContext)
+    ctx.instruction = "NOP"
+end
+
 function sta!(cpu::CPU, mode::AddressingMode, ctx::StepContext)
     ctx.instruction = "STA"
     addr, _ = address(cpu, mode, ctx)
