@@ -65,6 +65,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif ctx.opcode == 0xea # NOP
         nop!(cpu, unspecified, ctx)
 
+    elseif ctx.opcode == 0x38 # SEC
+        sec!(cpu, unspecified, ctx)
+
     elseif ctx.opcode == 0x85 # STA
         sta!(cpu, zeropage, ctx)
         cpu.program_counter += 1

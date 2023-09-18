@@ -35,6 +35,11 @@ function nop!(::CPU, ::AddressingMode, ctx::StepContext)
     ctx.instruction = "NOP"
 end
 
+function sec!(cpu::CPU, ::AddressingMode, ctx::StepContext)
+    ctx.instruction = "SEC"
+    cpu.status = cpu.status | 0b0000_0001
+end
+
 function sta!(cpu::CPU, mode::AddressingMode, ctx::StepContext)
     ctx.instruction = "STA"
     addr, _ = address(cpu, mode, ctx)
