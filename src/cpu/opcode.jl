@@ -1,3 +1,11 @@
+function bcs!(cpu::CPU, mode::AddressingMode, ctx::StepContext)
+    ctx.instruction = "BCS"
+    if cpu.status & 0b0000_0001 == 0b01
+        _, value = address(cpu, mode, ctx)
+        cpu.program_counter += value
+    end
+end
+
 function inx!(cpu::CPU, ctx::StepContext)
     ctx.instruction = "INX"
     cpu.register_x += 0x01

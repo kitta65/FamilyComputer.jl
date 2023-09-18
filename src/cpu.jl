@@ -21,7 +21,11 @@ function step!(cpu::CPU; io::IO = devnull)
     ctx = StepContext(cpu)
     cpu.program_counter += 1
 
-    if ctx.opcode == 0x00 # BRK
+    if ctx.opcode == 0xb0 # BCS
+        bcs!(cpu, immediate, ctx)
+        cpu.program_counter += 1
+
+    elseif ctx.opcode == 0x00 # BRK
         return
 
     elseif ctx.opcode == 0xe8 # INX

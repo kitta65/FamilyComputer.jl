@@ -11,7 +11,9 @@ function print(io::IO, ctx::StepContext)
 
     assembly = " "^30
     assembly = ctx.instruction * assembly[4:end]
-    if ctx.mode == immediate
+    if ctx.instruction == "BCS"
+        addr = @sprintf "\$%04X" ctx.cpu_ref.program_counter
+    elseif ctx.mode == immediate
         addr = @sprintf "#\$%02X" ctx.lo
     elseif ctx.mode == zeropage
         addr = @sprintf "\$%02X" ctx.lo
@@ -21,7 +23,7 @@ function print(io::IO, ctx::StepContext)
         addr = ""
     end
     if ctx.instruction == "STX"
-        addr *= @sprintf " = %02X" 00
+        addr *= @sprintf " = %02X" 00 # TODO fix
     end
     assembly = assembly[1:4] * addr * assembly[5+length(addr):end]
 
