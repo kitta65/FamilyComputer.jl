@@ -162,9 +162,9 @@ function address(cpu::CPU, mode::AddressingMode, ctx::StepContext)::Tuple{UInt16
         throw("$mode is not implemented")
     end
 
-    # ctx.address = addr
+    ctx.address = addr
     ctx.value = read8(cpu, UInt16(addr))
-    addr, ctx.value
+    ctx.address, ctx.value
 end
 
 function read8(cpu::CPU, addr::UInt16)::UInt8

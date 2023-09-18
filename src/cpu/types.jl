@@ -41,8 +41,8 @@ mutable struct StepContext
     lo::UInt8
     hi::UInt8
     instruction::String
-    # address::UInt16
-    value::UInt8
+    address::UInt16 # the address the operand means
+    value::UInt8 # the value at address
     mode::AddressingMode
 
     # should be called in the begging of step!()
@@ -59,6 +59,7 @@ mutable struct StepContext
             0,
             0,
             "",
+            0,
             0,
             unspecified,
         )
