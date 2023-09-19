@@ -8,12 +8,12 @@ macro flags(Flag::Symbol, UIntN::Symbol, bits...)
     end
 
     for (i, b) in enumerate(bits)
+        b! = Symbol(string(b) * "!")
         shift = i - 1
 
         # setter
-        name = Symbol(string(b) * "!")
         push!(block.args, quote
-            function $name(flags::$Flag, bool::Bool)
+            function $b!(flags::$Flag, bool::Bool)
                 if bool
                     flags.bits = flags.bits | $UIntN(1) << $shift
                 else
@@ -27,6 +27,13 @@ macro flags(Flag::Symbol, UIntN::Symbol, bits...)
             function $b(flags::$Flag)::Bool
                 bit = flags.bits & ($UIntN(1) << $shift)
                 bit == 1
+            end
+        end)
+
+        # toggle
+        push!(block.args, quote
+            function $b!(flags::$Flag)
+                $b!(flags, !$b(flags))
             end
         end)
     end

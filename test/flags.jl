@@ -30,3 +30,11 @@ end
     @test a(instance)
     @test !b(instance)
 end
+
+@testset "toggle" begin
+    FC.@flags FlagName UInt8 a b
+    instance = FlagName(0b0000_0001)
+
+    @test a!(instance) == 0b00
+    @test a!(instance) == 0b01
+end
