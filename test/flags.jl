@@ -21,5 +21,12 @@ end
 
     b!(instance, false)
     @test instance.bits & 0b10 == 0b00
+end
 
+@testset "get" begin
+    FC.@flags FlagName UInt8 a b
+    instance = FlagName(0b0000_0001)
+
+    @test a(instance)
+    @test !b(instance)
 end

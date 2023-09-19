@@ -21,6 +21,14 @@ macro flags(Flag::Symbol, UIntN::Symbol, bits...)
                 end
             end
         end)
+
+        # getter
+        push!(block.args, quote
+            function $b(flags::$Flag)::Bool
+                bit = flags.bits & ($UIntN(1) << $shift)
+                bit == 1
+            end
+        end)
     end
 
     push!(block.args, nothing) # return nothing from this macro
