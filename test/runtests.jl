@@ -6,4 +6,8 @@ const FC = FamilyComputer
     @testset "cpu" begin
         include("cpu.jl")
     end
+
+    @testset "flags" begin
+        include("flags.jl")
+    end
 end
