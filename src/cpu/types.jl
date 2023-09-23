@@ -13,7 +13,6 @@ export CPU
     unspecified
 end
 
-# TODO ignore missing reference
 @flags CPUStatus UInt8 begin
     c
     z
