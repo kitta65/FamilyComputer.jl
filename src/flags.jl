@@ -21,7 +21,7 @@ macro flags(Flag::Symbol, UIntN::Symbol, bits...)
                 if bool
                     flags.bits = flags.bits | $UIntN(1) << $shift
                 else
-                    flags.bits = flags.bits & $UIntN(0) << $shift
+                    flags.bits = ~(~flags.bits | $UIntN(1) << $shift)
                 end
             end
         end)
@@ -30,7 +30,7 @@ macro flags(Flag::Symbol, UIntN::Symbol, bits...)
         push!(block.args, quote
             function $b(flags::$Flag)::Bool
                 bit = flags.bits & ($UIntN(1) << $shift)
-                bit == 1
+                bit != 0
             end
         end)
 
