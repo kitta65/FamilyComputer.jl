@@ -38,3 +38,25 @@ end
     @test a!(instance) == 0b00
     @test a!(instance) == 0b01
 end
+
+@testset "bitwise or" begin
+    FC.@flags FlagName UInt8 a b c d
+    instance = FlagName(0b0000)
+
+    instance = instance | 0b0001
+    @test instance.bits == 0b0001
+
+    instance = instance | FlagName(0b0111)
+    @test instance.bits == 0b0111
+end
+
+@testset "bitwise and" begin
+    FC.@flags FlagName UInt8 a b c d
+    instance = FlagName(0b1111)
+
+    instance = instance & 0b1110
+    @test instance.bits == 0b1110
+
+    instance = instance & FlagName(0b1100)
+    @test instance.bits == 0b1100
+end

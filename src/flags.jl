@@ -11,7 +11,7 @@ macro flags(Flag::Symbol, UIntN::Symbol, bits...)
         b! = Symbol(string(b) * "!")
         shift = i - 1
 
-        # setter
+        # set
         push!(block.args, quote
             function $b!(flags::$Flag, bool::Bool)
                 if bool
@@ -22,7 +22,7 @@ macro flags(Flag::Symbol, UIntN::Symbol, bits...)
             end
         end)
 
-        # getter
+        # get
         push!(block.args, quote
             function $b(flags::$Flag)::Bool
                 bit = flags.bits & ($UIntN(1) << $shift)
@@ -37,6 +37,15 @@ macro flags(Flag::Symbol, UIntN::Symbol, bits...)
             end
         end)
     end
+
+    push!(block.args, quote
+        Base.:(|)(a::Unsigned, b::$Flag) = $Flag(a | b.bits)
+        Base.:(|)(a::$Flag, b::Unsigned) = $Flag(a.bits | b)
+        Base.:(|)(a::$Flag, b::$Flag) = $Flag(a.bits | b.bits)
+        Base.:(&)(a::Unsigned, b::$Flag) = $Flag(a & b.bits)
+        Base.:(&)(a::$Flag, b::Unsigned) = $Flag(a.bits & b)
+        Base.:(&)(a::$Flag, b::$Flag) = $Flag(a.bits & b.bits)
+    end)
 
     push!(block.args, nothing) # return nothing from this macro
     esc(block)
