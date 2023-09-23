@@ -13,15 +13,15 @@ function test_lda()
     set!(cpu.bus, FC.Rom(0xa9, 0x05, 0x00))
     run!(cpu, post_reset! = function (cpu)
         cpu.program_counter = 0x8000
-        cpu.status = 0b0000_0000
+        cpu.status = FC.CPUStatus(0b0000_0000)
     end)
     @test cpu.register_a == 0x05
-    @test cpu.status & 0b0000_0010 == 0
-    @test cpu.status & 0b1000_0100 == 0
+    @test !FC.z(cpu.status)
+    @test cpu.status.bits & 0b1000_0100 == 0
 
     set!(cpu.bus, FC.Rom(0xa9, 0x00, 0x00))
     run!(cpu, post_reset! = cpu -> cpu.program_counter = 0x8000)
-    @test cpu.status & 0b0000_0010 == 0b10
+    @test FC.z(cpu.status)
 
     set!(cpu.bus, FC.Rom(0xa5, 0x10, 0x00))
     run!(cpu, post_reset! = function (cpu)

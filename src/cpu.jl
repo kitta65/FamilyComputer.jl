@@ -117,15 +117,15 @@ end
 
 function update_status_zero_and_negative!(cpu::CPU, result::UInt8)
     if result == 0
-        cpu.status = cpu.status | 0b0000_0010
+        z!(cpu.status, true)
     else
-        cpu.status = cpu.status & 0b1111_1101
+        z!(cpu.status, false)
     end
 
     if result & 0b1000_0000 != 0
-        cpu.status = cpu.status | 0b1000_0000
+        n!(cpu.status, true)
     else
-        cpu.status = cpu.status & 0b0111_1111
+        n!(cpu.status, false)
     end
 end
 

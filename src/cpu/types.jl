@@ -13,17 +13,29 @@ export CPU
     unspecified
 end
 
+# TODO ignore missing reference
+@flags CPUStatus UInt8 begin
+    c
+    z
+    i
+    d
+    b
+    do_not_use
+    v
+    n
+end
+
 mutable struct CPU
     register_a::UInt8
     register_x::UInt8
     register_y::UInt8
-    status::UInt8
+    status::CPUStatus
     program_counter::UInt16
     stack_pointer::UInt8
     bus::Bus
 
     function CPU()::CPU
-        new(0, 0, 0, init_status, 0, init_stack_pointer, Bus())
+        new(0, 0, 0, CPUStatus(init_status), 0, init_stack_pointer, Bus())
     end
 end
 
@@ -54,7 +66,7 @@ mutable struct StepLogger
             cpu.register_a,
             cpu.register_x,
             cpu.register_y,
-            cpu.status,
+            cpu.status.bits,
             cpu.program_counter,
             cpu.stack_pointer,
             0,

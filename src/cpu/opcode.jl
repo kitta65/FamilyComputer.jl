@@ -1,6 +1,6 @@
 function bcs!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BCS"
-    if cpu.status & 0b0000_0001 == 0b01
+    if c(cpu.status)
         _, value = address(cpu, mode, logger)
         cpu.program_counter += value
     end
@@ -45,7 +45,7 @@ end
 
 function sec!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "SEC"
-    cpu.status = cpu.status | 0b0000_0001
+    c!(cpu.status, true)
 end
 
 function sta!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
