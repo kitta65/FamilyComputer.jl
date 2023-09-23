@@ -7,6 +7,10 @@ macro flags(Flag::Symbol, UIntN::Symbol, bits...)
         end
     end
 
+    if length(bits) == 1 && bits[1] isa Expr
+        bits = [b for b in bits[1].args if b isa Symbol]
+    end
+
     for (i, b) in enumerate(bits)
         b! = Symbol(string(b) * "!")
         shift = i - 1
