@@ -21,46 +21,46 @@ end
 function step!(cpu::CPU; io::IO = devnull)
     logger = StepLogger(cpu)
     opcode = logger.opcode = read8(cpu, cpu.program_counter)
-    cpu.program_counter += 1
+    cpu.program_counter += 0x01
 
     if opcode == 0x29 # AND
         and!(cpu, immediate, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
 
     elseif opcode == 0xb0 # BCS
         bcs!(cpu, immediate, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
 
     elseif opcode == 0x90 # BCC
         bcc!(cpu, immediate, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
 
     elseif opcode == 0xf0 # BEQ
         beq!(cpu, immediate, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
 
     elseif opcode == 0x24 # BIT
         bit!(cpu, zeropage, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
 
     elseif opcode == 0xd0 # BNE
         bne!(cpu, immediate, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
 
     elseif opcode == 0x10 # BPL
         bpl!(cpu, immediate, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
 
     elseif opcode == 0x00 # BRK
         brk!(logger)
 
     elseif opcode == 0x50 # BVC
         bvc!(cpu, immediate, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
 
     elseif opcode == 0x70 # BVS
         bvs!(cpu, immediate, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
 
     elseif opcode == 0x18 # CLC
         clc!(cpu, logger)
@@ -76,32 +76,32 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif opcode == 0xa9 # LDA
         lda!(cpu, immediate, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
     elseif opcode == 0xa5
         lda!(cpu, zeropage, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
     elseif opcode == 0xb5
         lda!(cpu, zeropage_x, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
     elseif opcode == 0xad
         lda!(cpu, absolute, logger)
-        cpu.program_counter += 2
+        cpu.program_counter += 0x02
     elseif opcode == 0xbd
         lda!(cpu, absolute_x, logger)
-        cpu.program_counter += 2
+        cpu.program_counter += 0x02
     elseif opcode == 0xb9
         lda!(cpu, absolute_y, logger)
-        cpu.program_counter += 2
+        cpu.program_counter += 0x02
     elseif opcode == 0xa1
         lda!(cpu, indirect_x, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
     elseif opcode == 0xb1
         lda!(cpu, indirect_y, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
 
     elseif opcode == 0xa2 # LDX
         ldx!(cpu, immediate, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
 
     elseif opcode == 0xea # NOP
         nop!(cpu, unspecified, logger)
@@ -126,29 +126,29 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif opcode == 0x85 # STA
         sta!(cpu, zeropage, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
     elseif opcode == 0x95
         sta!(cpu, zeropage_x, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
     elseif opcode == 0x8d
         sta!(cpu, absolute, logger)
-        cpu.program_counter += 2
+        cpu.program_counter += 0x02
     elseif opcode == 0x9d
         sta!(cpu, absolute_x, logger)
-        cpu.program_counter += 2
+        cpu.program_counter += 0x02
     elseif opcode == 0x99
         sta!(cpu, absolute_y, logger)
-        cpu.program_counter += 2
+        cpu.program_counter += 0x02
     elseif opcode == 0x81
         sta!(cpu, indirect_x, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
     elseif opcode == 0x91
         sta!(cpu, indirect_y, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
 
     elseif opcode == 0x86 # STX
         stx!(cpu, zeropage, logger)
-        cpu.program_counter += 1
+        cpu.program_counter += 0x01
 
     elseif opcode == 0xaa # TAX
         tax!(cpu, logger)
@@ -224,7 +224,7 @@ end
 
 function push8!(cpu::CPU, data::UInt8)
     write8!(cpu, base_stack + cpu.stack_pointer, data)
-    cpu.stack_pointer -= 1
+    cpu.stack_pointer -= 0x01
 end
 
 function push16!(cpu::CPU, data::UInt16)
@@ -235,7 +235,7 @@ function push16!(cpu::CPU, data::UInt16)
 end
 
 function pop8!(cpu::CPU)
-    cpu.stack_pointer += 1
+    cpu.stack_pointer += 0x01
     read8(cpu, base_stack + cpu.stack_pointer)
 end
 
@@ -248,4 +248,8 @@ end
 function brk(cpu::CPU)::Bool
     opcode = read8(cpu.bus, cpu.program_counter)
     opcode == 0x00
+end
+
+function Base.setproperty!(cpu::CPU, name::Symbol, x)
+    Base.setfield!(cpu, name, x)
 end

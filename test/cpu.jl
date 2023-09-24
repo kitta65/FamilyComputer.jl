@@ -39,10 +39,10 @@ function test_tax()
     cpu = CPU()
     set!(cpu.bus, FC.Rom(0xaa, 0x00))
     run!(cpu, post_reset! = function (cpu)
-        cpu.register_a = 10
+        cpu.register_a = 0x0a
         cpu.program_counter = 0x8000
     end)
-    @test cpu.register_x == 10
+    @test cpu.register_x == 0x0a
 end
 
 @testset "tax" begin
