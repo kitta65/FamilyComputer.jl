@@ -14,7 +14,8 @@ function print(io::IO, logger::StepLogger)
     if (
         logger.instruction == "BCS" ||
         logger.instruction == "BCC" ||
-        logger.instruction == "BEQ"
+        logger.instruction == "BEQ" ||
+        logger.instruction == "BNE"
     )
         addr = @sprintf "\$%04X" logger.program_counter + logger.value + 2
     elseif logger.mode == immediate

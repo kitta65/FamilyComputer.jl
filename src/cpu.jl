@@ -34,6 +34,10 @@ function step!(cpu::CPU; io::IO = devnull)
         beq!(cpu, immediate, logger)
         cpu.program_counter += 1
 
+    elseif opcode == 0xd0 # BNE
+        bne!(cpu, immediate, logger)
+        cpu.program_counter += 1
+
     elseif opcode == 0x00 # BRK
         return
 
