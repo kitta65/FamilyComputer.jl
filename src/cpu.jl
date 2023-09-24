@@ -125,6 +125,10 @@ function step!(cpu::CPU; io::IO = devnull)
         ldx!(cpu, immediate, logger)
         cpu.program_counter += 0x01
 
+    elseif opcode == 0xa0 # LDY
+        ldy!(cpu, immediate, logger)
+        cpu.program_counter += 0x01
+
     elseif opcode == 0xea # NOP
         nop!(cpu, unspecified, logger)
 

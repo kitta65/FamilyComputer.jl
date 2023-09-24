@@ -158,6 +158,12 @@ function ldx!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     cpu.register_x = value
 end
 
+function ldy!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    logger.instruction = "LDY"
+    _, value = address(cpu, mode, logger)
+    cpu.register_y = value
+end
+
 function nop!(::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "NOP"
 end
