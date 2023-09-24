@@ -42,6 +42,10 @@ function step!(cpu::CPU; io::IO = devnull)
         bne!(cpu, immediate, logger)
         cpu.program_counter += 1
 
+    elseif opcode == 0x10 # BPL
+        bpl!(cpu, immediate, logger)
+        cpu.program_counter += 1
+
     elseif opcode == 0x00 # BRK
         return
 

@@ -16,6 +16,7 @@ function print(io::IO, logger::StepLogger)
         logger.instruction == "BCC" ||
         logger.instruction == "BEQ" ||
         logger.instruction == "BNE" ||
+        logger.instruction == "BPL" ||
         logger.instruction == "BVC" ||
         logger.instruction == "BVS"
     )
