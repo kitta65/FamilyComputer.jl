@@ -1,3 +1,10 @@
+function and!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    logger.instruction = "AND"
+    _, value = address(cpu, mode, logger)
+    cpu.register_a = cpu.register_a & value
+    update_status_zero_and_negative!(cpu, cpu.register_a)
+end
+
 function brk!(logger::StepLogger)
     logger.instruction = "BRK"
 end
@@ -112,8 +119,9 @@ end
 
 function php!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "PHP"
-    # TODO b flg
-    push8!(cpu, cpu.status.bits)
+    status = CPUStatus(cpu.status.bits)
+    b!(status, true)
+    push8!(cpu, status.bits)
 end
 
 function pla!(cpu::CPU, ::AddressingMode, logger::StepLogger)

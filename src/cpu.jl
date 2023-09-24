@@ -23,7 +23,11 @@ function step!(cpu::CPU; io::IO = devnull)
     opcode = logger.opcode = read8(cpu, cpu.program_counter)
     cpu.program_counter += 1
 
-    if opcode == 0xb0 # BCS
+    if opcode == 0x29 # AND
+        and!(cpu, immediate, logger)
+        cpu.program_counter += 1
+
+    elseif opcode == 0xb0 # BCS
         bcs!(cpu, immediate, logger)
         cpu.program_counter += 1
 
