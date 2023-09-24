@@ -79,6 +79,16 @@ function clc!(cpu::CPU, logger::StepLogger)
     c!(cpu.status, false)
 end
 
+function cmp!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    logger.instruction = "CMP"
+    _, value = address(cpu, mode, logger)
+
+    diff = cpu.register_a - value
+    c!(cpu.status, value <= cpu.register_a)
+    z!(cpu.status, diff == 0)
+    n!(cpu.status, diff & 0b1000_0000 != 0)
+end
+
 function inx!(cpu::CPU, logger::StepLogger)
     logger.instruction = "INX"
     cpu.register_x += 0x01

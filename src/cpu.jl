@@ -65,6 +65,10 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x18 # CLC
         clc!(cpu, logger)
 
+    elseif opcode == 0xc9 # CMP
+        cmp!(cpu, immediate, logger)
+        cpu.program_counter += 0x01
+
     elseif opcode == 0xe8 # INX
         inx!(cpu, logger)
 
