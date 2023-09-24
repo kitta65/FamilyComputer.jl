@@ -105,6 +105,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x08 # PHP
         php!(cpu, unspecified, logger)
 
+    elseif opcode == 0x68 # PLA
+        pla!(cpu, unspecified, logger)
+
     elseif opcode == 0x60 # RTS
         rts!(cpu, unspecified, logger)
 
