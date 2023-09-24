@@ -2,7 +2,6 @@ function and!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "AND"
     _, value = address(cpu, mode, logger)
     cpu.register_a = cpu.register_a & value
-    update_status_zero_and_negative!(cpu, cpu.register_a)
 end
 
 function brk!(logger::StepLogger)
@@ -83,7 +82,6 @@ end
 function inx!(cpu::CPU, logger::StepLogger)
     logger.instruction = "INX"
     cpu.register_x += 0x01
-    update_status_zero_and_negative!(cpu, cpu.register_x)
 end
 
 function jmp!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
@@ -103,14 +101,12 @@ function lda!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "LDA"
     _, value = address(cpu, mode, logger)
     cpu.register_a = value
-    update_status_zero_and_negative!(cpu, cpu.register_a)
 end
 
 function ldx!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "LDX"
     _, value = address(cpu, mode, logger)
     cpu.register_x = value
-    update_status_zero_and_negative!(cpu, cpu.register_x)
 end
 
 function nop!(::CPU, ::AddressingMode, logger::StepLogger)
@@ -127,7 +123,6 @@ end
 function pla!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "PLA"
     cpu.register_a = pop8!(cpu)
-    update_status_zero_and_negative!(cpu, cpu.register_a)
 end
 
 function rts!(cpu::CPU, ::AddressingMode, logger::StepLogger)
@@ -165,5 +160,4 @@ end
 function tax!(cpu::CPU, logger::StepLogger)
     logger.instruction = "TAX"
     cpu.register_x = cpu.register_a
-    update_status_zero_and_negative!(cpu, cpu.register_x)
 end

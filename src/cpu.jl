@@ -166,11 +166,6 @@ function reset!(cpu::CPU)
     new_cpu
 end
 
-function update_status_zero_and_negative!(cpu::CPU, result::UInt8)
-    z!(cpu.status, result == 0)
-    n!(cpu.status, result & 0b1000_0000 != 0)
-end
-
 function address(cpu::CPU, mode::AddressingMode, logger::StepLogger)::Tuple{UInt16,UInt8}
     logger.mode = mode
     lo = logger.lo = read8(cpu, cpu.program_counter)
@@ -251,5 +246,9 @@ function brk(cpu::CPU)::Bool
 end
 
 function Base.setproperty!(cpu::CPU, name::Symbol, x)
+    if (name == :register_a || name == :register_x || name == :register_y)
+        z!(cpu.status, x == 0)
+        n!(cpu.status, x & 0b1000_0000 != 0)
+    end
     Base.setfield!(cpu, name, x)
 end
