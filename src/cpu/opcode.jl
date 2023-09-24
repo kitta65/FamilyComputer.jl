@@ -42,6 +42,14 @@ function bit!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     v!(cpu.status, value & 0b0100_0000 > 0)
 end
 
+function bmi!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    logger.instruction = "BMI"
+    _, value = address(cpu, mode, logger)
+    if n(cpu.status)
+        cpu.program_counter += value
+    end
+end
+
 function bne!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BNE"
     _, value = address(cpu, mode, logger)

@@ -15,6 +15,7 @@ function Base.print(io::IO, logger::StepLogger)
         logger.instruction == "BCS" ||
         logger.instruction == "BCC" ||
         logger.instruction == "BEQ" ||
+        logger.instruction == "BMI" ||
         logger.instruction == "BNE" ||
         logger.instruction == "BPL" ||
         logger.instruction == "BVC" ||

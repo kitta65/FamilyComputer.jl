@@ -43,6 +43,10 @@ function step!(cpu::CPU; io::IO = devnull)
         bit!(cpu, zeropage, logger)
         cpu.program_counter += 0x01
 
+    elseif opcode == 0x30 # BMI
+        bmi!(cpu, immediate, logger)
+        cpu.program_counter += 0x01
+
     elseif opcode == 0xd0 # BNE
         bne!(cpu, immediate, logger)
         cpu.program_counter += 0x01
