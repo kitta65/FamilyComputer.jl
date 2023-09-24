@@ -108,6 +108,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x38 # SEC
         sec!(cpu, unspecified, logger)
 
+    elseif opcode == 0xf8 # SED
+        sed!(cpu, unspecified, logger)
+
     elseif opcode == 0x78 # SEI
         sei!(cpu, unspecified, logger)
 

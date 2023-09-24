@@ -120,6 +120,11 @@ function sec!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     c!(cpu.status, true)
 end
 
+function sed!(cpu::CPU, ::AddressingMode, logger::StepLogger)
+    logger.instruction = "SED"
+    d!(cpu.status, true)
+end
+
 function sei!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "SEI"
     i!(cpu.status, true)
