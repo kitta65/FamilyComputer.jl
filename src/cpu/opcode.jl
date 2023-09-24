@@ -122,6 +122,16 @@ function cmp!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     n!(cpu.status, diff & 0b1000_0000 != 0)
 end
 
+function cpx!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    logger.instruction = "CPX"
+    _, value = address(cpu, mode, logger)
+
+    diff = cpu.register_x - value
+    c!(cpu.status, value <= cpu.register_x)
+    z!(cpu.status, diff == 0)
+    n!(cpu.status, diff & 0b1000_0000 != 0)
+end
+
 function cpy!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "CPY"
     _, value = address(cpu, mode, logger)
