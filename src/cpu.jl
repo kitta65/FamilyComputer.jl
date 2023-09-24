@@ -159,6 +159,10 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x60 # RTS
         rts!(cpu, unspecified, logger)
 
+    elseif opcode == 0xe9 # SBC
+        sbc!(cpu, immediate, logger)
+        cpu.program_counter += 0x01
+
     elseif opcode == 0x38 # SEC
         sec!(cpu, unspecified, logger)
 
