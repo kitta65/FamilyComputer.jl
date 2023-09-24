@@ -113,6 +113,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xea # NOP
         nop!(cpu, unspecified, logger)
 
+    elseif opcode == 0x48 # PHA
+        pha!(cpu, unspecified, logger)
+
     elseif opcode == 0x08 # PHP
         php!(cpu, unspecified, logger)
 

@@ -128,6 +128,11 @@ function nop!(::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "NOP"
 end
 
+function pha!(cpu::CPU, ::AddressingMode, logger::StepLogger)
+    logger.instruction = "PHA"
+    push8!(cpu, cpu.register_a)
+end
+
 function php!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "PHP"
     status = CPUStatus(cpu.status.bits)
