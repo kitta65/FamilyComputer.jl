@@ -1,3 +1,18 @@
+function adc!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    logger.instruction = "ADC"
+    _, value = address(cpu, mode, logger)
+    sum = UInt16(cpu.register_a) + value + (c(cpu.status) ? 0x01 : 0x00)
+    c!(cpu.status, sum > 0xff)
+
+    sum = UInt8(sum)
+    is_negative_a = cpu.register_a >= 0b1000_0000
+    is_negative_v = value >= 0b1000_0000
+    is_negative_s = sum >= 0b1000_0000
+
+    v!(cpu.status, xor(is_negative_a, is_negative_s) & xor(is_negative_v, is_negative_s))
+    cpu.register_a = sum
+end
+
 function and!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "AND"
     _, value = address(cpu, mode, logger)
