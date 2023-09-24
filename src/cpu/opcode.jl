@@ -40,6 +40,14 @@ function bne!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     end
 end
 
+function bvc!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    logger.instruction = "BVC"
+    _, value = address(cpu, mode, logger)
+    if !v(cpu.status)
+        cpu.program_counter += value
+    end
+end
+
 function bvs!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BVS"
     _, value = address(cpu, mode, logger)
