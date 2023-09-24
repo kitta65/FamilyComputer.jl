@@ -145,6 +145,13 @@ function pla!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     cpu.register_a = pop8!(cpu)
 end
 
+function plp!(cpu::CPU, ::AddressingMode, logger::StepLogger)
+    logger.instruction = "PLP"
+    status = CPUStatus(pop8!(cpu))
+    b!(status, false)
+    cpu.status = status
+end
+
 function rts!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "RTS"
     cpu.program_counter = pop16!(cpu) + 0x01
