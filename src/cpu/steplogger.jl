@@ -1,4 +1,4 @@
-function print(io::IO, logger::StepLogger)
+function Base.print(io::IO, logger::StepLogger)
     program_counter = @sprintf "%04X" logger.program_counter
     opcode = @sprintf "%02X" logger.opcode
     if n_bytes(logger.mode) == 0
