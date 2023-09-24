@@ -1,7 +1,7 @@
 function bcs!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BCS"
+    _, value = address(cpu, mode, logger)
     if c(cpu.status)
-        _, value = address(cpu, mode, logger)
         cpu.program_counter += value
     end
 end
