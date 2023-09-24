@@ -135,17 +135,8 @@ function reset!(cpu::CPU)
 end
 
 function update_status_zero_and_negative!(cpu::CPU, result::UInt8)
-    if result == 0
-        z!(cpu.status, true)
-    else
-        z!(cpu.status, false)
-    end
-
-    if result & 0b1000_0000 != 0
-        n!(cpu.status, true)
-    else
-        n!(cpu.status, false)
-    end
+    z!(cpu.status, result == 0)
+    n!(cpu.status, result & 0b1000_0000 != 0)
 end
 
 function address(cpu::CPU, mode::AddressingMode, logger::StepLogger)::Tuple{UInt16,UInt8}
