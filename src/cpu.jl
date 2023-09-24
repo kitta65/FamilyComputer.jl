@@ -117,6 +117,10 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xea # NOP
         nop!(cpu, unspecified, logger)
 
+    elseif opcode == 0x09 # ORA
+        ora!(cpu, immediate, logger)
+        cpu.program_counter += 0x01
+
     elseif opcode == 0x48 # PHA
         pha!(cpu, unspecified, logger)
 

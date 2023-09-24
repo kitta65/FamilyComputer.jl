@@ -136,6 +136,12 @@ function nop!(::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "NOP"
 end
 
+function ora!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    logger.instruction = "ORA"
+    _, value = address(cpu, mode, logger)
+    cpu.register_a = value | cpu.register_a
+end
+
 function pha!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "PHA"
     push8!(cpu, cpu.register_a)
