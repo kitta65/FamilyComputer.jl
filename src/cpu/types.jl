@@ -19,7 +19,7 @@ end
     i
     d
     b
-    do_not_use
+    o # always 1
     v
     n
 end

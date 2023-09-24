@@ -137,6 +137,7 @@ function php!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "PHP"
     status = CPUStatus(cpu.status.bits)
     b!(status, true)
+    o!(status, true)
     push8!(cpu, status.bits)
 end
 
@@ -149,6 +150,7 @@ function plp!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "PLP"
     status = CPUStatus(pop8!(cpu))
     b!(status, false)
+    o!(status, true)
     cpu.status = status
 end
 
