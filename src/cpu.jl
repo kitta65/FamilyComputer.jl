@@ -2,6 +2,7 @@ export run!
 
 const init_stack_pointer = 0xfd
 const init_status = 0b0010_0100
+const base_stack = 0x0100
 
 include("cpu/types.jl")
 include("cpu/addressmode.jl")
@@ -47,7 +48,7 @@ function step!(cpu::CPU; io::IO = devnull)
         cpu.program_counter += 1
 
     elseif opcode == 0x00 # BRK
-        return
+        brk!(logger)
 
     elseif opcode == 0x50 # BVC
         bvc!(cpu, immediate, logger)
@@ -100,6 +101,9 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif opcode == 0xea # NOP
         nop!(cpu, unspecified, logger)
+
+    elseif opcode == 0x60 # RTS
+        rts!(cpu, unspecified, logger)
 
     elseif opcode == 0x38 # SEC
         sec!(cpu, unspecified, logger)
@@ -202,17 +206,27 @@ function write16!(cpu::CPU, addr::UInt16, data::UInt16)
     write16!(cpu.bus, addr, data)
 end
 
-function stack8!(cpu::CPU, data::UInt8)
-    write8!(cpu, 0x1000 + cpu.stack_pointer, data)
+function push8!(cpu::CPU, data::UInt8)
+    write8!(cpu, base_stack + cpu.stack_pointer, data)
     cpu.stack_pointer -= 1
 end
 
-function stack16!(cpu::CPU, data::UInt16)
+function push16!(cpu::CPU, data::UInt16)
     hi = UInt8(data >> 8)
     lo = UInt8(data & 0x00ff)
-    stack8!(cpu, hi)
-    stack8!(cpu, lo)
+    push8!(cpu, hi)
+    push8!(cpu, lo)
+end
 
+function pop8!(cpu::CPU)
+    cpu.stack_pointer += 1
+    read8(cpu, base_stack + cpu.stack_pointer)
+end
+
+function pop16!(cpu::CPU)
+    lo = pop8!(cpu)
+    hi = pop8!(cpu)
+    params2addr(lo, hi)
 end
 
 function brk(cpu::CPU)::Bool

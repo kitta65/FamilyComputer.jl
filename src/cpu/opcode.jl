@@ -1,3 +1,7 @@
+function brk!(logger::StepLogger)
+    logger.instruction = "BRK"
+end
+
 function bcs!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BCS"
     _, value = address(cpu, mode, logger)
@@ -83,7 +87,7 @@ end
 
 function jsr!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "JSR"
-    stack16!(cpu, cpu.stack_pointer + 0x0002 - 0x0001)
+    push16!(cpu, cpu.program_counter + 0x0002 - 0x0001)
     addr, _ = address(cpu, mode, logger)
     cpu.program_counter = addr
 end
@@ -104,6 +108,11 @@ end
 
 function nop!(::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "NOP"
+end
+
+function rts!(cpu::CPU, ::AddressingMode, logger::StepLogger)
+    logger.instruction = "RTS"
+    cpu.program_counter = pop16!(cpu) + 0x01
 end
 
 function sec!(cpu::CPU, ::AddressingMode, logger::StepLogger)
