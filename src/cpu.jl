@@ -45,6 +45,10 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x00 # BRK
         return
 
+    elseif opcode == 0x70 # BVS
+        bvs!(cpu, immediate, logger)
+        cpu.program_counter += 1
+
     elseif opcode == 0x18 # CLC
         clc!(cpu, logger)
 
