@@ -22,6 +22,16 @@ function beq!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     end
 end
 
+function bit!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    logger.instruction = "BIT"
+    _, value = address(cpu, mode, logger)
+    anded = cpu.register_a & value
+
+    z!(cpu.status, anded == 0b00)
+    n!(cpu.status, value & 0b1000_0000 > 0)
+    v!(cpu.status, value & 0b0100_0000 > 0)
+end
+
 function bne!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BNE"
     _, value = address(cpu, mode, logger)
