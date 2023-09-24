@@ -122,6 +122,16 @@ function cmp!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     n!(cpu.status, diff & 0b1000_0000 != 0)
 end
 
+function cpy!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    logger.instruction = "CPY"
+    _, value = address(cpu, mode, logger)
+
+    diff = cpu.register_y - value
+    c!(cpu.status, value <= cpu.register_y)
+    z!(cpu.status, diff == 0)
+    n!(cpu.status, diff & 0b1000_0000 != 0)
+end
+
 function eor!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "EOR"
     _, value = address(cpu, mode, logger)
