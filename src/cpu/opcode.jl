@@ -107,6 +107,12 @@ function cmp!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     n!(cpu.status, diff & 0b1000_0000 != 0)
 end
 
+function eor!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    logger.instruction = "EOR"
+    _, value = address(cpu, mode, logger)
+    cpu.register_a = value ⊻ cpu.register_a
+end
+
 function inx!(cpu::CPU, logger::StepLogger)
     logger.instruction = "INX"
     cpu.register_x += 0x01
