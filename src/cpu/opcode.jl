@@ -6,6 +6,14 @@ function bcs!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     end
 end
 
+function bcc!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    logger.instruction = "BCC"
+    _, value = address(cpu, mode, logger)
+    if !c(cpu.status)
+        cpu.program_counter += value
+    end
+end
+
 function clc!(cpu::CPU, logger::StepLogger)
     logger.instruction = "CLC"
     c!(cpu.status, false)

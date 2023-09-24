@@ -11,7 +11,7 @@ function print(io::IO, logger::StepLogger)
 
     assembly = " "^30
     assembly = logger.instruction * assembly[4:end]
-    if logger.instruction == "BCS"
+    if logger.instruction == "BCS" || logger.instruction == "BCC"
         addr = @sprintf "\$%04X" logger.program_counter + logger.value + 2
     elseif logger.mode == immediate
         addr = @sprintf "#\$%02X" logger.lo
