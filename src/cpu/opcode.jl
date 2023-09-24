@@ -92,6 +92,11 @@ function cld!(cpu::CPU, logger::StepLogger)
     d!(cpu.status, false)
 end
 
+function clv!(cpu::CPU, logger::StepLogger)
+    logger.instruction = "CLV"
+    v!(cpu.status, false)
+end
+
 function cmp!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "CMP"
     _, value = address(cpu, mode, logger)
