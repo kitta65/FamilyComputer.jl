@@ -120,6 +120,11 @@ function sec!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     c!(cpu.status, true)
 end
 
+function sei!(cpu::CPU, ::AddressingMode, logger::StepLogger)
+    logger.instruction = "SEI"
+    i!(cpu.status, true)
+end
+
 function sta!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "STA"
     addr, _ = address(cpu, mode, logger)
