@@ -21,7 +21,7 @@ function print(io::IO, logger::StepLogger)
     elseif logger.mode == immediate
         addr = @sprintf "#\$%02X" logger.lo
     elseif logger.mode == zeropage
-        addr = @sprintf "\$%02X = %02X" logger.lo read8(logger.cpu_ref, logger.address)
+        addr = @sprintf "\$%02X = %02X" logger.lo logger.value
     elseif logger.mode == absolute
         addr = @sprintf "\$%02X%02X" logger.hi logger.lo
     else
