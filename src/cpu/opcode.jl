@@ -110,6 +110,11 @@ function nop!(::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "NOP"
 end
 
+function php!(cpu::CPU, ::AddressingMode, logger::StepLogger)
+    logger.instruction = "PHP"
+    push8!(cpu, cpu.status.bits)
+end
+
 function rts!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "RTS"
     cpu.program_counter = pop16!(cpu) + 0x01
