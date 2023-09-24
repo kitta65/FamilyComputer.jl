@@ -29,6 +29,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x00 # BRK
         return
 
+    elseif opcode == 0x18 # CLC
+        clc!(cpu, logger)
+
     elseif opcode == 0xe8 # INX
         inx!(cpu, logger)
 

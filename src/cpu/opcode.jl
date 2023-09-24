@@ -6,6 +6,11 @@ function bcs!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     end
 end
 
+function clc!(cpu::CPU, logger::StepLogger)
+    logger.instruction = "CLC"
+    c!(cpu.status, false)
+end
+
 function inx!(cpu::CPU, logger::StepLogger)
     logger.instruction = "INX"
     cpu.register_x += 0x01
