@@ -1,15 +1,12 @@
 function adc!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "ADC"
     _, value = address(cpu, mode, logger)
+
     sum = UInt16(cpu.register_a) + value + (c(cpu.status) ? 0x01 : 0x00)
     c!(cpu.status, sum > 0xff)
     sum = UInt8(sum & 0xff)
+    v!(cpu.status, (cpu.register_a ⊻ sum) & (value ⊻ sum) & 0x80 != 0)
 
-    is_negative_a = cpu.register_a >= 0b1000_0000
-    is_negative_v = value >= 0b1000_0000
-    is_negative_s = sum >= 0b1000_0000
-
-    v!(cpu.status, xor(is_negative_a, is_negative_s) & xor(is_negative_v, is_negative_s))
     cpu.register_a = sum
 end
 
@@ -225,21 +222,16 @@ function rts!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     cpu.program_counter = pop16!(cpu) + 0x01
 end
 
-# TODO review
 function sbc!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "SBC"
     _, value = address(cpu, mode, logger)
-    value = reinterpret(UInt8, -reinterpret(Int8, value) - Int8(1))
-    sum = UInt16(cpu.register_a) + value + (c(cpu.status) ? 0x01 : 0x00)
-    c!(cpu.status, sum > 0xff)
-    sum = UInt8(sum & 0xff)
 
-    is_negative_a = cpu.register_a >= 0b1000_0000
-    is_negative_v = value >= 0b1000_0000
-    is_negative_s = sum >= 0b1000_0000
+    diff = UInt16(cpu.register_a) - value - (c(cpu.status) ? 0x00 : 0x01)
+    c!(cpu.status, !(diff > 0xff))
+    diff = UInt8(diff & 0xff)
+    v!(cpu.status, (cpu.register_a ⊻ diff) & (~value ⊻ diff) & 0x80 != 0)
 
-    v!(cpu.status, xor(is_negative_a, is_negative_s) & xor(is_negative_v, is_negative_s))
-    cpu.register_a = sum
+    cpu.register_a = diff
 end
 
 function sec!(cpu::CPU, ::AddressingMode, logger::StepLogger)
