@@ -112,6 +112,7 @@ end
 
 function php!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "PHP"
+    # TODO b flg
     push8!(cpu, cpu.status.bits)
 end
 
