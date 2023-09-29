@@ -246,6 +246,18 @@ function plp!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     cpu.status = status
 end
 
+function ror!(cpu::CPU, logger::StepLogger)
+    logger.instruction = "ROR"
+    carry = c(cpu.status)
+    a = cpu.register_a
+    c!(cpu.status, a & 0b01 == 0b01)
+    a = a >> 1
+    if carry
+        a = a | 0b1000_0000
+    end
+    cpu.register_a = a
+end
+
 function rti!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "RTI"
     status = CPUStatus(pop8!(cpu))
