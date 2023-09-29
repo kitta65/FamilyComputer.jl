@@ -285,3 +285,8 @@ function tay!(cpu::CPU, logger::StepLogger)
     logger.instruction = "TAY"
     cpu.register_y = cpu.register_a
 end
+
+function tya!(cpu::CPU, logger::StepLogger)
+    logger.instruction = "TYA"
+    cpu.register_a = cpu.register_y
+end
