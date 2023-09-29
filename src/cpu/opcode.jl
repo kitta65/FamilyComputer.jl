@@ -232,6 +232,15 @@ function plp!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     cpu.status = status
 end
 
+function rti!(cpu::CPU, ::AddressingMode, logger::StepLogger)
+    logger.instruction = "RTI"
+    status = CPUStatus(pop8!(cpu))
+    b!(status, false)
+    o!(status, true)
+    cpu.status = status
+    cpu.program_counter = pop16!(cpu)
+end
+
 function rts!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "RTS"
     cpu.program_counter = pop16!(cpu) + 0x01
