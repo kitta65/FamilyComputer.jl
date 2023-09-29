@@ -196,6 +196,13 @@ function ldy!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     cpu.register_y = value
 end
 
+function lsr!(cpu::CPU, logger::StepLogger)
+    logger.instruction = "LSR"
+    a = cpu.register_a
+    c!(cpu.status, a & 0b01 == 0b01)
+    cpu.register_a = a >> 1
+end
+
 function nop!(::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "NOP"
 end

@@ -11,7 +11,9 @@ function Base.print(io::IO, logger::StepLogger)
 
     assembly = " "^30
     assembly = logger.instruction * assembly[4:end]
-    if (
+    if logger.instruction == "LSR"
+        addr = "A"
+    elseif (
         logger.instruction == "BCS" ||
         logger.instruction == "BCC" ||
         logger.instruction == "BEQ" ||
