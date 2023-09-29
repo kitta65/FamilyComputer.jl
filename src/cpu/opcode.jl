@@ -280,3 +280,8 @@ function tax!(cpu::CPU, logger::StepLogger)
     logger.instruction = "TAX"
     cpu.register_x = cpu.register_a
 end
+
+function tay!(cpu::CPU, logger::StepLogger)
+    logger.instruction = "TAY"
+    cpu.register_y = cpu.register_a
+end

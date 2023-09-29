@@ -210,6 +210,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xaa # TAX
         tax!(cpu, logger)
 
+    elseif opcode == 0xa8 # TAY
+        tay!(cpu, logger)
+
     else
         throw(@sprintf "0x%02x is not implemented" opcode)
     end
