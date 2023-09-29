@@ -91,6 +91,9 @@ function step!(cpu::CPU; io::IO = devnull)
         cpy!(cpu, immediate, logger)
         cpu.program_counter += 0x01
 
+    elseif opcode == 0x88 # DEY
+        dey!(cpu, logger)
+
     elseif opcode == 0x49 # EOR
         eor!(cpu, immediate, logger)
         cpu.program_counter += 0x01

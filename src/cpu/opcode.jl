@@ -139,6 +139,11 @@ function cpy!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     n!(cpu.status, diff & 0b1000_0000 != 0)
 end
 
+function dey!(cpu::CPU, logger::StepLogger)
+    logger.instruction = "DEY"
+    cpu.register_y -= 0x01
+end
+
 function eor!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "EOR"
     _, value = address(cpu, mode, logger)
