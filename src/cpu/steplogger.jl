@@ -22,12 +22,14 @@ function Base.print(io::IO, logger::StepLogger)
         logger.instruction == "BVS"
     )
         addr = @sprintf "\$%04X" logger.program_counter + logger.value + 2
+    elseif (logger.instruction == "JMP" || logger.instruction == "JSR")
+        addr = @sprintf "\$%02X%02X" logger.hi logger.lo
     elseif logger.mode == immediate
         addr = @sprintf "#\$%02X" logger.lo
     elseif logger.mode == zeropage
         addr = @sprintf "\$%02X = %02X" logger.lo logger.value
     elseif logger.mode == absolute
-        addr = @sprintf "\$%02X%02X" logger.hi logger.lo
+        addr = @sprintf "\$%02X%02X = %02X" logger.hi logger.lo logger.value
     else
         addr = ""
     end
