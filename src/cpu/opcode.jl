@@ -286,6 +286,11 @@ function tay!(cpu::CPU, logger::StepLogger)
     cpu.register_y = cpu.register_a
 end
 
+function tsx!(cpu::CPU, logger::StepLogger)
+    logger.instruction = "TSX"
+    cpu.register_x = cpu.stack_pointer
+end
+
 function txa!(cpu::CPU, logger::StepLogger)
     logger.instruction = "TXA"
     cpu.register_a = cpu.register_x
