@@ -222,6 +222,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x8a # TXA
         txa!(cpu, logger)
 
+    elseif opcode == 0x9a # TXS
+        txs!(cpu, logger)
+
     elseif opcode == 0x98 # TYA
         tya!(cpu, logger)
 
