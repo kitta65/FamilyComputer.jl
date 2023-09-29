@@ -98,6 +98,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xe8 # INX
         inx!(cpu, logger)
 
+    elseif opcode == 0xc8 # INY
+        iny!(cpu, logger)
+
     elseif opcode == 0x4c # JMP
         jmp!(cpu, absolute, logger)
 

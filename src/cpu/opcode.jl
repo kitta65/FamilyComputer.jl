@@ -150,6 +150,11 @@ function inx!(cpu::CPU, logger::StepLogger)
     cpu.register_x += 0x01
 end
 
+function iny!(cpu::CPU, logger::StepLogger)
+    logger.instruction = "INY"
+    cpu.register_y += 0x01
+end
+
 function jmp!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "JMP"
     addr, _ = address(cpu, mode, logger)
