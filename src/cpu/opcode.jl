@@ -16,6 +16,13 @@ function and!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     cpu.register_a = cpu.register_a & value
 end
 
+function asl!(cpu::CPU, logger::StepLogger)
+    logger.instruction = "ASL"
+    a = cpu.register_a
+    c!(cpu.status, (a >> 7) == 0b01)
+    cpu.register_a = a << 1
+end
+
 function brk!(logger::StepLogger)
     logger.instruction = "BRK"
 end

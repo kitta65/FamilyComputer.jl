@@ -31,6 +31,9 @@ function step!(cpu::CPU; io::IO = devnull)
         and!(cpu, immediate, logger)
         cpu.program_counter += 0x01
 
+    elseif opcode == 0x0a # ASL
+        asl!(cpu, logger)
+
     elseif opcode == 0xb0 # BCS
         bcs!(cpu, immediate, logger)
         cpu.program_counter += 0x01
