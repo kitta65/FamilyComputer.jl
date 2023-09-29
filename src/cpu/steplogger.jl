@@ -37,6 +37,9 @@ function Base.print(io::IO, logger::StepLogger)
         addr = @sprintf "\$%02X = %02X" logger.lo logger.value
     elseif logger.mode == absolute
         addr = @sprintf "\$%02X%02X = %02X" logger.hi logger.lo logger.value
+    elseif logger.mode == indirect_x
+        addr =
+            @sprintf "(\$%02X,X) @ %02X = %04X = %02X" logger.lo logger.lo logger.address logger.value
     else
         addr = ""
     end

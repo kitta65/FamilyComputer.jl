@@ -280,7 +280,7 @@ function address(cpu::CPU, mode::AddressingMode, logger::StepLogger)::Tuple{UInt
         addr = params2addr(lo, hi) + cpu.register_y
     elseif mode == indirect_x
         base = lo
-        ptr = base + cpu.register_x
+        ptr = UInt16(base + cpu.register_x)
         lo = read8(cpu.bus, ptr)
         hi = read8(cpu.bus, ptr + 0x01)
         addr = params2addr(lo, hi)
