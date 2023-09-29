@@ -174,6 +174,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x28 # PLP
         plp!(cpu, unspecified, logger)
 
+    elseif opcode == 0x2a # ROL
+        rol!(cpu, logger)
+
     elseif opcode == 0x6a # ROR
         ror!(cpu, logger)
 

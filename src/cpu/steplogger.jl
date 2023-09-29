@@ -14,6 +14,7 @@ function Base.print(io::IO, logger::StepLogger)
     if (
         logger.instruction == "ASL" ||
         logger.instruction == "LSR" ||
+        logger.instruction == "ROL" ||
         logger.instruction == "ROR"
     )
         addr = "A"
