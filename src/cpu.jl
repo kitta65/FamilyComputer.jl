@@ -225,6 +225,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xe9 # SBC
         sbc!(cpu, immediate, logger)
         cpu.program_counter += 0x01
+    elseif opcode == 0xe5
+        sbc!(cpu, zeropage, logger)
+        cpu.program_counter += 0x01
     elseif opcode == 0xe1
         sbc!(cpu, indirect_x, logger)
         cpu.program_counter += 0x01
