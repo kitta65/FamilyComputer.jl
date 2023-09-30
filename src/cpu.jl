@@ -249,6 +249,10 @@ function step!(cpu::CPU; io::IO = devnull)
         stx!(cpu, absolute, logger)
         cpu.program_counter += 0x02
 
+    elseif opcode == 0x84 # STY
+        sty!(cpu, zeropage, logger)
+        cpu.program_counter += 0x01
+
     elseif opcode == 0xaa # TAX
         tax!(cpu, logger)
 

@@ -323,6 +323,12 @@ function stx!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     write8!(cpu.bus, addr, cpu.register_x)
 end
 
+function sty!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    logger.instruction = "STY"
+    addr, _ = address(cpu, mode, logger)
+    write8!(cpu.bus, addr, cpu.register_y)
+end
+
 function tax!(cpu::CPU, logger::StepLogger)
     logger.instruction = "TAX"
     cpu.register_x = cpu.register_a
