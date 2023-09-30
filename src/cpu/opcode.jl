@@ -164,6 +164,14 @@ function cpy!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     n!(cpu.status, diff & 0b1000_0000 != 0)
 end
 
+function dec!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    logger.instruction = "DEC"
+    addr, value = address(cpu, mode, logger)
+    value -= 0x01
+    update_z_n!(cpu, value)
+    write8!(cpu, addr, value)
+end
+
 function dex!(cpu::CPU, logger::StepLogger)
     logger.instruction = "DEX"
     cpu.register_x -= 0x01

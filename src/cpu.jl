@@ -121,6 +121,10 @@ function step!(cpu::CPU; io::IO = devnull)
         cpy!(cpu, zeropage, logger)
         cpu.program_counter += 0x01
 
+    elseif opcode == 0xc6 # DEC
+        dec!(cpu, zeropage, logger)
+        cpu.program_counter += 0x01
+
     elseif opcode == 0xCA # DEX
         dex!(cpu, logger)
 
