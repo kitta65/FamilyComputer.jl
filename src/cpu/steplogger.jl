@@ -12,13 +12,6 @@ function Base.print(io::IO, logger::StepLogger)
     assembly = " "^30
     assembly = logger.instruction * assembly[4:end]
     if (
-        logger.instruction == "ASL" ||
-        logger.instruction == "LSR" ||
-        logger.instruction == "ROL" ||
-        logger.instruction == "ROR"
-    )
-        address = "A"
-    elseif (
         logger.instruction == "BCS" ||
         logger.instruction == "BCC" ||
         logger.instruction == "BEQ" ||
@@ -29,6 +22,8 @@ function Base.print(io::IO, logger::StepLogger)
         logger.instruction == "BVS"
     )
         address = @sprintf "\$%04X" logger.program_counter + logger.value + 2
+    elseif logger.mode == accumulator
+        address = "A"
     elseif (logger.instruction == "JMP" || logger.instruction == "JSR")
         address = @sprintf "\$%02X%02X" logger.hi logger.lo
     elseif logger.mode == immediate

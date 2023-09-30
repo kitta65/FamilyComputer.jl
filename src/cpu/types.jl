@@ -11,6 +11,7 @@ export CPU
     indirect_x
     indirect_y
     unspecified
+    accumulator
 end
 
 @flags CPUStatus UInt8 begin

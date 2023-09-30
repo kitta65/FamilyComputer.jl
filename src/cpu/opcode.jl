@@ -1,3 +1,10 @@
+# responsible for ...
+# setting StepLogger.mode
+# setting StepLogger.lo
+# setting StepLogger.hi
+# setting StepLogger.address
+# setting StepLogger.value
+
 function adc!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "ADC"
     _, value = address(cpu, mode, logger)
@@ -16,11 +23,14 @@ function and!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     cpu.register_a = cpu.register_a & value
 end
 
-function asl!(cpu::CPU, logger::StepLogger)
+function asl!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "ASL"
-    a = cpu.register_a
-    c!(cpu.status, (a >> 7) == 0b01)
-    cpu.register_a = a << 1
+    if mode == accumulator
+        logger.mode = mode
+        a = cpu.register_a
+        c!(cpu.status, (a >> 7) == 0b01)
+        cpu.register_a = a << 1
+    end
 end
 
 function brk!(logger::StepLogger)
@@ -203,11 +213,14 @@ function ldy!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     cpu.register_y = value
 end
 
-function lsr!(cpu::CPU, logger::StepLogger)
+function lsr!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "LSR"
-    a = cpu.register_a
-    c!(cpu.status, a & 0b01 == 0b01)
-    cpu.register_a = a >> 1
+    if mode == accumulator
+        logger.mode = mode
+        a = cpu.register_a
+        c!(cpu.status, a & 0b01 == 0b01)
+        cpu.register_a = a >> 1
+    end
 end
 
 function nop!(::CPU, ::AddressingMode, logger::StepLogger)
@@ -246,28 +259,34 @@ function plp!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     cpu.status = status
 end
 
-function rol!(cpu::CPU, logger::StepLogger)
-    logger.instruction = "ROL"
-    carry = c(cpu.status)
-    a = cpu.register_a
-    c!(cpu.status, a >> 7 == 0b01)
-    a = a << 1
-    if carry
-        a = a | 0b01
+function rol!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    if mode == accumulator
+        logger.mode = mode
+        logger.instruction = "ROL"
+        carry = c(cpu.status)
+        a = cpu.register_a
+        c!(cpu.status, a >> 7 == 0b01)
+        a = a << 1
+        if carry
+            a = a | 0b01
+        end
+        cpu.register_a = a
     end
-    cpu.register_a = a
 end
 
-function ror!(cpu::CPU, logger::StepLogger)
-    logger.instruction = "ROR"
-    carry = c(cpu.status)
-    a = cpu.register_a
-    c!(cpu.status, a & 0b01 == 0b01)
-    a = a >> 1
-    if carry
-        a = a | 0b1000_0000
+function ror!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    if mode == accumulator
+        logger.mode = mode
+        logger.instruction = "ROR"
+        carry = c(cpu.status)
+        a = cpu.register_a
+        c!(cpu.status, a & 0b01 == 0b01)
+        a = a >> 1
+        if carry
+            a = a | 0b1000_0000
+        end
+        cpu.register_a = a
     end
-    cpu.register_a = a
 end
 
 function rti!(cpu::CPU, ::AddressingMode, logger::StepLogger)
