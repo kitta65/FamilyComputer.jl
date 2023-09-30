@@ -163,6 +163,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xa0 # LDY
         ldy!(cpu, immediate, logger)
         cpu.program_counter += 0x01
+    elseif opcode == 0xa4
+        ldy!(cpu, zeropage, logger)
+        cpu.program_counter += 0x01
 
     elseif opcode == 0x4a # LSR
         lsr!(cpu, logger)
