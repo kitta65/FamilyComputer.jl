@@ -107,6 +107,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xe0 # CPX
         cpx!(cpu, immediate, logger)
         cpu.program_counter += 0x01
+    elseif opcode == 0xe4
+        cpx!(cpu, zeropage, logger)
+        cpu.program_counter += 0x01
 
     elseif opcode == 0xc0 # CPY
         cpy!(cpu, immediate, logger)
