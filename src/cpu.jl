@@ -97,6 +97,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xc9 # CMP
         cmp!(cpu, immediate, logger)
         cpu.program_counter += 0x01
+    elseif opcode == 0xc5
+        cmp!(cpu, zeropage, logger)
+        cpu.program_counter += 0x01
     elseif opcode == 0xc1
         cmp!(cpu, indirect_x, logger)
         cpu.program_counter += 0x01
