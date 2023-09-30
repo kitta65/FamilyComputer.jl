@@ -38,6 +38,12 @@ function Base.print(io::IO, logger::StepLogger)
         addr = @sprintf "%04X" logger.address
         val = @sprintf "%02X" logger.value
         address = "($base,X) @ $ptr = $addr = $val"
+    elseif logger.mode == indirect_y
+        base = @sprintf "\$%02X" logger.lo
+        ptr = @sprintf "%04X" logger.address - logger.register_y
+        addr = @sprintf "%04X" logger.address
+        val = @sprintf "%02X" logger.value
+        address = "($base),Y = $ptr @ $addr = $val"
     else
         address = ""
     end
