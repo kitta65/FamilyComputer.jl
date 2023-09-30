@@ -27,10 +27,18 @@ function asl!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "ASL"
     if mode == accumulator
         logger.mode = mode
-        a = cpu.register_a
-        c!(cpu.status, (a >> 7) == 0b01)
-        cpu.register_a = a << 1
+        value = cpu.register_a
+        setter = (value::UInt8) -> cpu.register_a = value
+    else
+        addr, value = address(cpu, mode, logger)
+        setter = function (value::UInt8)
+            write8!(cpu, addr, value)
+            z!(cpu.status, value == 0x00)
+            n!(cpu.status, value >> 7 == 0x01)
+        end
     end
+    c!(cpu.status, (value >> 7) == 0b01)
+    setter(value << 1)
 end
 
 function brk!(logger::StepLogger)
