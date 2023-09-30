@@ -409,8 +409,8 @@ function address(cpu::CPU, mode::AddressingMode, logger::StepLogger)::Tuple{UInt
         addr = params2addr(lo, hi)
     elseif mode == indirect_y
         base = lo
-        lo = read8(cpu.bus, base)
-        hi = read8(cpu.bus, base + 0x01)
+        lo = read8(cpu.bus, UInt16(base))
+        hi = read8(cpu.bus, UInt16(base + 0x01))
         addr = params2addr(lo, hi) + cpu.register_y
     else
         throw("$mode is not implemented")
