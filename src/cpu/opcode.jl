@@ -180,6 +180,14 @@ function eor!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     cpu.register_a = value ⊻ cpu.register_a
 end
 
+function inc!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    logger.instruction = "INC"
+    addr, value = address(cpu, mode, logger)
+    value += 0x01
+    update_z_n!(cpu, value)
+    write8!(cpu, addr, value)
+end
+
 function inx!(cpu::CPU, logger::StepLogger)
     logger.instruction = "INX"
     cpu.register_x += 0x01

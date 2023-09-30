@@ -137,6 +137,10 @@ function step!(cpu::CPU; io::IO = devnull)
         eor!(cpu, indirect_x, logger)
         cpu.program_counter += 0x01
 
+    elseif opcode == 0xe6 # INC
+        inc!(cpu, zeropage, logger)
+        cpu.program_counter += 0x01
+
     elseif opcode == 0xe8 # INX
         inx!(cpu, logger)
 
@@ -402,10 +406,14 @@ function brk(cpu::CPU)::Bool
     opcode == 0x00
 end
 
-function Base.setproperty!(cpu::CPU, name::Symbol, x)
+function Base.setproperty!(cpu::CPU, name::Symbol, value)
     if (name == :register_a || name == :register_x || name == :register_y)
-        z!(cpu.status, x == 0)
-        n!(cpu.status, x & 0b1000_0000 != 0)
+        update_z_n!(cpu, value)
     end
-    Base.setfield!(cpu, name, x)
+    Base.setfield!(cpu, name, value)
+end
+
+function update_z_n!(cpu::CPU, value::UInt8)
+    z!(cpu.status, value == 0)
+    n!(cpu.status, value & 0b1000_0000 != 0)
 end
