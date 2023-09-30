@@ -33,8 +33,7 @@ function asl!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
         addr, value = address(cpu, mode, logger)
         setter = function (value::UInt8)
             write8!(cpu, addr, value)
-            z!(cpu.status, value == 0x00)
-            n!(cpu.status, value >> 7 == 0x01)
+            update_z_n!(cpu, value)
         end
     end
     c!(cpu.status, (value >> 7) == 0b01)
@@ -140,8 +139,7 @@ function cmp!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
 
     diff = cpu.register_a - value
     c!(cpu.status, value <= cpu.register_a)
-    z!(cpu.status, diff == 0)
-    n!(cpu.status, diff & 0b1000_0000 != 0)
+    update_z_n!(cpu, diff)
 end
 
 function cpx!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
@@ -150,8 +148,7 @@ function cpx!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
 
     diff = cpu.register_x - value
     c!(cpu.status, value <= cpu.register_x)
-    z!(cpu.status, diff == 0)
-    n!(cpu.status, diff & 0b1000_0000 != 0)
+    update_z_n!(cpu, diff)
 end
 
 function cpy!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
@@ -160,8 +157,7 @@ function cpy!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
 
     diff = cpu.register_y - value
     c!(cpu.status, value <= cpu.register_y)
-    z!(cpu.status, diff == 0)
-    n!(cpu.status, diff & 0b1000_0000 != 0)
+    update_z_n!(cpu, diff)
 end
 
 function dec!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
@@ -247,8 +243,7 @@ function lsr!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
         addr, value = address(cpu, mode, logger)
         setter = function (value::UInt8)
             write8!(cpu, addr, value)
-            z!(cpu.status, value == 0x00)
-            n!(cpu.status, value >> 7 == 0x01)
+            update_z_n!(cpu, value)
         end
     end
     c!(cpu.status, value & 0b01 == 0b01)
@@ -302,8 +297,7 @@ function rol!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
         addr, value = address(cpu, mode, logger)
         setter = function (value::UInt8)
             write8!(cpu, addr, value)
-            z!(cpu.status, value == 0x00)
-            n!(cpu.status, value >> 7 == 0x01)
+            update_z_n!(cpu, value)
         end
     end
     c!(cpu.status, (value >> 7) == 0b01)
@@ -325,8 +319,7 @@ function ror!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
         addr, value = address(cpu, mode, logger)
         setter = function (value::UInt8)
             write8!(cpu, addr, value)
-            z!(cpu.status, value == 0x00)
-            n!(cpu.status, value >> 7 == 0x01)
+            update_z_n!(cpu, value)
         end
     end
     c!(cpu.status, value & 0b01 == 0b01)
