@@ -17,7 +17,7 @@ function Base.print(io::IO, logger::StepLogger)
         logger.instruction == "ROL" ||
         logger.instruction == "ROR"
     )
-        addr = "A"
+        address = "A"
     elseif (
         logger.instruction == "BCS" ||
         logger.instruction == "BCC" ||
@@ -28,22 +28,25 @@ function Base.print(io::IO, logger::StepLogger)
         logger.instruction == "BVC" ||
         logger.instruction == "BVS"
     )
-        addr = @sprintf "\$%04X" logger.program_counter + logger.value + 2
+        address = @sprintf "\$%04X" logger.program_counter + logger.value + 2
     elseif (logger.instruction == "JMP" || logger.instruction == "JSR")
-        addr = @sprintf "\$%02X%02X" logger.hi logger.lo
+        address = @sprintf "\$%02X%02X" logger.hi logger.lo
     elseif logger.mode == immediate
-        addr = @sprintf "#\$%02X" logger.lo
+        address = @sprintf "#\$%02X" logger.lo
     elseif logger.mode == zeropage
-        addr = @sprintf "\$%02X = %02X" logger.lo logger.value
+        address = @sprintf "\$%02X = %02X" logger.lo logger.value
     elseif logger.mode == absolute
-        addr = @sprintf "\$%02X%02X = %02X" logger.hi logger.lo logger.value
+        address = @sprintf "\$%02X%02X = %02X" logger.hi logger.lo logger.value
     elseif logger.mode == indirect_x
-        addr =
-            @sprintf "(\$%02X,X) @ %02X = %04X = %02X" logger.lo logger.lo logger.address logger.value
+        base = @sprintf "\$%02X" logger.lo
+        ptr = @sprintf "%02X" logger.lo + logger.register_x
+        addr = @sprintf "%04X" logger.address
+        val = @sprintf "%02X" logger.value
+        address = "($base,X) @ $ptr = $addr = $val"
     else
-        addr = ""
+        address = ""
     end
-    assembly = assembly[1:4] * addr * assembly[5+length(addr):end]
+    assembly = assembly[1:4] * address * assembly[5+length(address):end]
 
     a = logger.register_a
     x = logger.register_x
