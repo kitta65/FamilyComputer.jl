@@ -291,18 +291,26 @@ function rol!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
 end
 
 function ror!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    logger.instruction = "ROR"
+    carry = c(cpu.status)
     if mode == accumulator
         logger.mode = mode
-        logger.instruction = "ROR"
-        carry = c(cpu.status)
-        a = cpu.register_a
-        c!(cpu.status, a & 0b01 == 0b01)
-        a = a >> 1
-        if carry
-            a = a | 0b1000_0000
+        value = cpu.register_a
+        setter = (value::UInt8) -> cpu.register_a = value
+    else
+        addr, value = address(cpu, mode, logger)
+        setter = function (value::UInt8)
+            write8!(cpu, addr, value)
+            z!(cpu.status, value == 0x00)
+            n!(cpu.status, value >> 7 == 0x01)
         end
-        cpu.register_a = a
     end
+    c!(cpu.status, value & 0b01 == 0b01)
+    value = value >> 1
+    if carry
+        value = value | 0b1000_0000
+    end
+    setter(value)
 end
 
 function rti!(cpu::CPU, ::AddressingMode, logger::StepLogger)
