@@ -31,6 +31,11 @@ function Base.print(io::IO, logger::StepLogger)
         address = @sprintf "#\$%02X" logger.lo
     elseif logger.mode == zeropage
         address = @sprintf "\$%02X = %02X" logger.lo logger.value
+    elseif logger.mode == zeropage_x
+        base = @sprintf "\$%02X" logger.lo
+        addr = @sprintf "%02X" logger.lo + logger.register_x
+        val = @sprintf "%02X" logger.value
+        address = "$base,X @ $addr = $val"
     elseif logger.mode == absolute
         address = @sprintf "\$%02X%02X = %02X" logger.hi logger.lo logger.value
     elseif logger.mode == absolute_y
