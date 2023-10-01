@@ -381,8 +381,12 @@ function sax!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool
     write8!(cpu, addr, data)
 end
 
-function sbc!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
-    logger.instruction = "SBC"
+function sbc!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool = true)
+    if official
+        logger.instruction = "SBC"
+    else
+        logger.instruction = "*SBC"
+    end
     _, value = address(cpu, mode, logger)
 
     diff = UInt16(cpu.register_a) - value - (c(cpu.status) ? 0x00 : 0x01)
