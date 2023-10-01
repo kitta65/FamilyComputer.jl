@@ -90,6 +90,7 @@ function bne!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BNE"
     _, value = address(cpu, mode, logger)
     if !z(cpu.status)
+        value = reinterpret(Int8, value)
         cpu.program_counter += value
     end
 end

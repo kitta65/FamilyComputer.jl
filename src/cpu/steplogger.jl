@@ -20,7 +20,8 @@ function Base.print(io::IO, logger::StepLogger)
         logger.instruction == "BVC" ||
         logger.instruction == "BVS"
     )
-        address = @sprintf "\$%04X" logger.program_counter + logger.value + 2
+        val = logger.program_counter + reinterpret(Int8, logger.value) + 0x02
+        address = @sprintf "\$%04X" val
     elseif logger.mode == accumulator
         address = "A"
     elseif (logger.opcode == 0x4c || # JMP absolute
