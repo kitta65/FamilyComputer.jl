@@ -339,6 +339,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x66
         ror!(cpu, zeropage, logger)
         cpu.program_counter += 0x01
+    elseif opcode == 0x76
+        ror!(cpu, zeropage_x, logger)
+        cpu.program_counter += 0x01
     elseif opcode == 0x6e
         ror!(cpu, absolute, logger)
         cpu.program_counter += 0x02
