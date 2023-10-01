@@ -460,6 +460,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x60 # RTS
         rts!(cpu, unspecified, logger)
 
+    elseif opcode == 0x87 # SAX
+        sax!(cpu, zeropage, logger, official = false)
+        cpu.program_counter += 0x01
     elseif opcode == 0x83
         sax!(cpu, indirect_x, logger, official = false)
         cpu.program_counter += 0x01
