@@ -246,8 +246,8 @@ function lax!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool
     end
     logger.instruction = "*LAX"
     _, value = address(cpu, mode, logger)
-    cpu.register_a = value
-    cpu.register_x = value
+    cpu.register_a = value # LDA
+    cpu.register_x = cpu.register_a # TAX
 end
 
 function lda!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
