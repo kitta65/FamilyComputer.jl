@@ -420,6 +420,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x86 # STX
         stx!(cpu, zeropage, logger)
         cpu.program_counter += 0x01
+    elseif opcode == 0x96
+        stx!(cpu, zeropage_y, logger)
+        cpu.program_counter += 0x01
     elseif opcode == 0x8e
         stx!(cpu, absolute, logger)
         cpu.program_counter += 0x02
