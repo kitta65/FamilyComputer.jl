@@ -145,8 +145,8 @@ function cmp!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "CMP"
     _, value = address(cpu, mode, logger)
 
-    diff = cpu.register_a - value
     c!(cpu.status, value <= cpu.register_a)
+    diff = cpu.register_a - value
     update_z_n!(cpu, diff)
 end
 
@@ -165,6 +165,23 @@ function cpy!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
 
     diff = cpu.register_y - value
     c!(cpu.status, value <= cpu.register_y)
+    update_z_n!(cpu, diff)
+end
+
+function dcp!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool = true)
+    if official
+        throw("not implemented")
+    end
+    logger.instruction = "*DCP"
+
+    # DEC
+    addr, value = address(cpu, mode, logger)
+    value -= 0x01
+    write8!(cpu, addr, value)
+
+    # CMP
+    c!(cpu.status, value <= cpu.register_a)
+    diff = cpu.register_a - value
     update_z_n!(cpu, diff)
 end
 
