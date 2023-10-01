@@ -250,8 +250,13 @@ function lsr!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     setter(value >> 1)
 end
 
-function nop!(::CPU, ::AddressingMode, logger::StepLogger)
-    logger.instruction = "NOP"
+function nop!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool = true)
+    if official
+        logger.instruction = "NOP"
+        return
+    end
+    logger.instruction = "*NOP"
+    _, _ = address(cpu, mode, logger)
 end
 
 function ora!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
