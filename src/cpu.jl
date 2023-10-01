@@ -264,6 +264,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xa3
         lax!(cpu, indirect_x, logger, official = false)
         cpu.program_counter += 0x01
+    elseif opcode == 0xb3
+        lax!(cpu, indirect_y, logger, official = false)
+        cpu.program_counter += 0x01
 
     elseif opcode == 0xa9 # LDA
         lda!(cpu, immediate, logger)
