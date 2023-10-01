@@ -223,7 +223,7 @@ function jsr!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     cpu.program_counter = addr
 end
 
-function lax!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official = true)
+function lax!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool = true)
     if official
         throw("not implemented")
     end
@@ -369,6 +369,16 @@ end
 function rts!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     logger.instruction = "RTS"
     cpu.program_counter = pop16!(cpu) + 0x01
+end
+
+function sax!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool = true)
+    if official
+        throw("not implemented")
+    end
+    logger.instruction = "*SAX"
+    addr, _ = address(cpu, mode, logger)
+    data = cpu.register_a & cpu.register_x
+    write8!(cpu, addr, data)
 end
 
 function sbc!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
