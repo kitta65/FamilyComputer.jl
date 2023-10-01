@@ -267,6 +267,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x0d
         ora!(cpu, absolute, logger)
         cpu.program_counter += 0x02
+    elseif opcode == 0x19
+        ora!(cpu, absolute_y, logger)
+        cpu.program_counter += 0x02
     elseif opcode == 0x01
         ora!(cpu, indirect_x, logger)
         cpu.program_counter += 0x01
