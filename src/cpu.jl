@@ -278,6 +278,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x46
         lsr!(cpu, zeropage, logger)
         cpu.program_counter += 0x01
+    elseif opcode == 0x56
+        lsr!(cpu, zeropage_x, logger)
+        cpu.program_counter += 0x01
     elseif opcode == 0x4e
         lsr!(cpu, absolute, logger)
         cpu.program_counter += 0x02
