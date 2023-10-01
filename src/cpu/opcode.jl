@@ -253,9 +253,13 @@ end
 function nop!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool = true)
     if official
         logger.instruction = "NOP"
+    else
+        logger.instruction = "*NOP"
+    end
+
+    if mode == unspecified
         return
     end
-    logger.instruction = "*NOP"
     _, _ = address(cpu, mode, logger)
 end
 

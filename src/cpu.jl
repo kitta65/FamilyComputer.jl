@@ -329,6 +329,15 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif opcode == 0xea # NOP
         nop!(cpu, unspecified, logger)
+    elseif (
+        opcode == 0x1a ||
+        opcode == 0x3a ||
+        opcode == 0x5a ||
+        opcode == 0x7a ||
+        opcode == 0xda ||
+        opcode == 0xfa
+    )
+        nop!(cpu, unspecified, logger, official = false)
     elseif opcode == 0x04 || opcode == 0x44 || opcode == 0x64
         nop!(cpu, zeropage, logger, official = false)
         cpu.program_counter += 0x01
@@ -570,7 +579,7 @@ function address(cpu::CPU, mode::AddressingMode, logger::StepLogger)::Tuple{UInt
         hi = read8(cpu, UInt16(base + 0x01))
         addr = (hi .. lo) + cpu.register_y
     else
-        # cannot handle accumulator
+        # cannot handle accumulator or undefined
         throw("$mode is not implemented")
     end
 
