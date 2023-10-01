@@ -357,6 +357,16 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x0c
         nop!(cpu, absolute, logger, official = false)
         cpu.program_counter += 0x02
+    elseif (
+        opcode == 0x1c ||
+        opcode == 0x3c ||
+        opcode == 0x5c ||
+        opcode == 0x7c ||
+        opcode == 0xdc ||
+        opcode == 0xfc
+    )
+        nop!(cpu, absolute_x, logger, official = false)
+        cpu.program_counter += 0x02
 
     elseif opcode == 0x09 # ORA
         ora!(cpu, immediate, logger)
