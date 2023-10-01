@@ -76,7 +76,7 @@ function nestest()
     io = PipeBuffer()
 
     open("../download/nestest.log", "r") do log
-        for _ = 1:4160
+        for _ = 1:4200
             FC.step!(cpu, io = io)
             actual = readline(io)
             expected = readline(log)[1:73] # TODO test clock cycle
