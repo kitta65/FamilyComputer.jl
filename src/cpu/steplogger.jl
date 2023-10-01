@@ -9,8 +9,7 @@ function Base.print(io::IO, logger::StepLogger)
         params = @sprintf "%02X %02X" logger.lo logger.hi
     end
 
-    assembly = " "^31
-    assembly = (@sprintf "%4s" logger.instruction) * assembly[5:end]
+    instruction = @sprintf "%4s" logger.instruction
     if (
         logger.instruction == "BCS" ||
         logger.instruction == "BCC" ||
@@ -66,7 +65,7 @@ function Base.print(io::IO, logger::StepLogger)
     else
         address = ""
     end
-    assembly = assembly[1:5] * address * assembly[6+length(address):end]
+    address = @sprintf "%-26s" address
 
     a = logger.register_a
     x = logger.register_x
@@ -75,6 +74,6 @@ function Base.print(io::IO, logger::StepLogger)
     sp = logger.stack_pointer
     registers = @sprintf "A:%02X X:%02X Y:%02X P:%02X SP:%02X" a x y p sp
 
-    str = "$program_counter  $opcode $params $assembly  $registers"
+    str = "$program_counter  $opcode $params $instruction $address  $registers"
     print(io, str)
 end
