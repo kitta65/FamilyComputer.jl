@@ -255,6 +255,10 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x20 # JSR
         jsr!(cpu, absolute, logger)
 
+    elseif opcode == 0xa3 # LAX
+        lax!(cpu, indirect_x, logger, official = false)
+        cpu.program_counter += 0x01
+
     elseif opcode == 0xa9 # LDA
         lda!(cpu, immediate, logger)
         cpu.program_counter += 0x01

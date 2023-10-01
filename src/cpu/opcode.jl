@@ -223,6 +223,16 @@ function jsr!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     cpu.program_counter = addr
 end
 
+function lax!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official = true)
+    if official
+        throw("not implemented")
+    end
+    logger.instruction = "*LAX"
+    _, value = address(cpu, mode, logger)
+    cpu.register_a = value
+    cpu.register_x = value
+end
+
 function lda!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "LDA"
     _, value = address(cpu, mode, logger)
