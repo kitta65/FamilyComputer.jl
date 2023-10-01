@@ -412,21 +412,21 @@ function address(cpu::CPU, mode::AddressingMode, logger::StepLogger)::Tuple{UInt
     elseif mode == zeropage
         addr = lo
     elseif mode == absolute
-        addr = params2addr(lo, hi)
+        addr = hi .. lo
     elseif mode == zeropage_x
         addr = lo + cpu.register_x
     elseif mode == zeropage_y
         addr = lo + cpu.register_y
     elseif mode == absolute_x
-        addr = params2addr(lo, hi) + cpu.register_x
+        addr = (hi .. lo) + cpu.register_x
     elseif mode == absolute_y
-        addr = params2addr(lo, hi) + cpu.register_y
+        addr = (hi .. lo) + cpu.register_y
     elseif mode == indirect
-        addr = params2addr(lo, hi)
+        addr = hi .. lo
         addr = if addr & 0xFF == 0xFF
             lo = read8(cpu, addr)
             hi = read8(cpu, addr & 0xFF00)
-            params2addr(lo, hi)
+            hi .. lo
         else
             read16(cpu, addr)
         end
@@ -436,13 +436,13 @@ function address(cpu::CPU, mode::AddressingMode, logger::StepLogger)::Tuple{UInt
         # NOTE do not use read16() here
         lo = read8(cpu, UInt16(ptr))
         hi = read8(cpu, UInt16(ptr + 0x01))
-        addr = params2addr(lo, hi)
+        addr = hi .. lo
     elseif mode == indirect_y
         base = lo
         # NOTE do not use read16() here
         lo = read8(cpu, UInt16(base))
         hi = read8(cpu, UInt16(base + 0x01))
-        addr = params2addr(lo, hi) + cpu.register_y
+        addr = (hi .. lo) + cpu.register_y
     else
         # cannot handle accumulator
         throw("$mode is not implemented")
@@ -489,7 +489,7 @@ end
 function pop16!(cpu::CPU)
     lo = pop8!(cpu)
     hi = pop8!(cpu)
-    params2addr(lo, hi)
+    hi .. lo
 end
 
 function brk(cpu::CPU)::Bool
