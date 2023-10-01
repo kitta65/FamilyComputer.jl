@@ -423,13 +423,15 @@ function address(cpu::CPU, mode::AddressingMode, logger::StepLogger)::Tuple{UInt
         addr = (hi .. lo) + cpu.register_y
     elseif mode == indirect
         addr = hi .. lo
+        logger.address = read16(cpu, addr)
         addr = if addr & 0xFF == 0xFF
             lo = read8(cpu, addr)
             hi = read8(cpu, addr & 0xFF00)
             hi .. lo
         else
-            read16(cpu, addr)
+            logger.address
         end
+        return addr, read8(cpu, addr) # skip updating logger
     elseif mode == indirect_x
         base = lo
         ptr = base + cpu.register_x
