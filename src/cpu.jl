@@ -133,6 +133,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xc5
         cmp!(cpu, zeropage, logger)
         cpu.program_counter += 0x01
+    elseif opcode == 0xd5
+        cmp!(cpu, zeropage_x, logger)
+        cpu.program_counter += 0x01
     elseif opcode == 0xcd
         cmp!(cpu, absolute, logger)
         cpu.program_counter += 0x02
