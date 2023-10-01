@@ -374,19 +374,19 @@ end
 function sta!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "STA"
     addr, _ = address(cpu, mode, logger)
-    write8!(cpu.bus, addr, cpu.register_a)
+    write8!(cpu, addr, cpu.register_a)
 end
 
 function stx!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "STX"
     addr, _ = address(cpu, mode, logger)
-    write8!(cpu.bus, addr, cpu.register_x)
+    write8!(cpu, addr, cpu.register_x)
 end
 
 function sty!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "STY"
     addr, _ = address(cpu, mode, logger)
-    write8!(cpu.bus, addr, cpu.register_y)
+    write8!(cpu, addr, cpu.register_y)
 end
 
 function tax!(cpu::CPU, logger::StepLogger)

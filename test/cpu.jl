@@ -26,7 +26,7 @@ function test_lda()
     set!(cpu.bus, FC.Rom(0xa5, 0x10, 0x00))
     run!(cpu, post_reset! = function (cpu)
         cpu.program_counter = 0x8000
-        FC.write8!(cpu.bus, 0x0010, 0x55)
+        FC.write8!(cpu, 0x0010, 0x55)
     end)
     @test cpu.register_a == 0x55
 end

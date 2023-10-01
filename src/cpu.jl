@@ -433,15 +433,15 @@ function address(cpu::CPU, mode::AddressingMode, logger::StepLogger)::Tuple{UInt
     elseif mode == indirect_x
         base = lo
         ptr = base + cpu.register_x
-        # TODO simplify
-        lo = read8(cpu.bus, UInt16(ptr))
-        hi = read8(cpu.bus, UInt16(ptr + 0x01))
+        # NOTE do not use read16() here
+        lo = read8(cpu, UInt16(ptr))
+        hi = read8(cpu, UInt16(ptr + 0x01))
         addr = params2addr(lo, hi)
     elseif mode == indirect_y
         base = lo
-        # TODO simplify
-        lo = read8(cpu.bus, UInt16(base))
-        hi = read8(cpu.bus, UInt16(base + 0x01))
+        # NOTE do not use read16() here
+        lo = read8(cpu, UInt16(base))
+        hi = read8(cpu, UInt16(base + 0x01))
         addr = params2addr(lo, hi) + cpu.register_y
     else
         # cannot handle accumulator
@@ -493,7 +493,7 @@ function pop16!(cpu::CPU)
 end
 
 function brk(cpu::CPU)::Bool
-    opcode = read8(cpu.bus, cpu.program_counter)
+    opcode = read8(cpu, cpu.program_counter)
     opcode == 0x00
 end
 
