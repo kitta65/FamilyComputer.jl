@@ -332,7 +332,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x04 || opcode == 0x44 || opcode == 0x64
         nop!(cpu, zeropage, logger, official = false)
         cpu.program_counter += 0x01
-    elseif opcode == 0x14
+    elseif opcode == 0x14 || opcode == 0x34
         nop!(cpu, zeropage_x, logger, official = false)
         cpu.program_counter += 0x01
     elseif opcode == 0x0c
