@@ -195,6 +195,8 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif opcode == 0x4c # JMP
         jmp!(cpu, absolute, logger)
+    elseif opcode == 0x6c
+        jmp!(cpu, indirect, logger)
 
     elseif opcode == 0x20 # JSR
         jsr!(cpu, absolute, logger)
@@ -419,18 +421,30 @@ function address(cpu::CPU, mode::AddressingMode, logger::StepLogger)::Tuple{UInt
         addr = params2addr(lo, hi) + cpu.register_x
     elseif mode == absolute_y
         addr = params2addr(lo, hi) + cpu.register_y
+    elseif mode == indirect
+        addr = params2addr(lo, hi)
+        addr = if addr & 0xFF == 0xFF
+            lo = read8(cpu, addr)
+            hi = read8(cpu, addr & 0xFF00)
+            params2addr(lo, hi)
+        else
+            read16(cpu, addr)
+        end
     elseif mode == indirect_x
         base = lo
         ptr = base + cpu.register_x
+        # TODO simplify
         lo = read8(cpu.bus, UInt16(ptr))
         hi = read8(cpu.bus, UInt16(ptr + 0x01))
         addr = params2addr(lo, hi)
     elseif mode == indirect_y
         base = lo
+        # TODO simplify
         lo = read8(cpu.bus, UInt16(base))
         hi = read8(cpu.bus, UInt16(base + 0x01))
         addr = params2addr(lo, hi) + cpu.register_y
     else
+        # cannot handle accumulator
         throw("$mode is not implemented")
     end
 
@@ -441,6 +455,10 @@ end
 
 function read8(cpu::CPU, addr::UInt16)::UInt8
     read8(cpu.bus, addr)
+end
+
+function read16(cpu::CPU, addr::UInt16)::UInt16
+    read16(cpu.bus, addr)
 end
 
 function write8!(cpu::CPU, addr::UInt16, data::UInt8)

@@ -24,7 +24,8 @@ function Base.print(io::IO, logger::StepLogger)
         address = @sprintf "\$%04X" logger.program_counter + logger.value + 2
     elseif logger.mode == accumulator
         address = "A"
-    elseif (logger.instruction == "JMP" || logger.instruction == "JSR")
+    elseif (logger.opcode == 0x4c || # JMP absolute
+            logger.instruction == "JSR")
         address = @sprintf "\$%02X%02X" logger.hi logger.lo
     elseif logger.mode == immediate
         address = @sprintf "#\$%02X" logger.lo
@@ -32,6 +33,8 @@ function Base.print(io::IO, logger::StepLogger)
         address = @sprintf "\$%02X = %02X" logger.lo logger.value
     elseif logger.mode == absolute
         address = @sprintf "\$%02X%02X = %02X" logger.hi logger.lo logger.value
+    elseif logger.mode == indirect
+        address = @sprintf "(\$%02X%02X) = %04X" logger.hi logger.lo logger.address
     elseif logger.mode == indirect_x
         base = @sprintf "\$%02X" logger.lo
         ptr = @sprintf "%02X" logger.lo + logger.register_x
