@@ -48,6 +48,7 @@ function bcs!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BCS"
     _, value = address(cpu, mode, logger)
     if c(cpu.status)
+        value = reinterpret(Int8, value)
         cpu.program_counter += value
     end
 end
@@ -56,6 +57,7 @@ function bcc!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BCC"
     _, value = address(cpu, mode, logger)
     if !c(cpu.status)
+        value = reinterpret(Int8, value)
         cpu.program_counter += value
     end
 end
@@ -64,6 +66,7 @@ function beq!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BEQ"
     _, value = address(cpu, mode, logger)
     if z(cpu.status)
+        value = reinterpret(Int8, value)
         cpu.program_counter += value
     end
 end
@@ -82,6 +85,7 @@ function bmi!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BMI"
     _, value = address(cpu, mode, logger)
     if n(cpu.status)
+        value = reinterpret(Int8, value)
         cpu.program_counter += value
     end
 end
@@ -99,6 +103,7 @@ function bpl!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BPL"
     _, value = address(cpu, mode, logger)
     if !n(cpu.status)
+        value = reinterpret(Int8, value)
         cpu.program_counter += value
     end
 end
@@ -107,6 +112,7 @@ function bvc!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BVC"
     _, value = address(cpu, mode, logger)
     if !v(cpu.status)
+        value = reinterpret(Int8, value)
         cpu.program_counter += value
     end
 end
@@ -115,6 +121,7 @@ function bvs!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BVS"
     _, value = address(cpu, mode, logger)
     if v(cpu.status)
+        value = reinterpret(Int8, value)
         cpu.program_counter += value
     end
 end
