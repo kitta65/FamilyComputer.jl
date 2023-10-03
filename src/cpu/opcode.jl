@@ -227,6 +227,26 @@ function iny!(cpu::CPU, logger::StepLogger)
     cpu.register_y += 0x01
 end
 
+function isc!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool = true)
+    if official
+        throw("not implemented")
+    end
+    logger.instruction = "*ISB"
+    addr, value = address(cpu, mode, logger)
+
+    # INC
+    value += 0x01
+    write8!(cpu, addr, value)
+
+    # SBC
+    diff = UInt16(cpu.register_a) - value - (c(cpu.status) ? 0x00 : 0x01)
+    c!(cpu.status, !(diff > 0xff))
+    diff = UInt8(diff & 0xff)
+    v!(cpu.status, (cpu.register_a ⊻ diff) & (~value ⊻ diff) & 0x80 != 0)
+
+    cpu.register_a = diff
+end
+
 function jmp!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "JMP"
     addr, _ = address(cpu, mode, logger)

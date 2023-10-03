@@ -269,6 +269,10 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xc8 # INY
         iny!(cpu, logger)
 
+    elseif opcode == 0xe3 # ISC
+        isc!(cpu, indirect_x, logger, official = false)
+        cpu.program_counter += 0x01
+
     elseif opcode == 0x4c # JMP
         jmp!(cpu, absolute, logger)
     elseif opcode == 0x6c
