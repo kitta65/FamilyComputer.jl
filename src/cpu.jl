@@ -193,6 +193,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xcf
         dcp!(cpu, absolute, logger, official = false)
         cpu.program_counter += 0x02
+    elseif opcode == 0xdf
+        dcp!(cpu, absolute_x, logger, official = false)
+        cpu.program_counter += 0x02
     elseif opcode == 0xdb
         dcp!(cpu, absolute_y, logger, official = false)
         cpu.program_counter += 0x02
