@@ -449,6 +449,22 @@ function sei!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     i!(cpu.status, true)
 end
 
+function slo!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool = true)
+    if official
+        throw("not implemented")
+    end
+    logger.instruction = "*SLO"
+
+    # ASL
+    addr, value = address(cpu, mode, logger)
+    c!(cpu.status, (value >> 7) == 0b01)
+    value = value << 1
+    write8!(cpu, addr, value)
+
+    # ORA
+    cpu.register_a = value | cpu.register_a
+end
+
 function sta!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "STA"
     addr, _ = address(cpu, mode, logger)
