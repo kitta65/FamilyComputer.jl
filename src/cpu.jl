@@ -601,6 +601,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x47 # SRE
         sre!(cpu, zeropage, logger, official = false)
         cpu.program_counter += 0x01
+    elseif opcode == 0x57
+        sre!(cpu, zeropage_x, logger, official = false)
+        cpu.program_counter += 0x01
     elseif opcode == 0x4f
         sre!(cpu, absolute, logger, official = false)
         cpu.program_counter += 0x02
