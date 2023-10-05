@@ -523,6 +523,9 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x67 # RRA
         rra!(cpu, zeropage, logger, official = false)
         cpu.program_counter += 0x01
+    elseif opcode == 0x77
+        rra!(cpu, zeropage_x, logger, official = false)
+        cpu.program_counter += 0x01
     elseif opcode == 0x6f
         rra!(cpu, absolute, logger, official = false)
         cpu.program_counter += 0x02
