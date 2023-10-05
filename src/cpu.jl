@@ -598,10 +598,13 @@ function step!(cpu::CPU; io::IO = devnull)
         slo!(cpu, indirect_y, logger, official = false)
         cpu.program_counter += 0x01
 
-    elseif opcode == 0x47
+    elseif opcode == 0x47 # SRE
         sre!(cpu, zeropage, logger, official = false)
         cpu.program_counter += 0x01
-    elseif opcode == 0x43 # SRE
+    elseif opcode == 0x4f
+        sre!(cpu, absolute, logger, official = false)
+        cpu.program_counter += 0x02
+    elseif opcode == 0x43
         sre!(cpu, indirect_x, logger, official = false)
         cpu.program_counter += 0x01
 
