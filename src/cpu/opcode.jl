@@ -350,6 +350,26 @@ function plp!(cpu::CPU, ::AddressingMode, logger::StepLogger)
     cpu.status = status
 end
 
+function rla!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool = true)
+    if official
+        throw("not implemented")
+    end
+    logger.instruction = "*RLA"
+
+    # ROL
+    carry = c(cpu.status)
+    addr, value = address(cpu, mode, logger)
+    c!(cpu.status, (value >> 7) == 0b01)
+    value = value << 1
+    if carry
+        value = value | 0b01
+    end
+    write8!(cpu, addr, value)
+
+    # AND
+    cpu.register_a = cpu.register_a & value
+end
+
 function rol!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "ROL"
     carry = c(cpu.status)
