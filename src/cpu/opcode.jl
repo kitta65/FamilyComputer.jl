@@ -485,6 +485,22 @@ function slo!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool
     cpu.register_a = value | cpu.register_a
 end
 
+function sre!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool = true)
+    if official
+        throw("not implemented")
+    end
+    logger.instruction = "*SRE"
+
+    # LSR
+    addr, value = address(cpu, mode, logger)
+    c!(cpu.status, value & 0b01 == 0b01)
+    value = value >> 1
+    write8!(cpu, addr, value)
+
+    # EOR
+    cpu.register_a = value ⊻ cpu.register_a
+end
+
 function sta!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "STA"
     addr, _ = address(cpu, mode, logger)
