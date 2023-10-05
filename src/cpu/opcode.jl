@@ -370,6 +370,30 @@ function rla!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool
     cpu.register_a = cpu.register_a & value
 end
 
+function rra!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool = true)
+    if official
+        throw("not implemented")
+    end
+    logger.instruction = "*RRA"
+
+    # ROR
+    carry = c(cpu.status)
+    addr, value = address(cpu, mode, logger)
+    c!(cpu.status, value & 0b01 == 0b01)
+    value = value >> 1
+    if carry
+        value = value | 0b1000_0000
+    end
+    write8!(cpu, addr, value)
+
+    # ADC
+    sum = UInt16(cpu.register_a) + value + (c(cpu.status) ? 0x01 : 0x00)
+    c!(cpu.status, sum > 0xff)
+    sum = UInt8(sum & 0xff)
+    v!(cpu.status, (cpu.register_a ⊻ sum) & (value ⊻ sum) & 0x80 != 0)
+    cpu.register_a = sum
+end
+
 function rol!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "ROL"
     carry = c(cpu.status)

@@ -520,6 +520,10 @@ function step!(cpu::CPU; io::IO = devnull)
         ror!(cpu, absolute_x, logger)
         cpu.program_counter += 0x02
 
+    elseif opcode == 0x63 # RRA
+        rra!(cpu, indirect_x, logger, official = false)
+        cpu.program_counter += 0x01
+
     elseif opcode == 0x40 # RTI
         rti!(cpu, unspecified, logger)
 
