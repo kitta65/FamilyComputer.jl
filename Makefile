@@ -14,7 +14,7 @@ fmt: setup
 download: download/nestest.nes download/nestest.log
 
 download/nestest.nes:
-	curl -L --output download/nestest.nes http://nickmass.com/images/nestest.nes
+	curl -L --output download/nestest.nes https://nickmass.com/images/nestest.nes
 
 download/nestest.log:
-	curl -L --output download/nestest.log http://nickmass.com/images/nestest.log
+	curl -L --output download/nestest.log https://nickmass.com/images/nestest.log
