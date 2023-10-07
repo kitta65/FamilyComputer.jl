@@ -17,6 +17,8 @@ function read8(bus::Bus, addr::UInt16)::UInt8
     if addr <= 0x1fff
         addr = addr & 0b0000_0111_1111_1111
         bus.cpu_vram[addr+1]
+    elseif 0x4000 <= addr <= 0x4015
+        0x00 # ignore apu
     elseif 0x8000 <= addr <= 0xffff
         addr = addr - 0x8000
         if length(bus.rom.prg_rom) == 0x4000
@@ -38,6 +40,10 @@ function write8!(bus::Bus, addr::UInt16, data::UInt8)
     if addr <= 0x1fff
         addr = addr & 0b0000_0111_1111_1111
         bus.cpu_vram[addr+1] = data
+    elseif addr == 0x4015
+        # TODO oam dma
+    elseif 0x4000 <= addr <= 0x4015
+        # ignore apu
     elseif 0x8000 <= addr <= 0xffff
         throw("cannot write into prg rom")
     else
