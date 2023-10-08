@@ -17,10 +17,6 @@ function get(register::AddressRegister)::UInt16
     register.hi .. register.lo
 end
 
-function reset(register::AddressRegister)
-    register.is_hi = true
-end
-
 function update!(register::AddressRegister, data::UInt8)
     if register.is_hi
         register.hi = data

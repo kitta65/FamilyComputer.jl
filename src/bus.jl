@@ -28,8 +28,11 @@ function read8(bus::Bus, addr::UInt16)::UInt8
     )
         throw("write only!")
     elseif addr == 0x2002 # ppu status
-        # TODO reset latch
-        bus.ppu.status.bits
+        bits = bus.ppu.status.bits
+        vblank_starged!(bus.ppu.status, false)
+        bus.ppu.addr.is_hi = true
+        bus.ppu.scroll.latch = false
+        bits
     elseif addr == 0x2004 # ppu oam data
         bus.ppu.oam_data[bus.ppu.oam_addr+0x01]
     elseif addr == 0x2007 # ppu data

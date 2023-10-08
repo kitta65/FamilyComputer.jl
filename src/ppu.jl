@@ -40,7 +40,24 @@ mutable struct PPU
 end
 
 function write8!(ppu::PPU, value::UInt8)
-    update!(ppu.addr, value)
+    addr = get(ppu.addr)
+    increment!(ppu.addr, vram_add_increment(ppu.ctrl) ? 32 : 1)
+
+    if 0 <= addr <= 0x1fff
+        throw("not implemented!")
+    elseif 0x2000 <= addr <= 0x2fff
+        ppu.vram[ppu.mirror_vram_addr(addr)+1] = value
+    elseif 0x3000 <= addr <= 0x3eff
+        throw("do not access!")
+    elseif ( # handle mirror
+        addr == 0x3f10 || addr == 0x3f14 || addr == 0x3f18 || addr == 0x3f1c
+    )
+        write8!(ppu, addr - 0x10, value)
+    elseif 0x3f00 <= addr <= 0x3fff
+        ppu.palette_table[addr-0x3f00+1] = value
+    else
+        throw("unexpected access to mirrored space")
+    end
 end
 
 function read8(ppu::PPU)::UInt8
@@ -57,6 +74,10 @@ function read8(ppu::PPU)::UInt8
         result
     elseif 0x3000 <= addr <= 0x3eff
         throw("do not access!")
+    elseif ( # handle mirror
+        addr == 0x3f10 || addr == 0x3f14 || addr == 0x3f18 || addr == 0x3f1c
+    )
+        read8(ppu, addr - 0x10)
     elseif 0x3f00 <= addr <= 0x3fff
         ppu.palette_table[addr-0x3f00+1]
     else
