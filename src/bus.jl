@@ -3,22 +3,46 @@ export set!
 mutable struct Bus
     cpu_vram::Vector{UInt8}
     rom::Rom
+    ppu::PPU
 
     function Bus(rom::Rom)::Bus
-        new(zeros(UInt8, 2048), rom)
+        new(zeros(UInt8, 2048), rom, PPU())
     end
 
     function Bus()::Bus
-        new(zeros(UInt8, 2048), Rom())
+        new(zeros(UInt8, 2048), Rom(), PPU())
     end
 end
 
 function read8(bus::Bus, addr::UInt16)::UInt8
-    if addr <= 0x1fff
+    if addr <= 0x1fff # cpu ram
         addr = addr & 0b0000_0111_1111_1111
         bus.cpu_vram[addr+1]
+
+    elseif (
+        addr == 0x2000 || # ppu controller
+        addr == 0x2001 || # ppu mask
+        addr == 0x2003 || # ppu oam address
+        addr == 0x2005 || # ppu scroll
+        addr == 0x2006 # ppu address
+    )
+        throw("write only!")
+    elseif addr == 0x2002 # ppu status
+        # TODO reset latch
+        bus.ppu.status.bits
+    elseif addr == 0x2004 # ppu oam data
+        bus.ppu.oam_data[bus.ppu.oam_addr+0x01]
+    elseif addr == 0x2007 # ppu data
+        read8(bus.ppu)
+    elseif 0x2000 <= addr <= 0x3fff
+        addr = addr & 0b0010_0000_0000_0111 # mirror down to 0x2000 ~ 0x2007
+        read8(bus, addr)
+
+    elseif addr == 0x4014 # ppu oam dma
+        throw("write only!")
     elseif 0x4000 <= addr <= 0x4015
         0x00 # ignore apu
+
     elseif 0x8000 <= addr <= 0xffff
         addr = addr - 0x8000
         if length(bus.rom.prg_rom) == 0x4000
@@ -37,9 +61,32 @@ function read16(bus::Bus, addr::UInt16)::UInt16
 end
 
 function write8!(bus::Bus, addr::UInt16, data::UInt8)
-    if addr <= 0x1fff
+    if addr <= 0x1fff # cpu ram
         addr = addr & 0b0000_0111_1111_1111
         bus.cpu_vram[addr+1] = data
+
+    elseif addr == 0x2000 # ppu controller
+        # TODO generate nmi interrupt
+        bus.ppu.ctrl.bits = data
+    elseif addr == 0x2001 # ppu mask
+        bus.ppu.mask.bits = data
+    elseif addr == 0x2002 # ppu status
+        throw("read only")
+    elseif addr == 0x2003 # ppu oam address
+        bus.ppu.oam_addr = data
+    elseif addr == 0x2004 # ppu oam data
+        bus.ppu.oam_data[bus.ppu.oam_addr+0x01]
+        bus.ppu.oam_addr += 0x01
+    elseif addr == 0x2005 # ppu scroll
+        write8!(bus.ppu.scroll, data)
+    elseif addr == 0x2006 # ppu address
+        update(bus.ppu.addr, data)
+    elseif addr == 0x2007 # ppu data
+        write8!(bus.ppu, data)
+    elseif 0x2000 <= addr <= 0x3fff
+        addr = addr & 0b0010_0000_0000_0111 # mirror down to 0x2000 ~ 0x2007
+        write8!(bus, addr, data)
+
     elseif addr == 0x4015
         # TODO oam dma
     elseif 0x4000 <= addr <= 0x4015

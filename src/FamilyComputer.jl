@@ -11,6 +11,7 @@ using SimpleDirectMediaLayer.LibSDL2
 
 include("utils.jl")
 include("rom.jl")
+include("ppu.jl")
 include("bus.jl")
 include("cpu.jl")
 

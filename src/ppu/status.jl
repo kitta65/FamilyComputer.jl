@@ -1,0 +1,10 @@
+@flags StatusRegister UInt8 begin
+    NOTUSED
+    NOTUSED2
+    NOTUSED3
+    NOTUSED4
+    NOTUSED5
+    SPRITE_OVERFLOW
+    SPRITE_ZERO_HIT
+    VBLANK_STARTED
+end
