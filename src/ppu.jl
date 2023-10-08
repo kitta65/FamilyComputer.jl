@@ -64,15 +64,15 @@ function read8(ppu::PPU)::UInt8
     addr = get(ppu.addr)
     increment!(ppu.addr, vram_add_increment(ppu.ctrl) ? 32 : 1)
 
-    if 0 <= addr <= 0x1fff
+    if 0 <= addr < 0x2000
         result = ppu.internal_data_buff
         ppu.internal_data_buff = ppu.chr_rom[addr+1]
         result
-    elseif 0x2000 <= addr <= 0x2fff
+    elseif 0x2000 <= addr < 0x3000
         result = ppu.internal_data_buff
         ppu.internal_data_buff = ppu.vram[ppu.mirror_vram_addr(addr)+1]
         result
-    elseif 0x3000 <= addr <= 0x3eff
+    elseif 0x3000 <= addr < 0x3f00
         throw("do not access!")
     elseif ( # handle mirror
         addr == 0x3f10 || addr == 0x3f14 || addr == 0x3f18 || addr == 0x3f1c
@@ -86,9 +86,15 @@ function read8(ppu::PPU)::UInt8
 end
 
 function mirror_vram_addr(ppu::PPU, addr::UInt16)
+    # 0x2000 <= addr < 0x3f00
+    # 0x2000 <= mirrored_vram < 0x3000
     mirrored_vram = addr & 0b0010_1111_1111_1111
-    vram_index = mirrored_vram - 0x2000 # to vram vector
-    name_table = vram_index / 0x0400 # to name table index
+
+    # 0x0000 <= vram_index < 0x1000
+    vram_index = mirrored_vram - 0x2000
+
+    # 0 <= name_table < 4
+    name_table = vram_index ÷ 0x0400
     if ppu.mirroring == vertical
         if name_table == 2 || name_table == 3
             vram_index - 0x0800
