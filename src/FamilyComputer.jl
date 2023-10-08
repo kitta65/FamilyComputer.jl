@@ -6,6 +6,8 @@ end # module Flags
 
 using .Flags
 using Printf
+using SimpleDirectMediaLayer
+using SimpleDirectMediaLayer.LibSDL2
 
 include("utils.jl")
 include("rom.jl")
