@@ -110,6 +110,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x24 # BIT
         bit!(cpu, zeropage, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0003)
     elseif opcode == 0x2c
         bit!(cpu, absolute, logger)
         cpu.program_counter += 0x02
@@ -137,6 +138,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x70 # BVS
         bvs!(cpu, immediate, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0002)
 
     elseif opcode == 0x18 # CLC
         clc!(cpu, logger)
@@ -660,24 +662,31 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x85 # STA
         sta!(cpu, zeropage, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0003)
     elseif opcode == 0x95
         sta!(cpu, zeropage_x, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0004)
     elseif opcode == 0x8d
         sta!(cpu, absolute, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0x9d
         sta!(cpu, absolute_x, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0005)
     elseif opcode == 0x99
         sta!(cpu, absolute_y, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0005)
     elseif opcode == 0x81
         sta!(cpu, indirect_x, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0006)
     elseif opcode == 0x91
         sta!(cpu, indirect_y, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0006)
 
     elseif opcode == 0x86 # STX
         stx!(cpu, zeropage, logger)
