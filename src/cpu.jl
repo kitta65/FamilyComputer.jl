@@ -617,6 +617,7 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif opcode == 0x78 # SEI
         sei!(cpu, unspecified, logger)
+        tick!(cpu, 0x0002)
 
     elseif opcode == 0x07 # SLO
         slo!(cpu, zeropage, logger, official = false)
