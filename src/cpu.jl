@@ -716,6 +716,7 @@ end
 function reset!(cpu::CPU)
     new_cpu = CPU()
     new_cpu.bus = cpu.bus
+    tick!(cpu, 0x0007)
     new_cpu
 end
 
