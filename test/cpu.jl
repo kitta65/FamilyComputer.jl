@@ -89,7 +89,7 @@ end
     nestest()
 end
 
-function nestest()
+function nestest_cycle()
     cpu = CPU()
     ines = read("../download/nestest.nes")
     set!(cpu.bus, FC.Rom(ines))
@@ -110,5 +110,5 @@ function nestest()
 end
 
 @testset "nestest_cycle" begin
-    nestest()
+    nestest_cycle()
 end

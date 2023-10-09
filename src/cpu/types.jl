@@ -37,7 +37,7 @@ mutable struct CPU
     cycles::UInt16
 
     function CPU()::CPU
-        new(0, 0, 0, CPUStatus(init_status), 0, init_stack_pointer, Bus())
+        new(0, 0, 0, CPUStatus(init_status), 0, init_stack_pointer, Bus(), 0)
     end
 end
 
