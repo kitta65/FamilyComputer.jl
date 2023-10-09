@@ -105,6 +105,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xf0 # BEQ
         beq!(cpu, immediate, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0002)
 
     elseif opcode == 0x24 # BIT
         bit!(cpu, zeropage, logger)
@@ -330,6 +331,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xa9 # LDA
         lda!(cpu, immediate, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0002)
     elseif opcode == 0xa5
         lda!(cpu, zeropage, logger)
         cpu.program_counter += 0x01
