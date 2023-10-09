@@ -55,15 +55,19 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x29 # AND
         and!(cpu, immediate, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0002)
     elseif opcode == 0x25
         and!(cpu, zeropage, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0003)
     elseif opcode == 0x35
         and!(cpu, zeropage_x, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0004)
     elseif opcode == 0x2d
         and!(cpu, absolute, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0x3d
         and!(cpu, absolute_x, logger)
         cpu.program_counter += 0x02
@@ -73,6 +77,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x21
         and!(cpu, indirect_x, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0006)
     elseif opcode == 0x31
         and!(cpu, indirect_y, logger)
         cpu.program_counter += 0x01
@@ -155,15 +160,19 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xc9 # CMP
         cmp!(cpu, immediate, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0002)
     elseif opcode == 0xc5
         cmp!(cpu, zeropage, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0003)
     elseif opcode == 0xd5
         cmp!(cpu, zeropage_x, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0004)
     elseif opcode == 0xcd
         cmp!(cpu, absolute, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0xdd
         cmp!(cpu, absolute_x, logger)
         cpu.program_counter += 0x02
@@ -173,6 +182,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xc1
         cmp!(cpu, indirect_x, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0006)
     elseif opcode == 0xd1
         cmp!(cpu, indirect_y, logger)
         cpu.program_counter += 0x01
@@ -479,9 +489,11 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif opcode == 0x08 # PHP
         php!(cpu, unspecified, logger)
+        tick!(cpu, 0x0003)
 
     elseif opcode == 0x68 # PLA
         pla!(cpu, unspecified, logger)
+        tick!(cpu, 0x0004)
 
     elseif opcode == 0x28 # PLP
         plp!(cpu, unspecified, logger)
@@ -614,6 +626,7 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif opcode == 0xf8 # SED
         sed!(cpu, unspecified, logger)
+        tick!(cpu, 0x0002)
 
     elseif opcode == 0x78 # SEI
         sei!(cpu, unspecified, logger)
