@@ -127,6 +127,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x10 # BPL
         bpl!(cpu, immediate, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0002)
 
     elseif opcode == 0x00 # BRK
         brk!(logger)
