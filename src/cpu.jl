@@ -297,6 +297,7 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif opcode == 0x4c # JMP
         jmp!(cpu, absolute, logger)
+        tick!(cpu, 0x0003)
     elseif opcode == 0x6c
         jmp!(cpu, indirect, logger)
 
