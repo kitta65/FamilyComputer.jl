@@ -137,6 +137,7 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif opcode == 0x18 # CLC
         clc!(cpu, logger)
+        tick!(cpu, 0x0002)
 
     elseif opcode == 0xd8 # CLD
         cld!(cpu, logger)
