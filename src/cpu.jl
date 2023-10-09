@@ -95,6 +95,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xb0 # BCS
         bcs!(cpu, immediate, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0002)
 
     elseif opcode == 0x90 # BCC
         bcc!(cpu, immediate, logger)
@@ -303,6 +304,7 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif opcode == 0x20 # JSR
         jsr!(cpu, absolute, logger)
+        tick!(cpu, 0x0006)
 
     elseif opcode == 0xa7 # LAX
         lax!(cpu, zeropage, logger, official = false)
@@ -398,6 +400,7 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif opcode == 0xea # NOP
         nop!(cpu, unspecified, logger)
+        tick!(cpu, 0x0002)
     elseif (
         opcode == 0x1a ||
         opcode == 0x3a ||
@@ -597,6 +600,7 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif opcode == 0x38 # SEC
         sec!(cpu, unspecified, logger)
+        tick!(cpu, 0x0002)
 
     elseif opcode == 0xf8 # SED
         sed!(cpu, unspecified, logger)
@@ -673,6 +677,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x86 # STX
         stx!(cpu, zeropage, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0003)
     elseif opcode == 0x96
         stx!(cpu, zeropage_y, logger)
         cpu.program_counter += 0x01
