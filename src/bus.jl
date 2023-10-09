@@ -69,8 +69,12 @@ function write8!(bus::Bus, addr::UInt16, data::UInt8)
         bus.cpu_vram[addr+1] = data
 
     elseif addr == 0x2000 # ppu controller
-        # TODO generate nmi interrupt
+        prev = generate_nmi(bus.ppu.ctrl)
         bus.ppu.ctrl.bits = data
+        curr = generate_nmi(bus.ppu.ctrl)
+        if !prev && curr && vbrank_started(bus.ppu.status)
+            bus.ppu.nmi_interrupt = true
+        end
     elseif addr == 0x2001 # ppu mask
         bus.ppu.mask.bits = data
     elseif addr == 0x2002 # ppu status
@@ -110,4 +114,8 @@ end
 
 function set!(bus::Bus, rom::Rom)
     bus.rom = rom
+end
+
+function tick!(bus::Bus, cycles::UInt16)
+    tick!(bus.ppu, cycles * 0x03)
 end

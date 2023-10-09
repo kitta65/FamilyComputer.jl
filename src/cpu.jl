@@ -14,6 +14,10 @@ function run!(cpu::CPU; post_reset!::Function = cpu::CPU -> nothing)
     post_reset!(cpu)
 
     while !brk(cpu)
+        if cpu.bus.ppu.nmi_interrupt
+            cpu.bus.ppu.nmi_interrupt = false
+            interrupt_nmi!(cpu)
+        end
         step!(cpu)
     end
 end
@@ -820,4 +824,23 @@ end
 function update_z_n!(cpu::CPU, value::UInt8)
     z!(cpu.status, value == 0)
     n!(cpu.status, value & 0b1000_0000 != 0)
+end
+
+function tick!(cpu::CPU, cycles::UInt16)
+    cpu.cycles += cycles
+    tick!(cpu.bus, cycles)
+end
+
+function interrupt_nmi!(cpu::CPU)
+    push16!(cpu, cpu.program_counter)
+
+    status = cpu.status
+    b!(status, false)
+    o!(status, true)
+    push16!(cpu, status.bits)
+
+    i!(cpu.status, true)
+
+    tick!(cpu, 7)
+    cpu.program_counter = read16(cpu, 0xfffa)
 end

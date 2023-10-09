@@ -12,6 +12,9 @@ mutable struct PPU
     oam_data::Array{UInt8}
     mirroring::Mirroring
     internal_data_buff::UInt8
+    cycles::UInt16
+    scanline::UInt16
+    nmi_interrupt::Bool
 
     # registers
     addr::AddressRegister
@@ -30,6 +33,11 @@ mutable struct PPU
             zeros(UInt8, 64 * 4),
             rom.mirroring,
             0x00,
+            0x00,
+            0x00,
+            false,
+
+            # registers
             AddressRegister(),
             ControlRegister(0x00),
             MaskRegister(0x00),
@@ -111,5 +119,27 @@ function mirror_vram_addr(ppu::PPU, addr::UInt16)
         end
     else
         vram_index
+    end
+end
+
+function tick!(ppu::PPU, cycles::UInt16)
+    ppu.cycles += cycles
+    if ppu.cycles >= 341
+        ppu.cycles -= 341
+        ppu.scanline += 1
+
+        if ppu.scanline == 241
+            vblank_started(ppu.status, true)
+            # TODO handle sprite zero hit
+            if generate_nmi(ppu.ctrl)
+                ppu.nmi_interrupt = true
+            end
+        end
+
+        if ppu.scanline >= 262
+            # TODO handle sprite zero hit
+            ppu.scanline = 0
+            vblank_started(ppu.status, false)
+        end
     end
 end
