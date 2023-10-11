@@ -254,15 +254,19 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x49 # EOR
         eor!(cpu, immediate, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0002)
     elseif opcode == 0x45
         eor!(cpu, zeropage, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0003)
     elseif opcode == 0x55
         eor!(cpu, zeropage_x, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0004)
     elseif opcode == 0x4d
         eor!(cpu, absolute, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0x5d
         eor!(cpu, absolute_x, logger)
         cpu.program_counter += 0x02
@@ -272,6 +276,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x41
         eor!(cpu, indirect_x, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0006)
     elseif opcode == 0x51
         eor!(cpu, indirect_y, logger)
         cpu.program_counter += 0x01
