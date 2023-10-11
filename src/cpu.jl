@@ -464,15 +464,19 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x09 # ORA
         ora!(cpu, immediate, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0002)
     elseif opcode == 0x05
         ora!(cpu, zeropage, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0003)
     elseif opcode == 0x15
         ora!(cpu, zeropage_x, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0004)
     elseif opcode == 0x0d
         ora!(cpu, absolute, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0x1d
         ora!(cpu, absolute_x, logger)
         cpu.program_counter += 0x02
@@ -482,6 +486,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x01
         ora!(cpu, indirect_x, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0006)
     elseif opcode == 0x11
         ora!(cpu, indirect_y, logger)
         cpu.program_counter += 0x01
