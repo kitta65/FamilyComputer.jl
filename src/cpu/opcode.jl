@@ -100,8 +100,13 @@ function bmi!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BMI"
     _, value = address(cpu, mode, logger)
     if n(cpu.status)
+        tick!(cpu, 0x0001)
         value = reinterpret(Int8, value)
-        cpu.program_counter += value
+        to = cpu.program_counter + value
+        if to >> 8 != cpu.program_counter >> 8
+            tick!(cpu, 0x0001)
+        end
+        cpu.program_counter = to
     end
 end
 

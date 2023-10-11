@@ -123,6 +123,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x30 # BMI
         bmi!(cpu, immediate, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0002)
 
     elseif opcode == 0xd0 # BNE
         bne!(cpu, immediate, logger)
