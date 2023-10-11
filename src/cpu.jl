@@ -487,6 +487,7 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif opcode == 0x48 # PHA
         pha!(cpu, unspecified, logger)
+        tick!(cpu, 0x0003)
 
     elseif opcode == 0x08 # PHP
         php!(cpu, unspecified, logger)
@@ -498,6 +499,7 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif opcode == 0x28 # PLP
         plp!(cpu, unspecified, logger)
+        tick!(cpu, 0x0004)
 
     elseif opcode == 0x27 # RLA
         rla!(cpu, zeropage, logger, official = false)

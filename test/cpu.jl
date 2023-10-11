@@ -97,7 +97,7 @@ function nestest_cycle()
     cpu.program_counter = 0xc000
 
     open("../download/nestest.log", "r") do log
-        for _ = 1:85 # TODO test until 8991
+        for _ = 1:105 # TODO test until 8991
             line = @sprintf "%3d" cpu.bus.ppu.scanline
             ppu_cycle = @sprintf "%3d" cpu.bus.ppu.cycles
             cpu_cycle = @sprintf "%d" cpu.cycles
