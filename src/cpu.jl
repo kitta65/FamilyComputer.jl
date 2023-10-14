@@ -625,15 +625,19 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xe9 # SBC
         sbc!(cpu, immediate, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0002)
     elseif opcode == 0xe5
         sbc!(cpu, zeropage, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0003)
     elseif opcode == 0xf5
         sbc!(cpu, zeropage_x, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0004)
     elseif opcode == 0xed
         sbc!(cpu, absolute, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0xfd
         sbc!(cpu, absolute_x, logger)
         cpu.program_counter += 0x02
@@ -643,6 +647,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xe1
         sbc!(cpu, indirect_x, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0006)
     elseif opcode == 0xf1
         sbc!(cpu, indirect_y, logger)
         cpu.program_counter += 0x01
