@@ -239,24 +239,31 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xc7 # DCP
         dcp!(cpu, zeropage, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0005)
     elseif opcode == 0xd7
         dcp!(cpu, zeropage_x, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0006)
     elseif opcode == 0xcf
         dcp!(cpu, absolute, logger, official = false)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0006)
     elseif opcode == 0xdf
         dcp!(cpu, absolute_x, logger, official = false)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0007)
     elseif opcode == 0xdb
         dcp!(cpu, absolute_y, logger, official = false)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0007)
     elseif opcode == 0xc3
         dcp!(cpu, indirect_x, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0008)
     elseif opcode == 0xd3
         dcp!(cpu, indirect_y, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0008)
 
     elseif opcode == 0xc6 # DEC
         dec!(cpu, zeropage, logger)
