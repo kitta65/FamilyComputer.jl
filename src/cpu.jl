@@ -615,6 +615,7 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif opcode == 0x40 # RTI
         rti!(cpu, unspecified, logger)
+        tick!(cpu, 0x0006)
 
     elseif opcode == 0x60 # RTS
         rts!(cpu, unspecified, logger)
