@@ -351,24 +351,31 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xe7 # ISC
         isc!(cpu, zeropage, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0005)
     elseif opcode == 0xf7
         isc!(cpu, zeropage_x, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0006)
     elseif opcode == 0xef
         isc!(cpu, absolute, logger, official = false)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0006)
     elseif opcode == 0xff
         isc!(cpu, absolute_x, logger, official = false)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0007)
     elseif opcode == 0xfb
         isc!(cpu, absolute_y, logger, official = false)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0007)
     elseif opcode == 0xe3
         isc!(cpu, indirect_x, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0008)
     elseif opcode == 0xf3
         isc!(cpu, indirect_y, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0008)
 
     elseif opcode == 0x4c # JMP
         jmp!(cpu, absolute, logger)
