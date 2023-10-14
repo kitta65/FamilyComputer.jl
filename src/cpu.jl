@@ -307,9 +307,11 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif opcode == 0xe8 # INX
         inx!(cpu, logger)
+        tick!(cpu, 0x0002)
 
     elseif opcode == 0xc8 # INY
         iny!(cpu, logger)
+        tick!(cpu, 0x0002)
 
     elseif opcode == 0xe7 # ISC
         isc!(cpu, zeropage, logger, official = false)
