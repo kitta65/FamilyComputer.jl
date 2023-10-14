@@ -305,7 +305,10 @@ function lax!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool
         throw("not implemented")
     end
     logger.instruction = "*LAX"
-    _, value, _ = address(cpu, mode, logger)
+    _, value, cross = address(cpu, mode, logger)
+    if cross
+        tick!(cpu, 0x0001)
+    end
     cpu.register_a = value # LDA
     cpu.register_x = cpu.register_a # TAX
 end
