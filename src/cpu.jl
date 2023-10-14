@@ -891,7 +891,11 @@ function address(
     elseif mode == absolute_x
         addr = (hi .. lo) + cpu.register_x
     elseif mode == absolute_y
-        addr = (hi .. lo) + cpu.register_y
+        base = hi .. lo
+        addr = base + cpu.register_y
+        if addr >> 8 != base >> 8
+            page_cross = true
+        end
     elseif mode == indirect
         addr = hi .. lo
         addr = if addr & 0xFF == 0xFF
