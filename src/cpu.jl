@@ -465,6 +465,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xbc
         ldy!(cpu, absolute_x, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
 
     elseif opcode == 0x4a # LSR
         lsr!(cpu, accumulator, logger)
@@ -889,7 +890,11 @@ function address(
     elseif mode == zeropage_y
         addr = lo + cpu.register_y
     elseif mode == absolute_x
-        addr = (hi .. lo) + cpu.register_x
+        base = hi .. lo
+        addr = base + cpu.register_x
+        if addr >> 8 != base >> 8
+            page_cross = true
+        end
     elseif mode == absolute_y
         base = hi .. lo
         addr = base + cpu.register_y

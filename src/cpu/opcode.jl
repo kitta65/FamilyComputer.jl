@@ -328,7 +328,10 @@ end
 
 function ldy!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "LDY"
-    _, value, _ = address(cpu, mode, logger)
+    _, value, cross = address(cpu, mode, logger)
+    if cross
+        tick!(cpu, 0x0001)
+    end
     cpu.register_y = value
 end
 
