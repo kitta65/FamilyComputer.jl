@@ -365,7 +365,10 @@ function nop!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool
     if mode == unspecified
         return
     end
-    _, _, _ = address(cpu, mode, logger)
+    _, _, cross = address(cpu, mode, logger)
+    if cross
+        tick!(cpu, 0x0001)
+    end
 end
 
 function ora!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
