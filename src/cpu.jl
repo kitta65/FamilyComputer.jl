@@ -608,24 +608,31 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x27 # RLA
         rla!(cpu, zeropage, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0005)
     elseif opcode == 0x37
         rla!(cpu, zeropage_x, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0006)
     elseif opcode == 0x2f
         rla!(cpu, absolute, logger, official = false)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0006)
     elseif opcode == 0x3f
         rla!(cpu, absolute_x, logger, official = false)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0007)
     elseif opcode == 0x3b
         rla!(cpu, absolute_y, logger, official = false)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0007)
     elseif opcode == 0x23
         rla!(cpu, indirect_x, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0008)
     elseif opcode == 0x33
         rla!(cpu, indirect_y, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0008)
 
     elseif opcode == 0x2a # ROL
         rol!(cpu, accumulator, logger)
