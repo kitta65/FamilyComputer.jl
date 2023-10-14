@@ -196,9 +196,11 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xdd
         cmp!(cpu, absolute_x, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0xd9
         cmp!(cpu, absolute_y, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0xc1
         cmp!(cpu, indirect_x, logger)
         cpu.program_counter += 0x01
@@ -206,6 +208,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xd1
         cmp!(cpu, indirect_y, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0005)
 
     elseif opcode == 0xe0 # CPX
         cpx!(cpu, immediate, logger)
