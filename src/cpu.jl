@@ -573,18 +573,23 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif opcode == 0x2a # ROL
         rol!(cpu, accumulator, logger)
+        tick!(cpu, 0x0002)
     elseif opcode == 0x26
         rol!(cpu, zeropage, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0005)
     elseif opcode == 0x36
         rol!(cpu, zeropage_x, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0006)
     elseif opcode == 0x2e
         rol!(cpu, absolute, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0006)
     elseif opcode == 0x3e
         rol!(cpu, absolute_x, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0007)
 
     elseif opcode == 0x6a # ROR
         ror!(cpu, accumulator, logger)
