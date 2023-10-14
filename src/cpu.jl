@@ -302,15 +302,19 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xe6 # INC
         inc!(cpu, zeropage, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0005)
     elseif opcode == 0xf6
         inc!(cpu, zeropage_x, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0006)
     elseif opcode == 0xee
         inc!(cpu, absolute, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0006)
     elseif opcode == 0xfe
         inc!(cpu, absolute_x, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0007)
 
     elseif opcode == 0xe8 # INX
         inx!(cpu, logger)
