@@ -208,12 +208,15 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xc0 # CPY
         cpy!(cpu, immediate, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0002)
     elseif opcode == 0xc4
         cpy!(cpu, zeropage, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0003)
     elseif opcode == 0xcc
         cpy!(cpu, absolute, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
 
     elseif opcode == 0xc7 # DCP
         dcp!(cpu, zeropage, logger, official = false)
@@ -402,15 +405,19 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xa0 # LDY
         ldy!(cpu, immediate, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0002)
     elseif opcode == 0xa4
         ldy!(cpu, zeropage, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0003)
     elseif opcode == 0xb4
         ldy!(cpu, zeropage_x, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0004)
     elseif opcode == 0xac
         ldy!(cpu, absolute, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0xbc
         ldy!(cpu, absolute_x, logger)
         cpu.program_counter += 0x02
