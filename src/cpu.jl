@@ -46,9 +46,11 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x7d
         adc!(cpu, absolute_x, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0x79
         adc!(cpu, absolute_y, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0x61
         adc!(cpu, indirect_x, logger)
         cpu.program_counter += 0x01
@@ -56,6 +58,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x71
         adc!(cpu, indirect_y, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0005)
 
     elseif opcode == 0x29 # AND
         and!(cpu, immediate, logger)
