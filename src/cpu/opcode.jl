@@ -44,20 +44,6 @@ function brk!(logger::StepLogger)
     logger.instruction = "BRK"
 end
 
-function bcs!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
-    logger.instruction = "BCS"
-    _, value = address(cpu, mode, logger)
-    if c(cpu.status)
-        tick!(cpu, 0x0001)
-        value = reinterpret(Int8, value)
-        to = cpu.program_counter + value
-        if to >> 8 != cpu.program_counter >> 8
-            tick!(cpu, 0x0001)
-        end
-        cpu.program_counter = to
-    end
-end
-
 function bcc!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BCC"
     _, value = address(cpu, mode, logger)
@@ -65,7 +51,21 @@ function bcc!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
         tick!(cpu, 0x0001)
         value = reinterpret(Int8, value)
         to = cpu.program_counter + value
-        if to >> 8 != cpu.program_counter >> 8
+        if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
+            tick!(cpu, 0x0001)
+        end
+        cpu.program_counter = to
+    end
+end
+
+function bcs!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    logger.instruction = "BCS"
+    _, value = address(cpu, mode, logger)
+    if c(cpu.status)
+        tick!(cpu, 0x0001)
+        value = reinterpret(Int8, value)
+        to = cpu.program_counter + value
+        if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
             tick!(cpu, 0x0001)
         end
         cpu.program_counter = to
@@ -79,7 +79,7 @@ function beq!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
         tick!(cpu, 0x0001)
         value = reinterpret(Int8, value)
         to = cpu.program_counter + value
-        if to >> 8 != cpu.program_counter >> 8
+        if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
             tick!(cpu, 0x0001)
         end
         cpu.program_counter = to
@@ -103,7 +103,7 @@ function bmi!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
         tick!(cpu, 0x0001)
         value = reinterpret(Int8, value)
         to = cpu.program_counter + value
-        if to >> 8 != cpu.program_counter >> 8
+        if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
             tick!(cpu, 0x0001)
         end
         cpu.program_counter = to
@@ -117,7 +117,7 @@ function bne!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
         tick!(cpu, 0x0001)
         value = reinterpret(Int8, value)
         to = cpu.program_counter + value
-        if to >> 8 != cpu.program_counter >> 8
+        if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
             tick!(cpu, 0x0001)
         end
         cpu.program_counter = to
@@ -131,7 +131,7 @@ function bpl!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
         tick!(cpu, 0x0001)
         value = reinterpret(Int8, value)
         to = cpu.program_counter + value
-        if to >> 8 != cpu.program_counter >> 8
+        if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
             tick!(cpu, 0x0001)
         end
         cpu.program_counter = to
@@ -145,7 +145,7 @@ function bvc!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
         tick!(cpu, 0x0001)
         value = reinterpret(Int8, value)
         to = cpu.program_counter + value
-        if to >> 8 != cpu.program_counter >> 8
+        if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
             tick!(cpu, 0x0001)
         end
         cpu.program_counter = to
@@ -159,7 +159,7 @@ function bvs!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
         tick!(cpu, 0x0001)
         value = reinterpret(Int8, value)
         to = cpu.program_counter + value
-        if to >> 8 != cpu.program_counter >> 8
+        if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
             tick!(cpu, 0x0001)
         end
         cpu.program_counter = to

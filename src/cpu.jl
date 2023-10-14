@@ -107,13 +107,13 @@ function step!(cpu::CPU; io::IO = devnull)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0007)
 
-    elseif opcode == 0xb0 # BCS
-        bcs!(cpu, immediate, logger)
+    elseif opcode == 0x90 # BCC
+        bcc!(cpu, immediate, logger)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
 
-    elseif opcode == 0x90 # BCC
-        bcc!(cpu, immediate, logger)
+    elseif opcode == 0xb0 # BCS
+        bcs!(cpu, immediate, logger)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
 
