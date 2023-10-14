@@ -534,7 +534,7 @@ function step!(cpu::CPU; io::IO = devnull)
     )
         nop!(cpu, absolute_x, logger, official = false)
         cpu.program_counter += 0x02
-        tick!(cpu, 0x0004) # or 5 cycle
+        tick!(cpu, 0x0005) # or 4 cycle
 
     elseif opcode == 0x09 # ORA
         ora!(cpu, immediate, logger)
