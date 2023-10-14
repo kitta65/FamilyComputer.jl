@@ -686,15 +686,19 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x87 # SAX
         sax!(cpu, zeropage, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0003)
     elseif opcode == 0x97
         sax!(cpu, zeropage_y, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0004)
     elseif opcode == 0x8f
         sax!(cpu, absolute, logger, official = false)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0x83
         sax!(cpu, indirect_x, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0006)
 
     elseif opcode == 0xe9 # SBC
         sbc!(cpu, immediate, logger)
