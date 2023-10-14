@@ -500,12 +500,15 @@ function step!(cpu::CPU; io::IO = devnull)
         opcode == 0xfa
     )
         nop!(cpu, unspecified, logger, official = false)
+        tick!(cpu, 0x0002)
     elseif opcode == 0x80
         nop!(cpu, immediate, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0002)
     elseif opcode == 0x04 || opcode == 0x44 || opcode == 0x64
         nop!(cpu, zeropage, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0003)
     elseif (
         opcode == 0x14 ||
         opcode == 0x34 ||
@@ -516,9 +519,11 @@ function step!(cpu::CPU; io::IO = devnull)
     )
         nop!(cpu, zeropage_x, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0004)
     elseif opcode == 0x0c
         nop!(cpu, absolute, logger, official = false)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif (
         opcode == 0x1c ||
         opcode == 0x3c ||
@@ -529,6 +534,7 @@ function step!(cpu::CPU; io::IO = devnull)
     )
         nop!(cpu, absolute_x, logger, official = false)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004) # or 5 cycle
 
     elseif opcode == 0x09 # ORA
         ora!(cpu, immediate, logger)
