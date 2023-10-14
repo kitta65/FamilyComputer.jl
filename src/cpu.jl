@@ -700,9 +700,11 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xfd
         sbc!(cpu, absolute_x, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0xf9
         sbc!(cpu, absolute_y, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0xe1
         sbc!(cpu, indirect_x, logger)
         cpu.program_counter += 0x01
@@ -710,9 +712,11 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xf1
         sbc!(cpu, indirect_y, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0005)
     elseif opcode == 0xeb
         sbc!(cpu, immediate, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0002)
 
     elseif opcode == 0x38 # SEC
         sec!(cpu, unspecified, logger)
