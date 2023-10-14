@@ -368,6 +368,7 @@ function step!(cpu::CPU; io::IO = devnull)
         tick!(cpu, 0x0003)
     elseif opcode == 0x6c
         jmp!(cpu, indirect, logger)
+        tick!(cpu, 0x0005)
 
     elseif opcode == 0x20 # JSR
         jsr!(cpu, absolute, logger)
