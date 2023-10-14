@@ -766,24 +766,31 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x07 # SLO
         slo!(cpu, zeropage, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0005)
     elseif opcode == 0x17
         slo!(cpu, zeropage_x, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0006)
     elseif opcode == 0x0f
         slo!(cpu, absolute, logger, official = false)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0006)
     elseif opcode == 0x1f
         slo!(cpu, absolute_x, logger, official = false)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0007)
     elseif opcode == 0x1b
         slo!(cpu, absolute_y, logger, official = false)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0007)
     elseif opcode == 0x03
         slo!(cpu, indirect_x, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0008)
     elseif opcode == 0x13
         slo!(cpu, indirect_y, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0008)
 
     elseif opcode == 0x47 # SRE
         sre!(cpu, zeropage, logger, official = false)
