@@ -76,9 +76,11 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x3d
         and!(cpu, absolute_x, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0x39
         and!(cpu, absolute_y, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0x21
         and!(cpu, indirect_x, logger)
         cpu.program_counter += 0x01
@@ -86,6 +88,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x31
         and!(cpu, indirect_y, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0005)
 
     elseif opcode == 0x0a # ASL
         asl!(cpu, accumulator, logger)
@@ -293,9 +296,11 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x5d
         eor!(cpu, absolute_x, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0x59
         eor!(cpu, absolute_y, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0x41
         eor!(cpu, indirect_x, logger)
         cpu.program_counter += 0x01
@@ -303,6 +308,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x51
         eor!(cpu, indirect_y, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0005)
 
     elseif opcode == 0xe6 # INC
         inc!(cpu, zeropage, logger)
