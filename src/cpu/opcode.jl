@@ -322,7 +322,10 @@ end
 
 function ldx!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "LDX"
-    _, value, _ = address(cpu, mode, logger)
+    _, value, cross = address(cpu, mode, logger)
+    if cross
+        tick!(cpu, 0x0001)
+    end
     cpu.register_x = value
 end
 
