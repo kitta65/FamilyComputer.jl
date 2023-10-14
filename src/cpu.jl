@@ -399,9 +399,11 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xbd
         lda!(cpu, absolute_x, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0xb9
         lda!(cpu, absolute_y, logger)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0004)
     elseif opcode == 0xa1
         lda!(cpu, indirect_x, logger)
         cpu.program_counter += 0x01
@@ -409,6 +411,7 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0xb1
         lda!(cpu, indirect_y, logger)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0005)
 
     elseif opcode == 0xa2 # LDX
         ldx!(cpu, immediate, logger)
@@ -845,10 +848,15 @@ function reset!(cpu::CPU)
     new_cpu
 end
 
-function address(cpu::CPU, mode::AddressingMode, logger::StepLogger)::Tuple{UInt16,UInt8}
+function address(
+    cpu::CPU,
+    mode::AddressingMode,
+    logger::StepLogger,
+)::Tuple{UInt16,UInt8,Bool}
     logger.mode = mode
     lo = logger.lo = read8(cpu, cpu.program_counter)
     hi = logger.hi = read8(cpu, cpu.program_counter + 0x01)
+    page_cross = false
 
     if mode == immediate
         addr = cpu.program_counter
@@ -885,7 +893,11 @@ function address(cpu::CPU, mode::AddressingMode, logger::StepLogger)::Tuple{UInt
         # NOTE do not use read16() here
         lo = read8(cpu, UInt16(base))
         hi = read8(cpu, UInt16(base + 0x01))
-        addr = (hi .. lo) + cpu.register_y
+        base = hi .. lo
+        addr = base + cpu.register_y
+        if addr >> 8 != base >> 8
+            page_cross = true
+        end
     else
         # cannot handle accumulator or undefined
         throw("$mode is not implemented")
@@ -893,7 +905,7 @@ function address(cpu::CPU, mode::AddressingMode, logger::StepLogger)::Tuple{UInt
 
     addr = logger.address = UInt16(addr)
     value = logger.value = read8(cpu, addr)
-    addr, value
+    addr, value, page_cross
 end
 
 function read8(cpu::CPU, addr::UInt16)::UInt8
