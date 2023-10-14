@@ -258,9 +258,11 @@ function step!(cpu::CPU; io::IO = devnull)
 
     elseif opcode == 0xCA # DEX
         dex!(cpu, logger)
+        tick!(cpu, 0x0002)
 
     elseif opcode == 0x88 # DEY
         dey!(cpu, logger)
+        tick!(cpu, 0x0002)
 
     elseif opcode == 0x49 # EOR
         eor!(cpu, immediate, logger)
