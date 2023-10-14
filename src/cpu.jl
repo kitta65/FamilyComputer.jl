@@ -677,24 +677,31 @@ function step!(cpu::CPU; io::IO = devnull)
     elseif opcode == 0x67 # RRA
         rra!(cpu, zeropage, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0005)
     elseif opcode == 0x77
         rra!(cpu, zeropage_x, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0006)
     elseif opcode == 0x6f
         rra!(cpu, absolute, logger, official = false)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0006)
     elseif opcode == 0x7f
         rra!(cpu, absolute_x, logger, official = false)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0007)
     elseif opcode == 0x7b
         rra!(cpu, absolute_y, logger, official = false)
         cpu.program_counter += 0x02
+        tick!(cpu, 0x0007)
     elseif opcode == 0x63
         rra!(cpu, indirect_x, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0008)
     elseif opcode == 0x73
         rra!(cpu, indirect_y, logger, official = false)
         cpu.program_counter += 0x01
+        tick!(cpu, 0x0008)
 
     elseif opcode == 0x40 # RTI
         rti!(cpu, unspecified, logger)
