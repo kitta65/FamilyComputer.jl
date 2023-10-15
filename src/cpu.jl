@@ -922,10 +922,14 @@ function step!(cpu::CPU; io::IO = devnull)
 end
 
 function reset!(cpu::CPU)
-    new_cpu = CPU()
-    new_cpu.bus = cpu.bus
+    cpu.register_a = 0x00
+    cpu.register_x = 0x00
+    cpu.register_y = 0x00
+    cpu.status = CPUStatus(init_status)
+    cpu.stack_pointer = init_stack_pointer
+    cpu.cycles = 0x0000
+    cpu.program_counter = read16(cpu, 0xfffc)
     tick!(cpu, 0x0007)
-    new_cpu
 end
 
 function address(
