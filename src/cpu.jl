@@ -1067,10 +1067,10 @@ function interrupt_nmi!(cpu::CPU)
     status = cpu.status
     b!(status, false)
     o!(status, true)
-    push16!(cpu, status.bits)
+    push8!(cpu, status.bits)
 
     i!(cpu.status, true)
 
-    tick!(cpu, 7)
+    tick!(cpu, 0x0007)
     cpu.program_counter = read16(cpu, 0xfffa)
 end

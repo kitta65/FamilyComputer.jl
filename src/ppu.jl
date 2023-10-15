@@ -49,12 +49,12 @@ end
 
 function write8!(ppu::PPU, value::UInt8)
     addr = get(ppu.addr)
-    increment!(ppu.addr, vram_add_increment(ppu.ctrl) ? 32 : 1)
+    increment!(ppu.addr, vram_add_increment(ppu.ctrl) ? 0x20 : 0x01)
 
     if 0 <= addr <= 0x1fff
         throw("not implemented!")
     elseif 0x2000 <= addr <= 0x2fff
-        ppu.vram[ppu.mirror_vram_addr(addr)+1] = value
+        ppu.vram[mirror_vram_addr(ppu, addr)+1] = value
     elseif 0x3000 <= addr <= 0x3eff
         throw("do not access!")
     elseif ( # handle mirror
@@ -70,7 +70,7 @@ end
 
 function read8(ppu::PPU)::UInt8
     addr = get(ppu.addr)
-    increment!(ppu.addr, vram_add_increment(ppu.ctrl) ? 32 : 1)
+    increment!(ppu.addr, vram_add_increment(ppu.ctrl) ? 0x20 : 0x01)
 
     if 0 <= addr < 0x2000
         result = ppu.internal_data_buff
@@ -78,14 +78,14 @@ function read8(ppu::PPU)::UInt8
         result
     elseif 0x2000 <= addr < 0x3000
         result = ppu.internal_data_buff
-        ppu.internal_data_buff = ppu.vram[ppu.mirror_vram_addr(addr)+1]
+        ppu.internal_data_buff = ppu.vram[mirror_vram_addr(ppu, addr)+1]
         result
     elseif 0x3000 <= addr < 0x3f00
         throw("do not access!")
     elseif ( # handle mirror
         addr == 0x3f10 || addr == 0x3f14 || addr == 0x3f18 || addr == 0x3f1c
     )
-        read8(ppu, addr - 0x10)
+        ppu.palette_table[addr-0x10-0x3f00+1]
     elseif 0x3f00 <= addr <= 0x3fff
         ppu.palette_table[addr-0x3f00+1]
     else
@@ -129,7 +129,7 @@ function tick!(ppu::PPU, cycles::UInt16)
         ppu.scanline += 1
 
         if ppu.scanline == 241
-            vblank_started(ppu.status, true)
+            vblank_started!(ppu.status, true)
             # TODO handle sprite zero hit
             if generate_nmi(ppu.ctrl)
                 ppu.nmi_interrupt = true
@@ -139,7 +139,7 @@ function tick!(ppu::PPU, cycles::UInt16)
         if ppu.scanline >= 262
             # TODO handle sprite zero hit
             ppu.scanline = 0
-            vblank_started(ppu.status, false)
+            vblank_started!(ppu.status, false)
         end
     end
 end

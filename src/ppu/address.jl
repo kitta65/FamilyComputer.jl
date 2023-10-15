@@ -28,7 +28,7 @@ function update!(register::AddressRegister, data::UInt8)
     if val > 0b0011_1111_1111_1111 # mirror down
         set(register, val & 0b0011_1111_1111_1111)
     end
-    self.is_hi = !self.is_hi
+    register.is_hi = !register.is_hi
 end
 
 function increment!(register::AddressRegister, inc::UInt8)

@@ -1,5 +1,5 @@
 # TODO understand where this register is used
-struct ScrollRegister
+mutable struct ScrollRegister
     scroll_x::UInt8
     scroll_y::UInt8
     latch::Bool
