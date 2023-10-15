@@ -143,3 +143,43 @@ function tick!(ppu::PPU, cycles::UInt16)
         end
     end
 end
+
+function render(ppu::PPU)
+    bank = background_pattern_addr(ppu.ctrl) ? 0x1000 : 0x0000
+    pixels = zeros(UInt8, 256 * 3 * 240)
+
+    for i = 1:960 # 1st nametable just for now
+        tile = ppu.vram[i]
+        offset = ((i - 1) ÷ 32) * 256 * 3 * 8
+        tile_base = 1 + mod(i - 1, 32) * 8 * 3 + offset # top-left pixel of a tile
+        data = ppu.chr_rom[1+16*tile+bank:1+16*tile+bank+15]
+
+        for j = 1:8 # row in a tile
+            upper = data[j]
+            lower = data[j+8]
+            row_base = tile_base + 256 * 3 * (j - 1) # left pixel of a row
+            for k = 1:8 # column in a row
+                mask = 0x01 << (8 - k)
+                upper_bit = upper & mask != 0
+                lower_bit = lower & mask != 0
+                value = upper_bit * 2 + lower_bit
+                if value == 0
+                    color = palette[1]
+                elseif value == 1
+                    color = palette[2]
+                elseif value == 2
+                    color = palette[3]
+                else
+                    color = palette[4]
+                end
+
+                column_base = row_base + (k - 1) * 3
+                pixels[column_base] = color.red
+                pixels[column_base+1] = color.green
+                pixels[column_base+2] = color.blue
+            end
+        end
+
+    end
+    pixels
+end

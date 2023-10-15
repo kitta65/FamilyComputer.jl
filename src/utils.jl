@@ -7,7 +7,6 @@ function ..(hi::UInt8, lo::UInt8)::UInt16
     concat(hi, lo)
 end
 
-
 function plot(pixels::Array{UInt8})
     if SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0
         throw("cannot initialize sdl")

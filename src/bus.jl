@@ -4,13 +4,14 @@ mutable struct Bus
     cpu_vram::Vector{UInt8}
     rom::Rom
     ppu::PPU
+    monitor::Monitor
 
     function Bus(rom::Rom)::Bus
-        new(zeros(UInt8, 2048), rom, PPU())
+        new(zeros(UInt8, 2048), rom, PPU(), DummyMonitor())
     end
 
     function Bus()::Bus
-        new(zeros(UInt8, 2048), Rom(), PPU())
+        new(zeros(UInt8, 2048), Rom(), PPU(), DummyMonitor())
     end
 end
 
@@ -116,6 +117,16 @@ function set!(bus::Bus, rom::Rom)
     bus.rom = rom
 end
 
+function set!(bus::Bus, monitor::Monitor)
+    bus.monitor = monitor
+end
+
 function tick!(bus::Bus, cycles::UInt16)
+    prev_nmi = bus.ppu.nmi_interrupt
     tick!(bus.ppu, cycles * 0x03)
+    curr_nmi = bus.ppu.nmi_interrupt
+    if !prev_nmi && curr_nmi
+        pixels = render(ppu) # TODO render screen
+        update(bus.monitor, pixels)
+    end
 end

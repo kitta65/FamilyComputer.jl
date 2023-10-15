@@ -10,6 +10,7 @@ using SimpleDirectMediaLayer
 using SimpleDirectMediaLayer.LibSDL2
 
 include("utils.jl")
+include("monitor.jl")
 include("rom.jl")
 include("ppu.jl")
 include("bus.jl")
