@@ -996,7 +996,11 @@ function address(
     end
 
     addr = logger.address = UInt16(addr)
-    value = logger.value = read8(cpu, addr)
+    value = logger.value = if addr == 0x2007
+        0x00
+    else
+        read8(cpu, addr)
+    end
     addr, value, page_cross
 end
 

@@ -119,6 +119,7 @@ end
 
 function set!(bus::Bus, rom::Rom)
     bus.rom = rom
+    bus.ppu.chr_rom = rom.chr_rom
 end
 
 function set!(bus::Bus, monitor::Monitor)
@@ -126,11 +127,9 @@ function set!(bus::Bus, monitor::Monitor)
 end
 
 function tick!(bus::Bus, cycles::UInt16)
-    prev_nmi = bus.ppu.nmi_interrupt
-    tick!(bus.ppu, cycles * 0x0003)
-    curr_nmi = bus.ppu.nmi_interrupt
-    if !prev_nmi && curr_nmi
-        pixels = render(bus.ppu) # TODO render screen
+    finished = tick!(bus.ppu, cycles * 0x0003)
+    if finished
+        pixels = render(bus.ppu)
         update(bus.monitor, pixels)
     end
 end

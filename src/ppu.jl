@@ -140,8 +140,10 @@ function tick!(ppu::PPU, cycles::UInt16)
             # TODO handle sprite zero hit
             ppu.scanline = 0
             vblank_started!(ppu.status, false)
+            return true
         end
     end
+    return false
 end
 
 function render(ppu::PPU)
