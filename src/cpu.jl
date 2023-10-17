@@ -996,7 +996,8 @@ function address(
     end
 
     addr = logger.address = UInt16(addr)
-    value = logger.value = if addr == 0x2007
+    # TODO refactor
+    value = logger.value = if addr == 0x2007 # avoid side effect
         0x00
     else
         read8(cpu, addr)
