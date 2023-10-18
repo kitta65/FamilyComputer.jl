@@ -155,6 +155,7 @@ function render(ppu::PPU)
         offset = ((i - 1) ÷ 32) * 256 * 3 * 8
         tile_base = 1 + mod(i - 1, 32) * 8 * 3 + offset # top-left pixel of a tile
         data = ppu.chr_rom[1+16*tile+bank:1+16*tile+bank+15]
+        palette = bg_palette(ppu, ((i - 1) ÷ 32), mod(i - 1, 32))
 
         for j = 1:8 # row in a tile
             upper = data[j]
@@ -166,13 +167,13 @@ function render(ppu::PPU)
                 lower_bit = lower & mask != 0
                 value = upper_bit * 2 + lower_bit
                 if value == 0
-                    color = palette[1]
+                    color = sys_palette[palette[1]+1]
                 elseif value == 1
-                    color = palette[2]
+                    color = sys_palette[palette[2]+1]
                 elseif value == 2
-                    color = palette[3]
+                    color = sys_palette[palette[3]+1]
                 else
-                    color = palette[4]
+                    color = sys_palette[palette[4]+1]
                 end
 
                 column_base = row_base + (k - 1) * 3
@@ -184,4 +185,33 @@ function render(ppu::PPU)
 
     end
     pixels
+end
+
+# tile_row, tile_column... 0-based index
+function bg_palette(ppu::PPU, tile_row::Integer, tile_column::Integer)
+    attr_table_idx = tile_row ÷ 4 * 8 + tile_column ÷ 4
+    attr_byte = ppu.vram[1+0x3c0+attr_table_idx]
+
+    is_left = 0 <= mod(tile_column, 4) <= 1
+    is_top = 0 <= mod(tile_row, 4) <= 1
+    if is_top
+        if is_left
+            palette_idx = attr_byte & 0b11
+        else
+            palette_idx = (attr_byte >> 2) & 0b11
+        end
+    else
+        if is_left
+            palette_idx = (attr_byte >> 4) & 0b11
+        else
+            palette_idx = (attr_byte >> 6) & 0b11
+        end
+    end
+    offset = 1 + palette_idx * 4 # +1 means universal background color
+    [
+        ppu.palette_table[1],
+        ppu.palette_table[1+offset],
+        ppu.palette_table[1+offset+1],
+        ppu.palette_table[1+offset+2],
+    ]
 end
