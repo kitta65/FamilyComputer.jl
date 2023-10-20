@@ -50,6 +50,8 @@ function read8(bus::Bus, addr::UInt16)::UInt8
         0
     elseif 0x4000 <= addr <= 0x4015
         0x00 # ignore apu
+    elseif 0x4016 <= addr <= 0x4017
+        0x00 # ignore joypad
 
     elseif 0x8000 <= addr <= 0xffff
         addr = addr - 0x8000
@@ -103,6 +105,8 @@ function write8!(bus::Bus, addr::UInt16, data::UInt8)
         # TODO oam dma
     elseif 0x4000 <= addr <= 0x4015
         # ignore apu
+    elseif 0x4016 <= addr <= 0x4017
+        # ignore joypad
     elseif 0x8000 <= addr <= 0xffff
         throw("cannot write into prg rom")
     else

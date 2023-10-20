@@ -60,7 +60,7 @@ function write8!(ppu::PPU, value::UInt8)
     elseif ( # handle mirror
         addr == 0x3f10 || addr == 0x3f14 || addr == 0x3f18 || addr == 0x3f1c
     )
-        write8!(ppu, addr - 0x10, value)
+        ppu.palette_table[addr-0x10-0x3f00+1] = value
     elseif 0x3f00 <= addr <= 0x3fff
         ppu.palette_table[addr-0x3f00+1] = value
     else
