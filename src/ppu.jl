@@ -195,7 +195,7 @@ function render(ppu::PPU)
         flip_vertical = (ppu.oam_data[i+2] >> 7 & 0b01) == 0b01
         flip_horizontal = (ppu.oam_data[i+2] >> 6 & 0b01) == 0b01
         palette_idx = ppu.oam_data[i+2] & 0b11
-        sprite_palette = sprite_palette(ppu, palette_idx)
+        sprite_palette_ = sprite_palette(ppu, palette_idx)
 
         bank = sprite_pattern_addr(ppu.ctrl) ? 0x1000 : 0x0000
         tile = ppu.chr_rom[(bank+tile_idx*16+1):(bank+tile_idx*16+16)]
@@ -212,11 +212,11 @@ function render(ppu::PPU)
                 if value == 0
                     continue
                 elseif value == 1
-                    color = sys_palette[sprite_palette[2]+1]
+                    color = sys_palette[sprite_palette_[2]+1]
                 elseif value == 2
-                    color = sys_palette[sprite_palette[3]+1]
+                    color = sys_palette[sprite_palette_[3]+1]
                 else
-                    color = sys_palette[sprite_palette[4]+1]
+                    color = sys_palette[sprite_palette_[4]+1]
                 end
                 if flip_horizontal
                     if flip_vertical
