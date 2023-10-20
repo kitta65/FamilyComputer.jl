@@ -147,9 +147,10 @@ function tick!(ppu::PPU, cycles::UInt16)
 end
 
 function render(ppu::PPU)
-    bank = background_pattern_addr(ppu.ctrl) ? 0x1000 : 0x0000
     pixels = zeros(UInt8, 256 * 3 * 240)
 
+    # background
+    bank = background_pattern_addr(ppu.ctrl) ? 0x1000 : 0x0000
     for i = 1:960 # 1st nametable just for now
         tile = ppu.vram[i]
         offset = ((i - 1) ÷ 32) * 256 * 3 * 8
@@ -184,7 +185,65 @@ function render(ppu::PPU)
         end
 
     end
+
+    # sprite
+    for i in reverse(1:4:length(ppu.oam_data))
+        tile_idx = ppu.oam_data[i+1]
+        tile_x = ppu.oam_data[i+3]
+        tile_y = ppu.oam_data[i]
+
+        flip_vertical = (ppu.oam_data[i+2] >> 7 & 0b01) == 0b01
+        flip_horizontal = (ppu.oam_data[i+2] >> 6 & 0b01) == 0b01
+        palette_idx = ppu.oam_data[i+2] & 0b11
+        sprite_palette = sprite_palette(ppu, palette_idx)
+
+        bank = sprite_pattern_addr(ppu.ctrl) ? 0x1000 : 0x0000
+        tile = ppu.chr_rom[(bank+tile_idx*16+1):(bank+tile_idx*16+16)]
+
+        for y = 0:7 # row in a tile
+            upper = tile[y+1]
+            lower = tile[y+1+8]
+
+            for x = 0:7 # column in a row
+                mask = 0x01 << (7 - x)
+                upper_bit = upper & mask != 0
+                lower_bit = lower & mask != 0
+                value = upper_bit * 2 + lower_bit
+                if value == 0
+                    continue
+                elseif value == 1
+                    color = sys_palette[sprite_palette[2]+1]
+                elseif value == 2
+                    color = sys_palette[sprite_palette[3]+1]
+                else
+                    color = sys_palette[sprite_palette[4]+1]
+                end
+                if flip_horizontal
+                    if flip_vertical
+                        base = (tile_x + (7 - x)) * 3 + (tile_y + (7 - y)) * 256 * 3
+                    else
+                        base = (tile_x + (7 - x)) * 3 + (tile_y + y) * 256 * 3
+                    end
+                else
+                    if flip_vertical
+                        base = (tile_x + x) * 3 + (tile_y + (7 - y)) * 256 * 3
+                    else
+                        base = (tile_x + x) * 3 + (tile_y + y) * 256 * 3
+                    end
+                end
+                pixels[base+1] = color.red
+                pixels[base+2] = color.green
+                pixels[base+3] = color.blue
+            end
+        end
+    end
     pixels
+end
+
+function sprite_palette(ppu::PPU, palette_idx::UInt8)::Array{UInt8}
+    # 0x11 means 4 palette_tables for background and universal background color
+    start = 0x11 + (palette_idx * 4)
+    [0, ppu.palette_table[start+1], ppu.palette_table[start+2], ppu.palette_table[start+3]]
 end
 
 # tile_row, tile_column... 0-based index
