@@ -231,6 +231,10 @@ function render(ppu::PPU)
                         base = (tile_x + x) * 3 + (tile_y + y) * 256 * 3
                     end
                 end
+                if base + 3 > length(pixels)
+                    # NOTE suppress bounds error, which is maybe caused by other bug
+                    continue
+                end
                 pixels[base+1] = color.red
                 pixels[base+2] = color.green
                 pixels[base+3] = color.blue

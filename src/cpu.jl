@@ -1062,7 +1062,7 @@ function update_z_n!(cpu::CPU, value::UInt8)
 end
 
 function tick!(cpu::CPU, cycles::UInt16)
-    cpu.cycles += cycles
+    cpu.cycles += cycles # NOTE this is not accurate OAMDMA is ignored
     tick!(cpu.bus, cycles)
 end
 

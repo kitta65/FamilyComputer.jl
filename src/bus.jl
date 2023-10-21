@@ -5,13 +5,14 @@ mutable struct Bus
     rom::Rom
     ppu::PPU
     monitor::Monitor
+    cycles::UInt16
 
     function Bus(rom::Rom)::Bus
-        new(zeros(UInt8, 2048), rom, PPU(), DummyMonitor())
+        new(zeros(UInt8, 2048), rom, PPU(), DummyMonitor(), 0x0000)
     end
 
     function Bus()::Bus
-        new(zeros(UInt8, 2048), Rom(), PPU(), DummyMonitor())
+        new(zeros(UInt8, 2048), Rom(), PPU(), DummyMonitor(), 0x0000)
     end
 end
 
@@ -101,8 +102,20 @@ function write8!(bus::Bus, addr::UInt16, data::UInt8)
         addr = addr & 0b0010_0000_0000_0111 # mirror down to 0x2000 ~ 0x2007
         write8!(bus, addr, data)
 
-    elseif addr == 0x4015
-        # TODO oam dma
+    elseif addr == 0x4014 # oam dma
+        hi = UInt16(data) << 8
+        for i = 0x00:0xff
+            bus.ppu.oam_data[bus.ppu.oam_addr+1] = read8(bus, hi + i)
+            bus.ppu.oam_addr += 0x01
+        end
+
+        # https://www.nesdev.org/wiki/DMA#Cadence
+        if mod(bus.cycles, 2) == 0
+            # TODO it may be too big to handle in a single tick!()
+            # tick!(bus, 513)
+        else
+            # tick!(bus, 514)
+        end
     elseif 0x4000 <= addr <= 0x4015
         # ignore apu
     elseif 0x4016 <= addr <= 0x4017
@@ -131,6 +144,7 @@ function set!(bus::Bus, monitor::Monitor)
 end
 
 function tick!(bus::Bus, cycles::UInt16)
+    bus.cycles += cycles
     finished = tick!(bus.ppu, cycles * 0x0003)
     if finished
         pixels = render(bus.ppu)
