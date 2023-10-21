@@ -1,4 +1,5 @@
 export CPU, run!
+
 const init_stack_pointer = 0xfd
 const init_status = 0b0010_0100
 const base_stack = 0x0100
@@ -22,14 +23,28 @@ mutable struct CPU
     program_counter::UInt16
     stack_pointer::UInt8
     bus::Bus
-    cycles::UInt16
+    cycles::UInt16 # TODO remove
 
     function CPU()::CPU
         new(0, 0, 0, CPUStatus(init_status), 0, init_stack_pointer, Bus(), 0)
     end
 end
 
-include("cpu/addressmode.jl")
+@enum AddressingMode begin
+    immediate
+    zeropage
+    zeropage_x
+    zeropage_y
+    absolute
+    absolute_x
+    absolute_y
+    indirect
+    indirect_x
+    indirect_y
+    accumulator
+end
+
+include("cpu/address.jl")
 include("cpu/opcode.jl")
 
 function run!(cpu::CPU; post_reset!::Function = cpu::CPU -> nothing)
@@ -531,7 +546,6 @@ function step!(cpu::CPU)
         tick!(cpu, 0x0007)
 
     elseif opcode == 0xea # NOP
-        nop!(cpu, unspecified)
         tick!(cpu, 0x0002)
     elseif (
         opcode == 0x1a ||
@@ -541,7 +555,6 @@ function step!(cpu::CPU)
         opcode == 0xda ||
         opcode == 0xfa
     )
-        nop!(cpu, unspecified)
         tick!(cpu, 0x0002)
     elseif opcode == 0x80
         nop!(cpu, immediate)
@@ -612,19 +625,19 @@ function step!(cpu::CPU)
         tick!(cpu, 0x0005)
 
     elseif opcode == 0x48 # PHA
-        pha!(cpu, unspecified)
+        pha!(cpu)
         tick!(cpu, 0x0003)
 
     elseif opcode == 0x08 # PHP
-        php!(cpu, unspecified)
+        php!(cpu)
         tick!(cpu, 0x0003)
 
     elseif opcode == 0x68 # PLA
-        pla!(cpu, unspecified)
+        pla!(cpu)
         tick!(cpu, 0x0004)
 
     elseif opcode == 0x28 # PLP
-        plp!(cpu, unspecified)
+        plp!(cpu)
         tick!(cpu, 0x0004)
 
     elseif opcode == 0x27 # RLA
@@ -726,11 +739,11 @@ function step!(cpu::CPU)
         tick!(cpu, 0x0008)
 
     elseif opcode == 0x40 # RTI
-        rti!(cpu, unspecified)
+        rti!(cpu)
         tick!(cpu, 0x0006)
 
     elseif opcode == 0x60 # RTS
-        rts!(cpu, unspecified)
+        rts!(cpu)
         tick!(cpu, 0x0006)
 
     elseif opcode == 0x87 # SAX
@@ -788,15 +801,15 @@ function step!(cpu::CPU)
         tick!(cpu, 0x0002)
 
     elseif opcode == 0x38 # SEC
-        sec!(cpu, unspecified)
+        sec!(cpu)
         tick!(cpu, 0x0002)
 
     elseif opcode == 0xf8 # SED
-        sed!(cpu, unspecified)
+        sed!(cpu)
         tick!(cpu, 0x0002)
 
     elseif opcode == 0x78 # SEI
-        sei!(cpu, unspecified)
+        sei!(cpu)
         tick!(cpu, 0x0002)
 
     elseif opcode == 0x07 # SLO
@@ -952,33 +965,36 @@ function reset!(cpu::CPU)
     tick!(cpu, 0x0007)
 end
 
-function address(cpu::CPU, mode::AddressingMode)::Tuple{UInt16,UInt8,Bool}
+function address(cpu::CPU, mode::AddressingMode)::Tuple{Address,Bool}
+    # TODO remove unnecessary read
     lo = read8(cpu, cpu.program_counter)
     hi = read8(cpu, cpu.program_counter + 0x01)
     page_cross = false
 
     if mode == immediate
-        addr = cpu.program_counter
+        addr = UInt16Address(cpu.program_counter)
     elseif mode == zeropage
-        addr = lo
+        addr = UInt16Address(lo)
     elseif mode == absolute
-        addr = hi .. lo
+        addr = UInt16Address(hi .. lo)
     elseif mode == zeropage_x
-        addr = lo + cpu.register_x
+        addr = UInt16Address(lo + cpu.register_x)
     elseif mode == zeropage_y
-        addr = lo + cpu.register_y
+        addr = UInt16Address(lo + cpu.register_y)
     elseif mode == absolute_x
         base = hi .. lo
         addr = base + cpu.register_x
         if addr >> 8 != base >> 8
             page_cross = true
         end
+        addr = UInt16Address(addr)
     elseif mode == absolute_y
         base = hi .. lo
         addr = base + cpu.register_y
         if addr >> 8 != base >> 8
             page_cross = true
         end
+        addr = UInt16Address(addr)
     elseif mode == indirect
         addr = hi .. lo
         addr = if addr & 0xFF == 0xFF
@@ -988,13 +1004,14 @@ function address(cpu::CPU, mode::AddressingMode)::Tuple{UInt16,UInt8,Bool}
         else
             read16(cpu, addr)
         end
+        addr = UInt16Address(addr)
     elseif mode == indirect_x
         base = lo
         ptr = base + cpu.register_x
         # NOTE do not use read16() here
         lo = read8(cpu, UInt16(ptr))
         hi = read8(cpu, UInt16(ptr + 0x01))
-        addr = hi .. lo
+        addr = UInt16Address(hi .. lo)
     elseif mode == indirect_y
         base = lo
         # NOTE do not use read16() here
@@ -1005,19 +1022,13 @@ function address(cpu::CPU, mode::AddressingMode)::Tuple{UInt16,UInt8,Bool}
         if addr >> 8 != base >> 8
             page_cross = true
         end
+        addr = UInt16Address(addr)
+    elseif mode == accumulator
+        addr = Accumulator()
     else
-        # cannot handle accumulator or undefined
         throw("$mode is not implemented")
     end
-
-    addr = UInt16(addr)
-    # TODO refactor
-    value = if addr == 0x2007 # avoid side effect
-        0x00
-    else
-        read8(cpu, addr)
-    end
-    addr, value, page_cross
+    addr, page_cross
 end
 
 function read8(cpu::CPU, addr::UInt16)::UInt8
