@@ -46,10 +46,8 @@ end
 include("cpu/address.jl")
 include("cpu/opcode.jl")
 
-function run!(cpu::CPU; post_reset!::Function = cpu::CPU -> nothing)
+function run!(cpu::CPU)
     reset!(cpu)
-    post_reset!(cpu) # TODO rm
-
     while !brk(cpu)
         if cpu.bus.ppu.nmi_interrupt
             cpu.bus.ppu.nmi_interrupt = false
