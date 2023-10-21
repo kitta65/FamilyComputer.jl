@@ -1,8 +1,33 @@
-export run!
-
+export CPU, run!
 const init_stack_pointer = 0xfd
 const init_status = 0b0010_0100
 const base_stack = 0x0100
+
+@flags CPUStatus UInt8 begin
+    c
+    z
+    i
+    d
+    b
+    o # always 1
+    v
+    n
+end
+
+mutable struct CPU
+    register_a::UInt8
+    register_x::UInt8
+    register_y::UInt8
+    status::CPUStatus
+    program_counter::UInt16
+    stack_pointer::UInt8
+    bus::Bus
+    cycles::UInt16
+
+    function CPU()::CPU
+        new(0, 0, 0, CPUStatus(init_status), 0, init_stack_pointer, Bus(), 0)
+    end
+end
 
 include("cpu/types.jl")
 include("cpu/addressmode.jl")
@@ -1078,4 +1103,15 @@ function interrupt_nmi!(cpu::CPU)
 
     tick!(cpu, 0x0007)
     cpu.program_counter = read16(cpu, 0xfffa)
+end
+
+function Base.print(io::IO, cpu::CPU)
+    pc = @sprintf "%04X" cpu.program_counter
+    a = @sprintf "%02X" cpu.register_a
+    x = @sprintf "%02X" cpu.register_x
+    y = @sprintf "%02X" cpu.register_y
+    p = @sprintf "%02X" cpu.status.bits
+    s = @sprintf "%02X" cpu.stack_pointer
+    str = "$pc A:$a X:$x Y:$y P:$p SP:$s"
+    print(io, str)
 end

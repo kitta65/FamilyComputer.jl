@@ -1,5 +1,3 @@
-export CPU
-
 @enum AddressingMode begin
     immediate
     zeropage
@@ -13,32 +11,6 @@ export CPU
     indirect_y
     unspecified
     accumulator
-end
-
-@flags CPUStatus UInt8 begin
-    c
-    z
-    i
-    d
-    b
-    o # always 1
-    v
-    n
-end
-
-mutable struct CPU
-    register_a::UInt8
-    register_x::UInt8
-    register_y::UInt8
-    status::CPUStatus
-    program_counter::UInt16
-    stack_pointer::UInt8
-    bus::Bus
-    cycles::UInt16
-
-    function CPU()::CPU
-        new(0, 0, 0, CPUStatus(init_status), 0, init_stack_pointer, Bus(), 0)
-    end
 end
 
 mutable struct StepLogger
