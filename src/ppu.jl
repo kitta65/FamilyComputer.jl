@@ -159,8 +159,8 @@ function render(ppu::PPU)
         palette = bg_palette(ppu, ((i - 1) ÷ 32), mod(i - 1, 32))
 
         for j = 1:8 # row in a tile
-            upper = data[j]
-            lower = data[j+8]
+            upper = data[j+8]
+            lower = data[j]
             row_base = tile_base + 256 * 3 * (j - 1) # left pixel of a row
             for k = 1:8 # column in a row
                 mask = 0x01 << (8 - k)
@@ -201,8 +201,8 @@ function render(ppu::PPU)
         tile = ppu.chr_rom[(bank+tile_idx*16+1):(bank+tile_idx*16+16)]
 
         for y = 0:7 # row in a tile
-            upper = tile[y+1]
-            lower = tile[y+1+8]
+            upper = tile[y+1+8]
+            lower = tile[y+1]
 
             for x = 0:7 # column in a row
                 mask = 0x01 << (7 - x)
