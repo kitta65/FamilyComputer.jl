@@ -29,7 +29,6 @@ mutable struct CPU
     end
 end
 
-include("cpu/types.jl")
 include("cpu/addressmode.jl")
 include("cpu/opcode.jl")
 
