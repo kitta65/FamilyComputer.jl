@@ -84,13 +84,13 @@ function plot(rom::Rom)
                 lower_bit = lower & mask != 0
                 value = upper_bit * 2 + lower_bit
                 if value == 0
-                    color = palette[1]
+                    color = sys_palette[1]
                 elseif value == 1
-                    color = palette[2]
+                    color = sys_palette[2]
                 elseif value == 2
-                    color = palette[3]
+                    color = sys_palette[3]
                 else
-                    color = palette[4]
+                    color = sys_palette[4]
                 end
 
                 column_base = row_base + (k - 1) * 3
