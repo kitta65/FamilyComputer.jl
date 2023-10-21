@@ -1,5 +1,5 @@
 .PHONY: test
-test:
+test: setup
 	julia -e 'using Pkg; Pkg.activate("."); Pkg.test("FamilyComputer")'
 
 .PHONY: setup
@@ -14,7 +14,7 @@ fmt: setup
 download: download/nestest.nes download/nestest.log
 
 download/nestest.nes:
-	curl -L --output download/nestest.nes https://nickmass.com/images/nestest.nes
+	curl -L --output download/nestest.nes 'https://nickmass.com/images/nestest.nes'
 
 download/nestest.log:
-	curl -L --output download/nestest.log https://nickmass.com/images/nestest.log
+	curl -L --output download/nestest.log 'https://www.qmtpro.com/~nes/misc/nestest.log'

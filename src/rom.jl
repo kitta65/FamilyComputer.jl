@@ -49,6 +49,11 @@ struct Rom
         )
     end
 
+    function Rom(ines::String)::Rom
+        bytes = read(ines)
+        Rom(bytes)
+    end
+
     function Rom(bytes::UInt8...)::Rom
         prg_rom = zeros(UInt8, 0x8000)
         prg_rom[1:length(bytes)] .= bytes
@@ -59,4 +64,41 @@ struct Rom
         prg_rom = zeros(UInt8, 0x8000)
         new(prg_rom, zeros(UInt8, 2^13), 0, horizontal)
     end
+end
+
+function plot(rom::Rom)
+    chr_rom = rom.chr_rom
+    n_tyles = length(chr_rom) ÷ 16
+    pixels = zeros(UInt8, 256 * 3 * 240)
+    for i = 1:n_tyles
+        offset = ((i - 1) ÷ 32) * 256 * 3 * 8
+        tile_base = 1 + mod(i - 1, 32) * 8 * 3 + offset # top-left pixel of a tile
+        data = chr_rom[1+16*(i-1):16*i]
+        for j = 1:8 # row in a tile
+            upper = data[j]
+            lower = data[j+8]
+            row_base = tile_base + 256 * 3 * (j - 1) # left pixel of a row
+            for k = 1:8 # column in a row
+                mask = 0x01 << (8 - k)
+                upper_bit = upper & mask != 0
+                lower_bit = lower & mask != 0
+                value = upper_bit * 2 + lower_bit
+                if value == 0
+                    color = sys_palette[1]
+                elseif value == 1
+                    color = sys_palette[2]
+                elseif value == 2
+                    color = sys_palette[3]
+                else
+                    color = sys_palette[4]
+                end
+
+                column_base = row_base + (k - 1) * 3
+                pixels[column_base] = color.red
+                pixels[column_base+1] = color.green
+                pixels[column_base+2] = color.blue
+            end
+        end
+    end
+    plot(pixels)
 end

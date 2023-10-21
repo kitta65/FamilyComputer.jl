@@ -7,7 +7,7 @@
 
 function adc!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "ADC"
-    _, value = address(cpu, mode, logger)
+    _, value, _ = address(cpu, mode, logger)
 
     sum = UInt16(cpu.register_a) + value + (c(cpu.status) ? 0x01 : 0x00)
     c!(cpu.status, sum > 0xff)
@@ -19,7 +19,7 @@ end
 
 function and!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "AND"
-    _, value = address(cpu, mode, logger)
+    _, value, _ = address(cpu, mode, logger)
     cpu.register_a = cpu.register_a & value
 end
 
@@ -30,7 +30,7 @@ function asl!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
         value = cpu.register_a
         setter = (value::UInt8) -> cpu.register_a = value
     else
-        addr, value = address(cpu, mode, logger)
+        addr, value, _ = address(cpu, mode, logger)
         setter = function (value::UInt8)
             write8!(cpu, addr, value)
             update_z_n!(cpu, value)
@@ -44,36 +44,51 @@ function brk!(logger::StepLogger)
     logger.instruction = "BRK"
 end
 
-function bcs!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
-    logger.instruction = "BCS"
-    _, value = address(cpu, mode, logger)
-    if c(cpu.status)
+function bcc!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    logger.instruction = "BCC"
+    _, value, _ = address(cpu, mode, logger)
+    if !c(cpu.status)
+        tick!(cpu, 0x0001)
         value = reinterpret(Int8, value)
-        cpu.program_counter += value
+        to = cpu.program_counter + value
+        if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
+            tick!(cpu, 0x0001)
+        end
+        cpu.program_counter = to
     end
 end
 
-function bcc!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
-    logger.instruction = "BCC"
-    _, value = address(cpu, mode, logger)
-    if !c(cpu.status)
+function bcs!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
+    logger.instruction = "BCS"
+    _, value, _ = address(cpu, mode, logger)
+    if c(cpu.status)
+        tick!(cpu, 0x0001)
         value = reinterpret(Int8, value)
-        cpu.program_counter += value
+        to = cpu.program_counter + value
+        if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
+            tick!(cpu, 0x0001)
+        end
+        cpu.program_counter = to
     end
 end
 
 function beq!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BEQ"
-    _, value = address(cpu, mode, logger)
+    _, value, _ = address(cpu, mode, logger)
     if z(cpu.status)
+        tick!(cpu, 0x0001)
         value = reinterpret(Int8, value)
-        cpu.program_counter += value
+        to = cpu.program_counter + value
+        if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
+            tick!(cpu, 0x0001)
+        end
+        cpu.program_counter = to
     end
 end
 
 function bit!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BIT"
-    _, value = address(cpu, mode, logger)
+    _, value, _ = address(cpu, mode, logger)
     anded = cpu.register_a & value
 
     z!(cpu.status, anded == 0b00)
@@ -83,46 +98,71 @@ end
 
 function bmi!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BMI"
-    _, value = address(cpu, mode, logger)
+    _, value, _ = address(cpu, mode, logger)
     if n(cpu.status)
+        tick!(cpu, 0x0001)
         value = reinterpret(Int8, value)
-        cpu.program_counter += value
+        to = cpu.program_counter + value
+        if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
+            tick!(cpu, 0x0001)
+        end
+        cpu.program_counter = to
     end
 end
 
 function bne!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BNE"
-    _, value = address(cpu, mode, logger)
+    _, value, _ = address(cpu, mode, logger)
     if !z(cpu.status)
+        tick!(cpu, 0x0001)
         value = reinterpret(Int8, value)
-        cpu.program_counter += value
+        to = cpu.program_counter + value
+        if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
+            tick!(cpu, 0x0001)
+        end
+        cpu.program_counter = to
     end
 end
 
 function bpl!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BPL"
-    _, value = address(cpu, mode, logger)
+    _, value, _ = address(cpu, mode, logger)
     if !n(cpu.status)
+        tick!(cpu, 0x0001)
         value = reinterpret(Int8, value)
-        cpu.program_counter += value
+        to = cpu.program_counter + value
+        if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
+            tick!(cpu, 0x0001)
+        end
+        cpu.program_counter = to
     end
 end
 
 function bvc!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BVC"
-    _, value = address(cpu, mode, logger)
+    _, value, _ = address(cpu, mode, logger)
     if !v(cpu.status)
+        tick!(cpu, 0x0001)
         value = reinterpret(Int8, value)
-        cpu.program_counter += value
+        to = cpu.program_counter + value
+        if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
+            tick!(cpu, 0x0001)
+        end
+        cpu.program_counter = to
     end
 end
 
 function bvs!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "BVS"
-    _, value = address(cpu, mode, logger)
+    _, value, _ = address(cpu, mode, logger)
     if v(cpu.status)
+        tick!(cpu, 0x0001)
         value = reinterpret(Int8, value)
-        cpu.program_counter += value
+        to = cpu.program_counter + value
+        if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
+            tick!(cpu, 0x0001)
+        end
+        cpu.program_counter = to
     end
 end
 
@@ -143,7 +183,7 @@ end
 
 function cmp!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "CMP"
-    _, value = address(cpu, mode, logger)
+    _, value, _ = address(cpu, mode, logger)
 
     c!(cpu.status, value <= cpu.register_a)
     diff = cpu.register_a - value
@@ -152,7 +192,7 @@ end
 
 function cpx!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "CPX"
-    _, value = address(cpu, mode, logger)
+    _, value, _ = address(cpu, mode, logger)
 
     diff = cpu.register_x - value
     c!(cpu.status, value <= cpu.register_x)
@@ -161,7 +201,7 @@ end
 
 function cpy!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "CPY"
-    _, value = address(cpu, mode, logger)
+    _, value, _ = address(cpu, mode, logger)
 
     diff = cpu.register_y - value
     c!(cpu.status, value <= cpu.register_y)
@@ -175,7 +215,7 @@ function dcp!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool
     logger.instruction = "*DCP"
 
     # DEC
-    addr, value = address(cpu, mode, logger)
+    addr, value, _ = address(cpu, mode, logger)
     value -= 0x01
     write8!(cpu, addr, value)
 
@@ -187,7 +227,7 @@ end
 
 function dec!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "DEC"
-    addr, value = address(cpu, mode, logger)
+    addr, value, _ = address(cpu, mode, logger)
     value -= 0x01
     update_z_n!(cpu, value)
     write8!(cpu, addr, value)
@@ -205,13 +245,13 @@ end
 
 function eor!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "EOR"
-    _, value = address(cpu, mode, logger)
+    _, value, _ = address(cpu, mode, logger)
     cpu.register_a = value ⊻ cpu.register_a
 end
 
 function inc!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "INC"
-    addr, value = address(cpu, mode, logger)
+    addr, value, _ = address(cpu, mode, logger)
     value += 0x01
     update_z_n!(cpu, value)
     write8!(cpu, addr, value)
@@ -232,7 +272,7 @@ function isc!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool
         throw("not implemented")
     end
     logger.instruction = "*ISB"
-    addr, value = address(cpu, mode, logger)
+    addr, value, _ = address(cpu, mode, logger)
 
     # INC
     value += 0x01
@@ -249,14 +289,14 @@ end
 
 function jmp!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "JMP"
-    addr, _ = address(cpu, mode, logger)
+    addr, _, _ = address(cpu, mode, logger)
     cpu.program_counter = addr
 end
 
 function jsr!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "JSR"
     push16!(cpu, cpu.program_counter + 0x0002 - 0x0001)
-    addr, _ = address(cpu, mode, logger)
+    addr, _, _ = address(cpu, mode, logger)
     cpu.program_counter = addr
 end
 
@@ -265,26 +305,39 @@ function lax!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool
         throw("not implemented")
     end
     logger.instruction = "*LAX"
-    _, value = address(cpu, mode, logger)
+    _, value, cross = address(cpu, mode, logger)
+    if cross
+        tick!(cpu, 0x0001)
+    end
     cpu.register_a = value # LDA
     cpu.register_x = cpu.register_a # TAX
 end
 
 function lda!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "LDA"
-    _, value = address(cpu, mode, logger)
+    _, value, cross = address(cpu, mode, logger)
+    if cross
+        tick!(cpu, 0x0001)
+    end
+
     cpu.register_a = value
 end
 
 function ldx!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "LDX"
-    _, value = address(cpu, mode, logger)
+    _, value, cross = address(cpu, mode, logger)
+    if cross
+        tick!(cpu, 0x0001)
+    end
     cpu.register_x = value
 end
 
 function ldy!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "LDY"
-    _, value = address(cpu, mode, logger)
+    _, value, cross = address(cpu, mode, logger)
+    if cross
+        tick!(cpu, 0x0001)
+    end
     cpu.register_y = value
 end
 
@@ -295,7 +348,7 @@ function lsr!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
         value = cpu.register_a
         setter = (value::UInt8) -> cpu.register_a = value
     else
-        addr, value = address(cpu, mode, logger)
+        addr, value, _ = address(cpu, mode, logger)
         setter = function (value::UInt8)
             write8!(cpu, addr, value)
             update_z_n!(cpu, value)
@@ -315,12 +368,15 @@ function nop!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool
     if mode == unspecified
         return
     end
-    _, _ = address(cpu, mode, logger)
+    _, _, cross = address(cpu, mode, logger)
+    if cross
+        tick!(cpu, 0x0001)
+    end
 end
 
 function ora!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "ORA"
-    _, value = address(cpu, mode, logger)
+    _, value, _ = address(cpu, mode, logger)
     cpu.register_a = value | cpu.register_a
 end
 
@@ -358,7 +414,7 @@ function rla!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool
 
     # ROL
     carry = c(cpu.status)
-    addr, value = address(cpu, mode, logger)
+    addr, value, _ = address(cpu, mode, logger)
     c!(cpu.status, (value >> 7) == 0b01)
     value = value << 1
     if carry
@@ -378,7 +434,7 @@ function rra!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool
 
     # ROR
     carry = c(cpu.status)
-    addr, value = address(cpu, mode, logger)
+    addr, value, _ = address(cpu, mode, logger)
     c!(cpu.status, value & 0b01 == 0b01)
     value = value >> 1
     if carry
@@ -402,7 +458,7 @@ function rol!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
         value = cpu.register_a
         setter = (value::UInt8) -> cpu.register_a = value
     else
-        addr, value = address(cpu, mode, logger)
+        addr, value, _ = address(cpu, mode, logger)
         setter = function (value::UInt8)
             write8!(cpu, addr, value)
             update_z_n!(cpu, value)
@@ -424,7 +480,7 @@ function ror!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
         value = cpu.register_a
         setter = (value::UInt8) -> cpu.register_a = value
     else
-        addr, value = address(cpu, mode, logger)
+        addr, value, _ = address(cpu, mode, logger)
         setter = function (value::UInt8)
             write8!(cpu, addr, value)
             update_z_n!(cpu, value)
@@ -457,7 +513,7 @@ function sax!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool
         throw("not implemented")
     end
     logger.instruction = "*SAX"
-    addr, _ = address(cpu, mode, logger)
+    addr, _, _ = address(cpu, mode, logger)
     data = cpu.register_a & cpu.register_x
     write8!(cpu, addr, data)
 end
@@ -468,7 +524,7 @@ function sbc!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool
     else
         logger.instruction = "*SBC"
     end
-    _, value = address(cpu, mode, logger)
+    _, value, _ = address(cpu, mode, logger)
 
     diff = UInt16(cpu.register_a) - value - (c(cpu.status) ? 0x00 : 0x01)
     c!(cpu.status, !(diff > 0xff))
@@ -500,7 +556,7 @@ function slo!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool
     logger.instruction = "*SLO"
 
     # ASL
-    addr, value = address(cpu, mode, logger)
+    addr, value, _ = address(cpu, mode, logger)
     c!(cpu.status, (value >> 7) == 0b01)
     value = value << 1
     write8!(cpu, addr, value)
@@ -516,7 +572,7 @@ function sre!(cpu::CPU, mode::AddressingMode, logger::StepLogger; official::Bool
     logger.instruction = "*SRE"
 
     # LSR
-    addr, value = address(cpu, mode, logger)
+    addr, value, _ = address(cpu, mode, logger)
     c!(cpu.status, value & 0b01 == 0b01)
     value = value >> 1
     write8!(cpu, addr, value)
@@ -527,19 +583,19 @@ end
 
 function sta!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "STA"
-    addr, _ = address(cpu, mode, logger)
+    addr, _, _ = address(cpu, mode, logger)
     write8!(cpu, addr, cpu.register_a)
 end
 
 function stx!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "STX"
-    addr, _ = address(cpu, mode, logger)
+    addr, _, _ = address(cpu, mode, logger)
     write8!(cpu, addr, cpu.register_x)
 end
 
 function sty!(cpu::CPU, mode::AddressingMode, logger::StepLogger)
     logger.instruction = "STY"
-    addr, _ = address(cpu, mode, logger)
+    addr, _, _ = address(cpu, mode, logger)
     write8!(cpu, addr, cpu.register_y)
 end
 
