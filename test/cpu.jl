@@ -4,7 +4,6 @@ function nestest_registers()
     set!(cpu.bus, FC.Rom(ines))
     FC.reset!(cpu)
     cpu.program_counter = 0xc000
-    io = PipeBuffer()
 
     open("../download/nestest.log", "r") do log
         for _ = 1:8991
@@ -12,7 +11,7 @@ function nestest_registers()
             expected = readline(log)
             expected = "$(expected[1:4]) $(expected[49:73])"
             @test actual == expected
-            FC.step!(cpu, io = io)
+            FC.step!(cpu)
         end
     end
 end

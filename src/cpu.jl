@@ -31,7 +31,6 @@ end
 
 include("cpu/types.jl")
 include("cpu/addressmode.jl")
-include("cpu/steplogger.jl")
 include("cpu/opcode.jl")
 
 function run!(cpu::CPU; post_reset!::Function = cpu::CPU -> nothing)
@@ -47,494 +46,493 @@ function run!(cpu::CPU; post_reset!::Function = cpu::CPU -> nothing)
     end
 end
 
-function step!(cpu::CPU; io::IO = devnull)
-    logger = StepLogger(cpu)
-    opcode = logger.opcode = read8(cpu, cpu.program_counter)
+function step!(cpu::CPU)
+    opcode = read8(cpu, cpu.program_counter)
     cpu.program_counter += 0x01
 
     if opcode == 0x69 # ADC
-        adc!(cpu, immediate, logger)
+        adc!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
     elseif opcode == 0x65
-        adc!(cpu, zeropage, logger)
+        adc!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0003)
     elseif opcode == 0x75
-        adc!(cpu, zeropage_x, logger)
+        adc!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0004)
     elseif opcode == 0x6d
-        adc!(cpu, absolute, logger)
+        adc!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0x7d
-        adc!(cpu, absolute_x, logger)
+        adc!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0x79
-        adc!(cpu, absolute_y, logger)
+        adc!(cpu, absolute_y)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0x61
-        adc!(cpu, indirect_x, logger)
+        adc!(cpu, indirect_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0x71
-        adc!(cpu, indirect_y, logger)
+        adc!(cpu, indirect_y)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
 
     elseif opcode == 0x29 # AND
-        and!(cpu, immediate, logger)
+        and!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
     elseif opcode == 0x25
-        and!(cpu, zeropage, logger)
+        and!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0003)
     elseif opcode == 0x35
-        and!(cpu, zeropage_x, logger)
+        and!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0004)
     elseif opcode == 0x2d
-        and!(cpu, absolute, logger)
+        and!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0x3d
-        and!(cpu, absolute_x, logger)
+        and!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0x39
-        and!(cpu, absolute_y, logger)
+        and!(cpu, absolute_y)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0x21
-        and!(cpu, indirect_x, logger)
+        and!(cpu, indirect_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0x31
-        and!(cpu, indirect_y, logger)
+        and!(cpu, indirect_y)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
 
     elseif opcode == 0x0a # ASL
-        asl!(cpu, accumulator, logger)
+        asl!(cpu, accumulator)
         tick!(cpu, 0x0002)
     elseif opcode == 0x06
-        asl!(cpu, zeropage, logger)
+        asl!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
     elseif opcode == 0x16
-        asl!(cpu, zeropage_x, logger)
+        asl!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0x0e
-        asl!(cpu, absolute, logger)
+        asl!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0006)
     elseif opcode == 0x1e
-        asl!(cpu, absolute_x, logger)
+        asl!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0007)
 
     elseif opcode == 0x90 # BCC
-        bcc!(cpu, immediate, logger)
+        bcc!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
 
     elseif opcode == 0xb0 # BCS
-        bcs!(cpu, immediate, logger)
+        bcs!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
 
     elseif opcode == 0xf0 # BEQ
-        beq!(cpu, immediate, logger)
+        beq!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
 
     elseif opcode == 0x24 # BIT
-        bit!(cpu, zeropage, logger)
+        bit!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0003)
     elseif opcode == 0x2c
-        bit!(cpu, absolute, logger)
+        bit!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
 
     elseif opcode == 0x30 # BMI
-        bmi!(cpu, immediate, logger)
+        bmi!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
 
     elseif opcode == 0xd0 # BNE
-        bne!(cpu, immediate, logger)
+        bne!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
 
     elseif opcode == 0x10 # BPL
-        bpl!(cpu, immediate, logger)
+        bpl!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
 
     elseif opcode == 0x00 # BRK
-        brk!(logger)
+        brk!()
 
     elseif opcode == 0x50 # BVC
-        bvc!(cpu, immediate, logger)
+        bvc!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
 
     elseif opcode == 0x70 # BVS
-        bvs!(cpu, immediate, logger)
+        bvs!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
 
     elseif opcode == 0x18 # CLC
-        clc!(cpu, logger)
+        clc!(cpu)
         tick!(cpu, 0x0002)
 
     elseif opcode == 0xd8 # CLD
-        cld!(cpu, logger)
+        cld!(cpu)
         tick!(cpu, 0x0002)
 
     elseif opcode == 0xb8 # CLV
-        clv!(cpu, logger)
+        clv!(cpu)
         tick!(cpu, 0x0002)
 
     elseif opcode == 0xc9 # CMP
-        cmp!(cpu, immediate, logger)
+        cmp!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
     elseif opcode == 0xc5
-        cmp!(cpu, zeropage, logger)
+        cmp!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0003)
     elseif opcode == 0xd5
-        cmp!(cpu, zeropage_x, logger)
+        cmp!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0004)
     elseif opcode == 0xcd
-        cmp!(cpu, absolute, logger)
+        cmp!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0xdd
-        cmp!(cpu, absolute_x, logger)
+        cmp!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0xd9
-        cmp!(cpu, absolute_y, logger)
+        cmp!(cpu, absolute_y)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0xc1
-        cmp!(cpu, indirect_x, logger)
+        cmp!(cpu, indirect_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0xd1
-        cmp!(cpu, indirect_y, logger)
+        cmp!(cpu, indirect_y)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
 
     elseif opcode == 0xe0 # CPX
-        cpx!(cpu, immediate, logger)
+        cpx!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
     elseif opcode == 0xe4
-        cpx!(cpu, zeropage, logger)
+        cpx!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0003)
     elseif opcode == 0xec
-        cpx!(cpu, absolute, logger)
+        cpx!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
 
     elseif opcode == 0xc0 # CPY
-        cpy!(cpu, immediate, logger)
+        cpy!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
     elseif opcode == 0xc4
-        cpy!(cpu, zeropage, logger)
+        cpy!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0003)
     elseif opcode == 0xcc
-        cpy!(cpu, absolute, logger)
+        cpy!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
 
     elseif opcode == 0xc7 # DCP
-        dcp!(cpu, zeropage, logger, official = false)
+        dcp!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
     elseif opcode == 0xd7
-        dcp!(cpu, zeropage_x, logger, official = false)
+        dcp!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0xcf
-        dcp!(cpu, absolute, logger, official = false)
+        dcp!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0006)
     elseif opcode == 0xdf
-        dcp!(cpu, absolute_x, logger, official = false)
+        dcp!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0007)
     elseif opcode == 0xdb
-        dcp!(cpu, absolute_y, logger, official = false)
+        dcp!(cpu, absolute_y)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0007)
     elseif opcode == 0xc3
-        dcp!(cpu, indirect_x, logger, official = false)
+        dcp!(cpu, indirect_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0008)
     elseif opcode == 0xd3
-        dcp!(cpu, indirect_y, logger, official = false)
+        dcp!(cpu, indirect_y)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0008)
 
     elseif opcode == 0xc6 # DEC
-        dec!(cpu, zeropage, logger)
+        dec!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
     elseif opcode == 0xd6
-        dec!(cpu, zeropage_x, logger)
+        dec!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0xce
-        dec!(cpu, absolute, logger)
+        dec!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0006)
     elseif opcode == 0xde
-        dec!(cpu, absolute_x, logger)
+        dec!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0007)
 
     elseif opcode == 0xCA # DEX
-        dex!(cpu, logger)
+        dex!(cpu)
         tick!(cpu, 0x0002)
 
     elseif opcode == 0x88 # DEY
-        dey!(cpu, logger)
+        dey!(cpu)
         tick!(cpu, 0x0002)
 
     elseif opcode == 0x49 # EOR
-        eor!(cpu, immediate, logger)
+        eor!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
     elseif opcode == 0x45
-        eor!(cpu, zeropage, logger)
+        eor!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0003)
     elseif opcode == 0x55
-        eor!(cpu, zeropage_x, logger)
+        eor!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0004)
     elseif opcode == 0x4d
-        eor!(cpu, absolute, logger)
+        eor!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0x5d
-        eor!(cpu, absolute_x, logger)
+        eor!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0x59
-        eor!(cpu, absolute_y, logger)
+        eor!(cpu, absolute_y)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0x41
-        eor!(cpu, indirect_x, logger)
+        eor!(cpu, indirect_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0x51
-        eor!(cpu, indirect_y, logger)
+        eor!(cpu, indirect_y)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
 
     elseif opcode == 0xe6 # INC
-        inc!(cpu, zeropage, logger)
+        inc!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
     elseif opcode == 0xf6
-        inc!(cpu, zeropage_x, logger)
+        inc!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0xee
-        inc!(cpu, absolute, logger)
+        inc!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0006)
     elseif opcode == 0xfe
-        inc!(cpu, absolute_x, logger)
+        inc!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0007)
 
     elseif opcode == 0xe8 # INX
-        inx!(cpu, logger)
+        inx!(cpu)
         tick!(cpu, 0x0002)
 
     elseif opcode == 0xc8 # INY
-        iny!(cpu, logger)
+        iny!(cpu)
         tick!(cpu, 0x0002)
 
     elseif opcode == 0xe7 # ISC
-        isc!(cpu, zeropage, logger, official = false)
+        isc!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
     elseif opcode == 0xf7
-        isc!(cpu, zeropage_x, logger, official = false)
+        isc!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0xef
-        isc!(cpu, absolute, logger, official = false)
+        isc!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0006)
     elseif opcode == 0xff
-        isc!(cpu, absolute_x, logger, official = false)
+        isc!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0007)
     elseif opcode == 0xfb
-        isc!(cpu, absolute_y, logger, official = false)
+        isc!(cpu, absolute_y)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0007)
     elseif opcode == 0xe3
-        isc!(cpu, indirect_x, logger, official = false)
+        isc!(cpu, indirect_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0008)
     elseif opcode == 0xf3
-        isc!(cpu, indirect_y, logger, official = false)
+        isc!(cpu, indirect_y)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0008)
 
     elseif opcode == 0x4c # JMP
-        jmp!(cpu, absolute, logger)
+        jmp!(cpu, absolute)
         tick!(cpu, 0x0003)
     elseif opcode == 0x6c
-        jmp!(cpu, indirect, logger)
+        jmp!(cpu, indirect)
         tick!(cpu, 0x0005)
 
     elseif opcode == 0x20 # JSR
-        jsr!(cpu, absolute, logger)
+        jsr!(cpu, absolute)
         tick!(cpu, 0x0006)
 
     elseif opcode == 0xa7 # LAX
-        lax!(cpu, zeropage, logger, official = false)
+        lax!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0003)
     elseif opcode == 0xb7
-        lax!(cpu, zeropage_y, logger, official = false)
+        lax!(cpu, zeropage_y)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0004)
     elseif opcode == 0xaf
-        lax!(cpu, absolute, logger, official = false)
+        lax!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0xbf
-        lax!(cpu, absolute_y, logger, official = false)
+        lax!(cpu, absolute_y)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0xa3
-        lax!(cpu, indirect_x, logger, official = false)
+        lax!(cpu, indirect_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0xb3
-        lax!(cpu, indirect_y, logger, official = false)
+        lax!(cpu, indirect_y)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
 
     elseif opcode == 0xa9 # LDA
-        lda!(cpu, immediate, logger)
+        lda!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
     elseif opcode == 0xa5
-        lda!(cpu, zeropage, logger)
+        lda!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0003)
     elseif opcode == 0xb5
-        lda!(cpu, zeropage_x, logger)
+        lda!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0004)
     elseif opcode == 0xad
-        lda!(cpu, absolute, logger)
+        lda!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0xbd
-        lda!(cpu, absolute_x, logger)
+        lda!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0xb9
-        lda!(cpu, absolute_y, logger)
+        lda!(cpu, absolute_y)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0xa1
-        lda!(cpu, indirect_x, logger)
+        lda!(cpu, indirect_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0xb1
-        lda!(cpu, indirect_y, logger)
+        lda!(cpu, indirect_y)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
 
     elseif opcode == 0xa2 # LDX
-        ldx!(cpu, immediate, logger)
+        ldx!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
     elseif opcode == 0xa6
-        ldx!(cpu, zeropage, logger)
+        ldx!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0003)
     elseif opcode == 0xb6
-        ldx!(cpu, zeropage_y, logger)
+        ldx!(cpu, zeropage_y)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0004)
     elseif opcode == 0xae
-        ldx!(cpu, absolute, logger)
+        ldx!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0xbe
-        ldx!(cpu, absolute_y, logger)
+        ldx!(cpu, absolute_y)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
 
     elseif opcode == 0xa0 # LDY
-        ldy!(cpu, immediate, logger)
+        ldy!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
     elseif opcode == 0xa4
-        ldy!(cpu, zeropage, logger)
+        ldy!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0003)
     elseif opcode == 0xb4
-        ldy!(cpu, zeropage_x, logger)
+        ldy!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0004)
     elseif opcode == 0xac
-        ldy!(cpu, absolute, logger)
+        ldy!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0xbc
-        ldy!(cpu, absolute_x, logger)
+        ldy!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
 
     elseif opcode == 0x4a # LSR
-        lsr!(cpu, accumulator, logger)
+        lsr!(cpu, accumulator)
         tick!(cpu, 0x0002)
     elseif opcode == 0x46
-        lsr!(cpu, zeropage, logger)
+        lsr!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
     elseif opcode == 0x56
-        lsr!(cpu, zeropage_x, logger)
+        lsr!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0x4e
-        lsr!(cpu, absolute, logger)
+        lsr!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0006)
     elseif opcode == 0x5e
-        lsr!(cpu, absolute_x, logger)
+        lsr!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0007)
 
     elseif opcode == 0xea # NOP
-        nop!(cpu, unspecified, logger)
+        nop!(cpu, unspecified)
         tick!(cpu, 0x0002)
     elseif (
         opcode == 0x1a ||
@@ -544,14 +542,14 @@ function step!(cpu::CPU; io::IO = devnull)
         opcode == 0xda ||
         opcode == 0xfa
     )
-        nop!(cpu, unspecified, logger, official = false)
+        nop!(cpu, unspecified)
         tick!(cpu, 0x0002)
     elseif opcode == 0x80
-        nop!(cpu, immediate, logger, official = false)
+        nop!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
     elseif opcode == 0x04 || opcode == 0x44 || opcode == 0x64
-        nop!(cpu, zeropage, logger, official = false)
+        nop!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0003)
     elseif (
@@ -562,11 +560,11 @@ function step!(cpu::CPU; io::IO = devnull)
         opcode == 0xd4 ||
         opcode == 0xf4
     )
-        nop!(cpu, zeropage_x, logger, official = false)
+        nop!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0004)
     elseif opcode == 0x0c
-        nop!(cpu, absolute, logger, official = false)
+        nop!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif (
@@ -577,373 +575,371 @@ function step!(cpu::CPU; io::IO = devnull)
         opcode == 0xdc ||
         opcode == 0xfc
     )
-        nop!(cpu, absolute_x, logger, official = false)
+        nop!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
 
     elseif opcode == 0x09 # ORA
-        ora!(cpu, immediate, logger)
+        ora!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
     elseif opcode == 0x05
-        ora!(cpu, zeropage, logger)
+        ora!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0003)
     elseif opcode == 0x15
-        ora!(cpu, zeropage_x, logger)
+        ora!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0004)
     elseif opcode == 0x0d
-        ora!(cpu, absolute, logger)
+        ora!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0x1d
-        ora!(cpu, absolute_x, logger)
+        ora!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0x19
-        ora!(cpu, absolute_y, logger)
+        ora!(cpu, absolute_y)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0x01
-        ora!(cpu, indirect_x, logger)
+        ora!(cpu, indirect_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0x11
-        ora!(cpu, indirect_y, logger)
+        ora!(cpu, indirect_y)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
 
     elseif opcode == 0x48 # PHA
-        pha!(cpu, unspecified, logger)
+        pha!(cpu, unspecified)
         tick!(cpu, 0x0003)
 
     elseif opcode == 0x08 # PHP
-        php!(cpu, unspecified, logger)
+        php!(cpu, unspecified)
         tick!(cpu, 0x0003)
 
     elseif opcode == 0x68 # PLA
-        pla!(cpu, unspecified, logger)
+        pla!(cpu, unspecified)
         tick!(cpu, 0x0004)
 
     elseif opcode == 0x28 # PLP
-        plp!(cpu, unspecified, logger)
+        plp!(cpu, unspecified)
         tick!(cpu, 0x0004)
 
     elseif opcode == 0x27 # RLA
-        rla!(cpu, zeropage, logger, official = false)
+        rla!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
     elseif opcode == 0x37
-        rla!(cpu, zeropage_x, logger, official = false)
+        rla!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0x2f
-        rla!(cpu, absolute, logger, official = false)
+        rla!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0006)
     elseif opcode == 0x3f
-        rla!(cpu, absolute_x, logger, official = false)
+        rla!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0007)
     elseif opcode == 0x3b
-        rla!(cpu, absolute_y, logger, official = false)
+        rla!(cpu, absolute_y)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0007)
     elseif opcode == 0x23
-        rla!(cpu, indirect_x, logger, official = false)
+        rla!(cpu, indirect_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0008)
     elseif opcode == 0x33
-        rla!(cpu, indirect_y, logger, official = false)
+        rla!(cpu, indirect_y)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0008)
 
     elseif opcode == 0x2a # ROL
-        rol!(cpu, accumulator, logger)
+        rol!(cpu, accumulator)
         tick!(cpu, 0x0002)
     elseif opcode == 0x26
-        rol!(cpu, zeropage, logger)
+        rol!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
     elseif opcode == 0x36
-        rol!(cpu, zeropage_x, logger)
+        rol!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0x2e
-        rol!(cpu, absolute, logger)
+        rol!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0006)
     elseif opcode == 0x3e
-        rol!(cpu, absolute_x, logger)
+        rol!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0007)
 
     elseif opcode == 0x6a # ROR
-        ror!(cpu, accumulator, logger)
+        ror!(cpu, accumulator)
         tick!(cpu, 0x0002)
     elseif opcode == 0x66
-        ror!(cpu, zeropage, logger)
+        ror!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
     elseif opcode == 0x76
-        ror!(cpu, zeropage_x, logger)
+        ror!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0x6e
-        ror!(cpu, absolute, logger)
+        ror!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0006)
     elseif opcode == 0x7e
-        ror!(cpu, absolute_x, logger)
+        ror!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0007)
 
     elseif opcode == 0x67 # RRA
-        rra!(cpu, zeropage, logger, official = false)
+        rra!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
     elseif opcode == 0x77
-        rra!(cpu, zeropage_x, logger, official = false)
+        rra!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0x6f
-        rra!(cpu, absolute, logger, official = false)
+        rra!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0006)
     elseif opcode == 0x7f
-        rra!(cpu, absolute_x, logger, official = false)
+        rra!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0007)
     elseif opcode == 0x7b
-        rra!(cpu, absolute_y, logger, official = false)
+        rra!(cpu, absolute_y)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0007)
     elseif opcode == 0x63
-        rra!(cpu, indirect_x, logger, official = false)
+        rra!(cpu, indirect_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0008)
     elseif opcode == 0x73
-        rra!(cpu, indirect_y, logger, official = false)
+        rra!(cpu, indirect_y)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0008)
 
     elseif opcode == 0x40 # RTI
-        rti!(cpu, unspecified, logger)
+        rti!(cpu, unspecified)
         tick!(cpu, 0x0006)
 
     elseif opcode == 0x60 # RTS
-        rts!(cpu, unspecified, logger)
+        rts!(cpu, unspecified)
         tick!(cpu, 0x0006)
 
     elseif opcode == 0x87 # SAX
-        sax!(cpu, zeropage, logger, official = false)
+        sax!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0003)
     elseif opcode == 0x97
-        sax!(cpu, zeropage_y, logger, official = false)
+        sax!(cpu, zeropage_y)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0004)
     elseif opcode == 0x8f
-        sax!(cpu, absolute, logger, official = false)
+        sax!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0x83
-        sax!(cpu, indirect_x, logger, official = false)
+        sax!(cpu, indirect_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
 
     elseif opcode == 0xe9 # SBC
-        sbc!(cpu, immediate, logger)
+        sbc!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
     elseif opcode == 0xe5
-        sbc!(cpu, zeropage, logger)
+        sbc!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0003)
     elseif opcode == 0xf5
-        sbc!(cpu, zeropage_x, logger)
+        sbc!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0004)
     elseif opcode == 0xed
-        sbc!(cpu, absolute, logger)
+        sbc!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0xfd
-        sbc!(cpu, absolute_x, logger)
+        sbc!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0xf9
-        sbc!(cpu, absolute_y, logger)
+        sbc!(cpu, absolute_y)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0xe1
-        sbc!(cpu, indirect_x, logger)
+        sbc!(cpu, indirect_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0xf1
-        sbc!(cpu, indirect_y, logger)
+        sbc!(cpu, indirect_y)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
     elseif opcode == 0xeb
-        sbc!(cpu, immediate, logger, official = false)
+        sbc!(cpu, immediate)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0002)
 
     elseif opcode == 0x38 # SEC
-        sec!(cpu, unspecified, logger)
+        sec!(cpu, unspecified)
         tick!(cpu, 0x0002)
 
     elseif opcode == 0xf8 # SED
-        sed!(cpu, unspecified, logger)
+        sed!(cpu, unspecified)
         tick!(cpu, 0x0002)
 
     elseif opcode == 0x78 # SEI
-        sei!(cpu, unspecified, logger)
+        sei!(cpu, unspecified)
         tick!(cpu, 0x0002)
 
     elseif opcode == 0x07 # SLO
-        slo!(cpu, zeropage, logger, official = false)
+        slo!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
     elseif opcode == 0x17
-        slo!(cpu, zeropage_x, logger, official = false)
+        slo!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0x0f
-        slo!(cpu, absolute, logger, official = false)
+        slo!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0006)
     elseif opcode == 0x1f
-        slo!(cpu, absolute_x, logger, official = false)
+        slo!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0007)
     elseif opcode == 0x1b
-        slo!(cpu, absolute_y, logger, official = false)
+        slo!(cpu, absolute_y)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0007)
     elseif opcode == 0x03
-        slo!(cpu, indirect_x, logger, official = false)
+        slo!(cpu, indirect_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0008)
     elseif opcode == 0x13
-        slo!(cpu, indirect_y, logger, official = false)
+        slo!(cpu, indirect_y)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0008)
 
     elseif opcode == 0x47 # SRE
-        sre!(cpu, zeropage, logger, official = false)
+        sre!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0005)
     elseif opcode == 0x57
-        sre!(cpu, zeropage_x, logger, official = false)
+        sre!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0x4f
-        sre!(cpu, absolute, logger, official = false)
+        sre!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0006)
     elseif opcode == 0x5f
-        sre!(cpu, absolute_x, logger, official = false)
+        sre!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0007)
     elseif opcode == 0x5b
-        sre!(cpu, absolute_y, logger, official = false)
+        sre!(cpu, absolute_y)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0007)
     elseif opcode == 0x43
-        sre!(cpu, indirect_x, logger, official = false)
+        sre!(cpu, indirect_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0008)
     elseif opcode == 0x53
-        sre!(cpu, indirect_y, logger, official = false)
+        sre!(cpu, indirect_y)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0008)
 
     elseif opcode == 0x85 # STA
-        sta!(cpu, zeropage, logger)
+        sta!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0003)
     elseif opcode == 0x95
-        sta!(cpu, zeropage_x, logger)
+        sta!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0004)
     elseif opcode == 0x8d
-        sta!(cpu, absolute, logger)
+        sta!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
     elseif opcode == 0x9d
-        sta!(cpu, absolute_x, logger)
+        sta!(cpu, absolute_x)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0005)
     elseif opcode == 0x99
-        sta!(cpu, absolute_y, logger)
+        sta!(cpu, absolute_y)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0005)
     elseif opcode == 0x81
-        sta!(cpu, indirect_x, logger)
+        sta!(cpu, indirect_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
     elseif opcode == 0x91
-        sta!(cpu, indirect_y, logger)
+        sta!(cpu, indirect_y)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0006)
 
     elseif opcode == 0x86 # STX
-        stx!(cpu, zeropage, logger)
+        stx!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0003)
     elseif opcode == 0x96
-        stx!(cpu, zeropage_y, logger)
+        stx!(cpu, zeropage_y)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0004)
     elseif opcode == 0x8e
-        stx!(cpu, absolute, logger)
+        stx!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
 
     elseif opcode == 0x84 # STY
-        sty!(cpu, zeropage, logger)
+        sty!(cpu, zeropage)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0003)
     elseif opcode == 0x94
-        sty!(cpu, zeropage_x, logger)
+        sty!(cpu, zeropage_x)
         cpu.program_counter += 0x01
         tick!(cpu, 0x0004)
     elseif opcode == 0x8c
-        sty!(cpu, absolute, logger)
+        sty!(cpu, absolute)
         cpu.program_counter += 0x02
         tick!(cpu, 0x0004)
 
     elseif opcode == 0xaa # TAX
-        tax!(cpu, logger)
+        tax!(cpu)
         tick!(cpu, 0x0002)
 
     elseif opcode == 0xa8 # TAY
-        tay!(cpu, logger)
+        tay!(cpu)
         tick!(cpu, 0x0002)
 
     elseif opcode == 0xba # TSX
-        tsx!(cpu, logger)
+        tsx!(cpu)
         tick!(cpu, 0x0002)
 
     elseif opcode == 0x8a # TXA
-        txa!(cpu, logger)
+        txa!(cpu)
         tick!(cpu, 0x0002)
 
     elseif opcode == 0x9a # TXS
-        txs!(cpu, logger)
+        txs!(cpu)
         tick!(cpu, 0x0002)
 
     elseif opcode == 0x98 # TYA
-        tya!(cpu, logger)
+        tya!(cpu)
         tick!(cpu, 0x0002)
 
     else
         throw(@sprintf "0x%02x is not implemented" opcode)
     end
-
-    println(io, logger)
 end
 
 function reset!(cpu::CPU)
@@ -957,14 +953,9 @@ function reset!(cpu::CPU)
     tick!(cpu, 0x0007)
 end
 
-function address(
-    cpu::CPU,
-    mode::AddressingMode,
-    logger::StepLogger,
-)::Tuple{UInt16,UInt8,Bool}
-    logger.mode = mode
-    lo = logger.lo = read8(cpu, cpu.program_counter)
-    hi = logger.hi = read8(cpu, cpu.program_counter + 0x01)
+function address(cpu::CPU, mode::AddressingMode)::Tuple{UInt16,UInt8,Bool}
+    lo = read8(cpu, cpu.program_counter)
+    hi = read8(cpu, cpu.program_counter + 0x01)
     page_cross = false
 
     if mode == immediate
@@ -1020,9 +1011,9 @@ function address(
         throw("$mode is not implemented")
     end
 
-    addr = logger.address = UInt16(addr)
+    addr = UInt16(addr)
     # TODO refactor
-    value = logger.value = if addr == 0x2007 # avoid side effect
+    value = if addr == 0x2007 # avoid side effect
         0x00
     else
         read8(cpu, addr)
