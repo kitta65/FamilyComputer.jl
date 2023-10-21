@@ -23,5 +23,5 @@ function Base.read(cpu::CPU, ::Accumulator)::UInt8
 end
 
 function write!(cpu::CPU, ::Accumulator, value::UInt8)
-    cpu.a = value
+    cpu.register_a = value
 end

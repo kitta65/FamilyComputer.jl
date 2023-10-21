@@ -17,19 +17,12 @@ function and!(cpu::CPU, mode::AddressingMode)
 end
 
 function asl!(cpu::CPU, mode::AddressingMode)
-    if mode == accumulator # TODO
-        value = cpu.register_a
-        setter = (value::UInt8) -> cpu.register_a = value
-    else
-        addr, _ = address(cpu, mode)
-        value = read(cpu, addr)
-        setter = function (value::UInt8)
-            write!(cpu, addr, value)
-            update_z_n!(cpu, value)
-        end
-    end
+    addr, _ = address(cpu, mode)
+    value = read(cpu, addr)
     c!(cpu.status, (value >> 7) == 0b01)
-    setter(value << 1)
+    value = value << 1
+    update_z_n!(cpu, value)
+    write!(cpu, addr, value) # may be updated twice, but no problem
 end
 
 function brk!() end
@@ -319,19 +312,12 @@ function ldy!(cpu::CPU, mode::AddressingMode)
 end
 
 function lsr!(cpu::CPU, mode::AddressingMode)
-    if mode == accumulator # TODO
-        value = cpu.register_a
-        setter = (value::UInt8) -> cpu.register_a = value
-    else
-        addr, _ = address(cpu, mode)
-        value = read(cpu, addr)
-        setter = function (value::UInt8)
-            write!(cpu, addr, value)
-            update_z_n!(cpu, value)
-        end
-    end
+    addr, _ = address(cpu, mode)
+    value = read(cpu, addr)
     c!(cpu.status, value & 0b01 == 0b01)
-    setter(value >> 1)
+    value = value >> 1
+    write!(cpu, addr, value)
+    update_z_n!(cpu, value) # may be updated twice, but no problem
 end
 
 function nop!(cpu::CPU, mode::AddressingMode)
