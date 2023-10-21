@@ -31,7 +31,7 @@ function nestest_cycle()
         for _ = 1:8991
             line = @sprintf "%3d" cpu.bus.ppu.scanline
             ppu_cycle = @sprintf "%3d" cpu.bus.ppu.cycles
-            cpu_cycle = @sprintf "%d" cpu.cycles
+            cpu_cycle = @sprintf "%d" cpu.bus.cycles
             actual = "PPU:$line,$ppu_cycle CYC:$cpu_cycle"
             expected = readline(log)[75:end]
             @test actual == expected

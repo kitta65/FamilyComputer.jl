@@ -1,5 +1,6 @@
 export CPU, run!
 
+# TODO uppercase
 const init_stack_pointer = 0xfd
 const init_status = 0b0010_0100
 const base_stack = 0x0100
@@ -23,10 +24,9 @@ mutable struct CPU
     program_counter::UInt16
     stack_pointer::UInt8
     bus::Bus
-    cycles::UInt16 # TODO remove
 
     function CPU()::CPU
-        new(0, 0, 0, CPUStatus(init_status), 0, init_stack_pointer, Bus(), 0)
+        new(0, 0, 0, CPUStatus(init_status), 0, init_stack_pointer, Bus())
     end
 end
 
@@ -49,7 +49,7 @@ include("cpu/opcode.jl")
 
 function run!(cpu::CPU; post_reset!::Function = cpu::CPU -> nothing)
     reset!(cpu)
-    post_reset!(cpu)
+    post_reset!(cpu) # TODO rm
 
     while !brk(cpu)
         if cpu.bus.ppu.nmi_interrupt
@@ -960,7 +960,6 @@ function reset!(cpu::CPU)
     cpu.register_y = 0x00
     cpu.status = CPUStatus(init_status)
     cpu.stack_pointer = init_stack_pointer
-    cpu.cycles = 0x0000
     cpu.program_counter = read16(cpu, 0xfffc)
     tick!(cpu, 0x0007)
 end
@@ -1088,7 +1087,6 @@ function update_z_n!(cpu::CPU, value::UInt8)
 end
 
 function tick!(cpu::CPU, cycles::UInt16)
-    cpu.cycles += cycles # NOTE this is not accurate OAMDMA is ignored
     tick!(cpu.bus, cycles)
 end
 
