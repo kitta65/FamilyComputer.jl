@@ -63,7 +63,7 @@ struct RGB
 end
 
 # http://www.romdetectives.com/Wiki/index.php?title=NES_Palette
-const sys_palette::Array{RGB} = [
+const SYS_PALETTE::Array{RGB} = [
     RGB(0x7C, 0x7C, 0x7C),
     RGB(0x00, 0x00, 0xFC),
     RGB(0x00, 0x00, 0xBC),

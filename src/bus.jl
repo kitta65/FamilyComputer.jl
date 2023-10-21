@@ -21,10 +21,6 @@ function read8(bus::Bus, addr::UInt16)::UInt8
         addr = addr & 0b0000_0111_1111_1111
         bus.cpu_vram[addr+1]
 
-        # NOTE
-        # for simplicity, reading a write-only register returns 0
-        # but it should return latch's current value
-        # https://www.nesdev.org/wiki/PPU_registers
     elseif (
         addr == 0x2000 || # ppu controller
         addr == 0x2001 || # ppu mask
@@ -32,6 +28,10 @@ function read8(bus::Bus, addr::UInt16)::UInt8
         addr == 0x2005 || # ppu scroll
         addr == 0x2006 # ppu address
     )
+        # NOTE
+        # for simplicity, reading a write-only register returns 0
+        # but it should return latch's current value
+        # https://www.nesdev.org/wiki/PPU_registers
         0
     elseif addr == 0x2002 # ppu status
         bits = bus.ppu.status.bits
