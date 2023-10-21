@@ -1,9 +1,8 @@
 export CPU, run!
 
-# TODO uppercase
-const init_stack_pointer = 0xfd
-const init_status = 0b0010_0100
-const base_stack = 0x0100
+const INIT_STACK_POINTER = 0xfd
+const INIT_STATUS = 0b0010_0100
+const BASE_STACK = 0x0100
 
 @flags CPUStatus UInt8 begin
     c
@@ -26,7 +25,7 @@ mutable struct CPU
     bus::Bus
 
     function CPU()::CPU
-        new(0, 0, 0, CPUStatus(init_status), 0, init_stack_pointer, Bus())
+        new(0, 0, 0, CPUStatus(INIT_STATUS), 0, INIT_STACK_POINTER, Bus())
     end
 end
 
@@ -958,9 +957,10 @@ function reset!(cpu::CPU)
     cpu.register_a = 0x00
     cpu.register_x = 0x00
     cpu.register_y = 0x00
-    cpu.status = CPUStatus(init_status)
-    cpu.stack_pointer = init_stack_pointer
+    cpu.status = CPUStatus(INIT_STATUS)
+    cpu.stack_pointer = INIT_STACK_POINTER
     cpu.program_counter = read16(cpu, 0xfffc)
+    cpu.bus.cycles = 0x00
     tick!(cpu, 0x0007)
 end
 
@@ -1047,7 +1047,7 @@ function write16!(cpu::CPU, addr::UInt16, data::UInt16)
 end
 
 function push8!(cpu::CPU, data::UInt8)
-    write8!(cpu, base_stack + cpu.stack_pointer, data)
+    write8!(cpu, BASE_STACK + cpu.stack_pointer, data)
     cpu.stack_pointer -= 0x01
 end
 
@@ -1060,7 +1060,7 @@ end
 
 function pop8!(cpu::CPU)
     cpu.stack_pointer += 0x01
-    read8(cpu, base_stack + cpu.stack_pointer)
+    read8(cpu, BASE_STACK + cpu.stack_pointer)
 end
 
 function pop16!(cpu::CPU)

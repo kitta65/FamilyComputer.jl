@@ -1,4 +1,4 @@
-const ines_tag = [0x4e, 0x45, 0x53, 0x1a]
+const INES_TAG = [0x4e, 0x45, 0x53, 0x1a]
 @enum Mirroring vertical horizontal four_screen
 
 struct Rom
@@ -8,7 +8,7 @@ struct Rom
     mirroring::Mirroring
 
     function Rom(ines::Vector{UInt8})::Rom
-        if ines[1:4] != ines_tag
+        if ines[1:4] != INES_TAG
             throw("invalid iNES file")
         end
 

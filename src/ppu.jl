@@ -168,13 +168,13 @@ function render(ppu::PPU)
                 lower_bit = lower & mask != 0
                 value = upper_bit * 2 + lower_bit
                 if value == 0
-                    color = sys_palette[palette[1]+1]
+                    color = SYS_PALETTE[palette[1]+1]
                 elseif value == 1
-                    color = sys_palette[palette[2]+1]
+                    color = SYS_PALETTE[palette[2]+1]
                 elseif value == 2
-                    color = sys_palette[palette[3]+1]
+                    color = SYS_PALETTE[palette[3]+1]
                 else
-                    color = sys_palette[palette[4]+1]
+                    color = SYS_PALETTE[palette[4]+1]
                 end
 
                 column_base = row_base + (k - 1) * 3
@@ -212,11 +212,11 @@ function render(ppu::PPU)
                 if value == 0
                     continue
                 elseif value == 1
-                    color = sys_palette[sprite_palette_[2]+1]
+                    color = SYS_PALETTE[sprite_palette_[2]+1]
                 elseif value == 2
-                    color = sys_palette[sprite_palette_[3]+1]
+                    color = SYS_PALETTE[sprite_palette_[3]+1]
                 else
-                    color = sys_palette[sprite_palette_[4]+1]
+                    color = SYS_PALETTE[sprite_palette_[4]+1]
                 end
                 if flip_horizontal
                     if flip_vertical
