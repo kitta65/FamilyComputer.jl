@@ -963,37 +963,38 @@ function reset!(cpu::CPU)
 end
 
 function address(cpu::CPU, mode::AddressingMode)::Tuple{Address,Bool}
-    # TODO remove unnecessary read
-    lo = read8(cpu, cpu.program_counter)
-    hi = read8(cpu, cpu.program_counter + 0x01)
-    page_cross = false
+    page_cross = false # default
 
     if mode == immediate
         addr = UInt16Address(cpu.program_counter)
     elseif mode == zeropage
-        addr = UInt16Address(lo)
+        value = read8(cpu, cpu.program_counter)
+        addr = UInt16Address(value)
     elseif mode == absolute
-        addr = UInt16Address(hi .. lo)
+        value = read16(cpu, cpu.program_counter)
+        addr = UInt16Address(value)
     elseif mode == zeropage_x
-        addr = UInt16Address(lo + cpu.register_x)
+        base = read8(cpu, cpu.program_counter)
+        addr = UInt16Address(base + cpu.register_x)
     elseif mode == zeropage_y
-        addr = UInt16Address(lo + cpu.register_y)
+        base = read8(cpu, cpu.program_counter)
+        addr = UInt16Address(base + cpu.register_y)
     elseif mode == absolute_x
-        base = hi .. lo
+        base = read16(cpu, cpu.program_counter)
         addr = base + cpu.register_x
         if addr >> 8 != base >> 8
             page_cross = true
         end
         addr = UInt16Address(addr)
     elseif mode == absolute_y
-        base = hi .. lo
+        base = read16(cpu, cpu.program_counter)
         addr = base + cpu.register_y
         if addr >> 8 != base >> 8
             page_cross = true
         end
         addr = UInt16Address(addr)
     elseif mode == indirect
-        addr = hi .. lo
+        addr = read16(cpu, cpu.program_counter)
         addr = if addr & 0xFF == 0xFF
             lo = read8(cpu, addr)
             hi = read8(cpu, addr & 0xFF00)
@@ -1003,14 +1004,14 @@ function address(cpu::CPU, mode::AddressingMode)::Tuple{Address,Bool}
         end
         addr = UInt16Address(addr)
     elseif mode == indirect_x
-        base = lo
+        base = read8(cpu, cpu.program_counter)
         ptr = base + cpu.register_x
         # NOTE do not use read16() here
         lo = read8(cpu, UInt16(ptr))
         hi = read8(cpu, UInt16(ptr + 0x01))
         addr = UInt16Address(hi .. lo)
     elseif mode == indirect_y
-        base = lo
+        base = read8(cpu, cpu.program_counter)
         # NOTE do not use read16() here
         lo = read8(cpu, UInt16(base))
         hi = read8(cpu, UInt16(base + 0x01))
@@ -1023,8 +1024,9 @@ function address(cpu::CPU, mode::AddressingMode)::Tuple{Address,Bool}
     elseif mode == accumulator
         addr = Accumulator()
     else
-        throw("$mode is not implemented")
+        throw("unexpected AddressingMode: $mode")
     end
+
     addr, page_cross
 end
 
