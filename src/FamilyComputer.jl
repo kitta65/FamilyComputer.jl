@@ -13,6 +13,7 @@ export play
 
 include("utils.jl")
 include("monitor.jl")
+include("pad.jl")
 include("rom.jl")
 include("ppu.jl")
 include("bus.jl")
