@@ -19,12 +19,24 @@ include("ppu.jl")
 include("bus.jl")
 include("cpu.jl")
 
-# TODO allow other monitor, controller
 function play(ines::String)::Nothing
-    cpu = CPU()
-    rom = Rom(ines)
+    if SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0
+        throw("cannot initialize sdl")
+    end
+
     monitor = SdlMonitor()
     pad = JoyPad()
+    play(ines, monitor, pad)
+
+    # TODO what is the best way to force clean up?
+    close(monitor)
+    SDL_Quit()
+    nothing
+end
+
+function play(ines::String, monitor::Monitor, pad::Pad)::Nothing
+    cpu = CPU()
+    rom = Rom(ines)
     set!(cpu.bus, rom)
     set!(cpu.bus, monitor)
     set!(cpu.bus, pad)
@@ -36,8 +48,6 @@ function play(ines::String)::Nothing
         else
             rethrow()
         end
-    finally
-        close(monitor)
     end
     nothing
 end

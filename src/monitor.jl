@@ -2,24 +2,17 @@ abstract type Monitor end
 
 struct DummyMonitor <: Monitor end
 
-function update(_::DummyMonitor, pixels::Array{UInt8})
+function update(::DummyMonitor, pixels::Array{UInt8})
     # NOP
 end
 
-function Base.close(_::DummyMonitor)
-    # NOP
-end
-
+# TODO Any -> concrete type
 struct SdlMonitor <: Monitor
     window::Any
     renderer::Any
     texture::Any
 
     function SdlMonitor()
-        if SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0
-            throw("cannot initialize sdl")
-        end
-
         window = SDL_CreateWindow(
             "FamilyComputer.jl", # window name
 
@@ -67,5 +60,4 @@ function Base.close(monitor::SdlMonitor)
     SDL_DestroyTexture(monitor.texture)
     SDL_DestroyRenderer(monitor.renderer)
     SDL_DestroyWindow(monitor.window)
-    SDL_Quit()
 end
