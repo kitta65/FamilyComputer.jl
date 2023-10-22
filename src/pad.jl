@@ -50,13 +50,51 @@ function Base.read(pad::JoyPad)::UInt8
     response
 end
 
-function update!(::JoyPad)
+function update!(pad::JoyPad)
     ref = Ref{SDL_Event}()
     while Bool(SDL_PollEvent(ref))
         event = ref[]
         type = event.type
         if type == SDL_QUIT
             throw(InterruptException()) # NOTE other exception may be better
+        elseif type == SDL_KEYDOWN
+            code = event.key.keysym.scancode
+            if code == SDL_SCANCODE_W
+                up!(pad.buttons, true)
+            elseif code == SDL_SCANCODE_A
+                left!(pad.buttons, true)
+            elseif code == SDL_SCANCODE_S
+                down!(pad.buttons, true)
+            elseif code == SDL_SCANCODE_D
+                right!(pad.buttons, true)
+            elseif code == SDL_SCANCODE_O
+                a!(pad.buttons, true)
+            elseif code == SDL_SCANCODE_P
+                b!(pad.buttons, true)
+            elseif code == SDL_SCANCODE_RETURN
+                start!(pad.buttons, true)
+            elseif code == SDL_SCANCODE_SPACE
+                select!(pad.buttons, true)
+            end
+        elseif type == SDL_KEYUP
+            code = event.key.keysym.scancode
+            if code == SDL_SCANCODE_W
+                up!(pad.buttons, false)
+            elseif code == SDL_SCANCODE_A
+                left!(pad.buttons, false)
+            elseif code == SDL_SCANCODE_S
+                down!(pad.buttons, false)
+            elseif code == SDL_SCANCODE_D
+                right!(pad.buttons, false)
+            elseif code == SDL_SCANCODE_O
+                a!(pad.buttons, false)
+            elseif code == SDL_SCANCODE_P
+                b!(pad.buttons, false)
+            elseif code == SDL_SCANCODE_RETURN
+                start!(pad.buttons, false)
+            elseif code == SDL_SCANCODE_SPACE
+                select!(pad.buttons, false)
+            end
         end
     end
     # println(SDL_PollEvent(e))
