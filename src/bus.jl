@@ -5,7 +5,7 @@ mutable struct Bus
     rom::Rom
     ppu::PPU
     monitor::Monitor
-    cycles::UInt16
+    cycles::UInt64
 
     function Bus(rom::Rom)::Bus
         new(zeros(UInt8, 2048), rom, PPU(), DummyMonitor(), 0x0000)
@@ -136,6 +136,7 @@ end
 
 function set!(bus::Bus, rom::Rom)
     bus.rom = rom
+    bus.ppu.mirroring = rom.mirroring
     bus.ppu.chr_rom = rom.chr_rom
 end
 

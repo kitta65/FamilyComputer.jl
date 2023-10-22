@@ -6,7 +6,7 @@ function update(_::DummyMonitor, pixels::Array{UInt8})
     # NOP
 end
 
-function close(_::DummyMonitor)
+function Base.close(_::DummyMonitor)
     # NOP
 end
 
@@ -63,7 +63,7 @@ function update(monitor::SdlMonitor, pixels::Array{UInt8})
     SDL_RenderPresent(monitor.renderer)
 end
 
-function close(monitor::SdlMonitor)
+function Base.close(monitor::SdlMonitor)
     SDL_DestroyTexture(monitor.texture)
     SDL_DestroyRenderer(monitor.renderer)
     SDL_DestroyWindow(monitor.window)
