@@ -19,14 +19,23 @@ include("bus.jl")
 include("cpu.jl")
 
 # TODO allow other monitor, controller
-function play(ines::String)::nothing
+function play(ines::String)::Nothing
     cpu = CPU()
     rom = Rom(ines)
     monitor = SdlMonitor()
     set!(cpu.bus, rom)
     set!(cpu.bus, monitor)
-    run!(cpu)
-    close(monitor)
+    try
+        run!(cpu)
+    catch e
+        if isa(e, InterruptException)
+            # nop
+        else
+            rethrow()
+        end
+    finally
+        close(monitor)
+    end
     nothing
 end
 
