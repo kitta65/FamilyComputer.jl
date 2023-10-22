@@ -1,5 +1,3 @@
-export CPU, run!
-
 const INIT_STACK_POINTER = 0xfd
 const INIT_STATUS = 0b0010_0100
 const BASE_STACK = 0x0100

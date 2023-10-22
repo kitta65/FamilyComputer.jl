@@ -1,5 +1,3 @@
-export set!
-
 mutable struct Bus
     cpu_vram::Vector{UInt8}
     rom::Rom
