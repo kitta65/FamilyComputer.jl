@@ -1,7 +1,7 @@
 function nestest_registers()
-    cpu = CPU()
+    cpu = FC.CPU()
     ines = read("../download/nestest.nes")
-    set!(cpu.bus, FC.Rom(ines))
+    FC.set!(cpu.bus, FC.Rom(ines))
     FC.reset!(cpu)
     cpu.program_counter = 0xc000
 
@@ -21,9 +21,9 @@ end
 end
 
 function nestest_cycle()
-    cpu = CPU()
+    cpu = FC.CPU()
     ines = read("../download/nestest.nes")
-    set!(cpu.bus, FC.Rom(ines))
+    FC.set!(cpu.bus, FC.Rom(ines))
     FC.reset!(cpu)
     cpu.program_counter = 0xc000
 

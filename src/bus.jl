@@ -1,18 +1,17 @@
-export set!
-
 mutable struct Bus
     cpu_vram::Vector{UInt8}
     rom::Rom
     ppu::PPU
     monitor::Monitor
+    pad1::Pad
     cycles::UInt64
 
     function Bus(rom::Rom)::Bus
-        new(zeros(UInt8, 2048), rom, PPU(), DummyMonitor(), 0x0000)
+        new(zeros(UInt8, 2048), rom, PPU(), DummyMonitor(), DummyPad(), 0x0000)
     end
 
     function Bus()::Bus
-        new(zeros(UInt8, 2048), Rom(), PPU(), DummyMonitor(), 0x0000)
+        new(zeros(UInt8, 2048), Rom(), PPU(), DummyMonitor(), DummyPad(), 0x0000)
     end
 end
 
@@ -51,8 +50,10 @@ function read8(bus::Bus, addr::UInt16)::UInt8
         0
     elseif 0x4000 <= addr <= 0x4015
         0x00 # ignore apu
-    elseif 0x4016 <= addr <= 0x4017
-        0x00 # ignore joypad
+    elseif addr == 0x4016
+        read(bus.pad1)
+    elseif addr == 0x4017
+        0x00 # ignore pad
 
     elseif 0x8000 <= addr <= 0xffff
         addr = addr - 0x8000
@@ -118,8 +119,10 @@ function write8!(bus::Bus, addr::UInt16, data::UInt8)
         end
     elseif 0x4000 <= addr <= 0x4015
         # ignore apu
-    elseif 0x4016 <= addr <= 0x4017
-        # ignore joypad
+    elseif addr == 0x4016
+        write!(bus.pad1, data)
+    elseif addr == 0x4017
+        # ignore pad 2
     elseif 0x8000 <= addr <= 0xffff
         throw("cannot write into prg rom")
     else
@@ -144,6 +147,11 @@ function set!(bus::Bus, monitor::Monitor)
     bus.monitor = monitor
 end
 
+# NOTE currently pad2 is not supported
+function set!(bus::Bus, pad::Pad)
+    bus.pad1 = pad
+end
+
 function tick!(bus::Bus, cycles::UInt16)
     bus.cycles += cycles
     finished = tick!(bus.ppu, cycles * 0x0003)
@@ -151,4 +159,5 @@ function tick!(bus::Bus, cycles::UInt16)
         pixels = render(bus.ppu)
         update(bus.monitor, pixels)
     end
+    update!(bus.pad1)
 end
