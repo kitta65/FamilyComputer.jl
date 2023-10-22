@@ -19,6 +19,8 @@ function Base.read(::DummyPad)::UInt8
     0x00
 end
 
+function update!(::DummyPad) end
+
 mutable struct JoyPad <: Pad
     strobe::Bool
     buttons::Buttons
@@ -42,8 +44,20 @@ function Base.read(pad::JoyPad)::UInt8
     end
 
     mask = 0b01 & (0b01 << pad.idx)
-    response = (ppu.button & mask) == 0 ? 0 : 1
+    response = (pad.buttons & mask) == 0 ? 0 : 1
     pad.idx += 0x01
 
     response
+end
+
+function update!(::JoyPad)
+    ref = Ref{SDL_Event}()
+    while Bool(SDL_PollEvent(ref))
+        event = ref[]
+        type = event.type
+        if type == SDL_QUIT
+            throw(InterruptException()) # NOTE other exception may be better
+        end
+    end
+    # println(SDL_PollEvent(e))
 end

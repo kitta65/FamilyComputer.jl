@@ -159,4 +159,5 @@ function tick!(bus::Bus, cycles::UInt16)
         pixels = render(bus.ppu)
         update(bus.monitor, pixels)
     end
+    update!(bus.pad1)
 end

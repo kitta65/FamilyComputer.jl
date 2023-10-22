@@ -24,8 +24,10 @@ function play(ines::String)::Nothing
     cpu = CPU()
     rom = Rom(ines)
     monitor = SdlMonitor()
+    pad = JoyPad()
     set!(cpu.bus, rom)
     set!(cpu.bus, monitor)
+    set!(cpu.bus, pad)
     try
         run!(cpu)
     catch e
