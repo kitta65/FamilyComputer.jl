@@ -25,7 +25,7 @@ function play(ines::String)::Nothing
     end
 
     monitor = SdlMonitor()
-    pad = JoyPad()
+    pad = SdlPad()
     play(ines, monitor, pad)
 
     # TODO what is the best way to force clean up?

@@ -53,7 +53,7 @@ function read8(bus::Bus, addr::UInt16)::UInt8
     elseif addr == 0x4016
         read(bus.pad1)
     elseif addr == 0x4017
-        0x00 # ignore joypad
+        0x00 # ignore pad
 
     elseif 0x8000 <= addr <= 0xffff
         addr = addr - 0x8000
@@ -122,7 +122,7 @@ function write8!(bus::Bus, addr::UInt16, data::UInt8)
     elseif addr == 0x4016
         write!(bus.pad1, data)
     elseif addr == 0x4017
-        # ignore joypad 2
+        # ignore pad 2
     elseif 0x8000 <= addr <= 0xffff
         throw("cannot write into prg rom")
     else

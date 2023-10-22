@@ -21,24 +21,24 @@ end
 
 function update!(::DummyPad) end
 
-mutable struct JoyPad <: Pad
+mutable struct SdlPad <: Pad
     strobe::Bool
     buttons::Buttons
     idx::UInt8
 
-    function JoyPad()::JoyPad
+    function SdlPad()::SdlPad
         new(false, Buttons(0x00), 0x00)
     end
 end
 
-function write!(pad::JoyPad, data::UInt8)
+function write!(pad::SdlPad, data::UInt8)
     pad.strobe = data & 0b01 == 0b01
     if pad.strobe
         pad.idx = 0 # button a
     end
 end
 
-function Base.read(pad::JoyPad)::UInt8
+function Base.read(pad::SdlPad)::UInt8
     if pad.idx > 7
         return 1
     end
@@ -50,7 +50,7 @@ function Base.read(pad::JoyPad)::UInt8
     response
 end
 
-function update!(pad::JoyPad)
+function update!(pad::SdlPad)
     ref = Ref{SDL_Event}()
     while Bool(SDL_PollEvent(ref))
         event = ref[]
