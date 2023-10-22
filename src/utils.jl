@@ -1,3 +1,25 @@
+function sdl(f::Function)::Nothing
+    if SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0
+        throw("cannot initialize sdl")
+    end
+
+    try
+        f()
+    finally
+        SDL_Quit()
+    end
+    nothing
+end
+
+function with(f::Function, arg::Any)::Nothing
+    try
+        f(arg)
+    finally
+        close(arg)
+    end
+    nothing
+end
+
 function concat(hi::UInt8, lo::UInt8)::UInt16
     (UInt16(hi) << 8) + lo
 end

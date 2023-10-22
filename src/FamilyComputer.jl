@@ -20,18 +20,13 @@ include("bus.jl")
 include("cpu.jl")
 
 function play(ines::String)::Nothing
-    if SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0
-        throw("cannot initialize sdl")
+    sdl() do
+        monitor = SdlMonitor()
+        with(monitor) do m
+            pad = SdlPad()
+            play(ines, m, pad)
+        end
     end
-
-    monitor = SdlMonitor()
-    pad = SdlPad()
-    play(ines, monitor, pad)
-
-    # TODO what is the best way to force clean up?
-    close(monitor)
-    SDL_Quit()
-    nothing
 end
 
 function play(ines::String, monitor::Monitor, pad::Pad)::Nothing
