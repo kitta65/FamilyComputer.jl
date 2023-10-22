@@ -6,11 +6,10 @@ function update(::DummyMonitor, pixels::Array{UInt8})
     # NOP
 end
 
-# TODO Any -> concrete type
 struct SdlMonitor <: Monitor
-    window::Any
-    renderer::Any
-    texture::Any
+    window::Ptr{SDL_Window}
+    renderer::Ptr{SDL_Renderer}
+    texture::Ptr{SDL_Texture}
 
     function SdlMonitor()
         window = SDL_CreateWindow(
