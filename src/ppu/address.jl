@@ -13,7 +13,7 @@ function set(register::AddressRegister, data::UInt16)
     register.lo = UInt8(data & 0xff)
 end
 
-function get(register::AddressRegister)::UInt16
+function Base.get(register::AddressRegister)::UInt16
     register.hi .. register.lo
 end
 

@@ -152,7 +152,7 @@ function set!(bus::Bus, pad::Pad)
     bus.pad1 = pad
 end
 
-function tick!(bus::Bus, cycles::UInt16)
+function tick!(bus::Bus, cycles::UInt8)
     bus.cycles += cycles
     finished = tick!(bus.ppu, cycles * 0x0003)
     if finished
@@ -160,4 +160,12 @@ function tick!(bus::Bus, cycles::UInt16)
         update(bus.monitor, pixels)
     end
     update!(bus.pad1)
+end
+
+function Base.print(io::IO, bus::Bus)
+    line = @sprintf "%3d" bus.ppu.scanline
+    ppu_cycle = @sprintf "%3d" bus.ppu.cycles
+    cpu_cycle = @sprintf "%d" bus.cycles
+    str = "PPU:$line,$ppu_cycle CYC:$cpu_cycle"
+    print(io, str)
 end

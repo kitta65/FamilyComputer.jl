@@ -42,18 +42,67 @@ end
 end
 
 include("cpu/address.jl")
-include("cpu/opcode.jl")
-include("cpu/step.jl")
+include("cpu/instruction.jl")
+
+function step!(cpu::CPU)
+    code = read8(cpu, cpu.program_counter)
+    instruction = INSTRUCTIONS[code]
+    cpu.program_counter += 0x01
+
+    if isnothing(instruction.mode)
+        instruction.func(cpu)
+    else
+        instruction.func(cpu, instruction.mode)
+    end
+
+    n_param_bytes =
+        if (
+            instruction.mode == immediate ||
+            instruction.mode == zeropage ||
+            instruction.mode == zeropage_x ||
+            instruction.mode == zeropage_y ||
+            instruction.mode == indirect ||
+            instruction.mode == indirect_x ||
+            instruction.mode == indirect_y
+        )
+            0x01
+        elseif (
+            instruction.mode == absolute ||
+            instruction.mode == absolute_x ||
+            instruction.mode == absolute_y
+        )
+            0x02
+        else
+            0x00
+        end
+
+    if !instruction.skip_increment_program_counter
+        cpu.program_counter += n_param_bytes
+    end
+
+    tick!(cpu, instruction.cycle)
+end
 
 function run!(cpu::CPU)
     reset!(cpu)
-    while !brk(cpu)
+    while !b(cpu.status)
         if cpu.bus.ppu.nmi_interrupt
             cpu.bus.ppu.nmi_interrupt = false
             interrupt_nmi!(cpu)
         end
         step!(cpu)
     end
+end
+
+function reset!(cpu::CPU)
+    cpu.register_a = 0x00
+    cpu.register_x = 0x00
+    cpu.register_y = 0x00
+    cpu.status = CPUStatus(INIT_STATUS)
+    cpu.stack_pointer = INIT_STACK_POINTER
+    cpu.program_counter = read16(cpu, 0xfffc)
+    cpu.bus.cycles = 0x00
+    tick!(cpu, 0x07)
 end
 
 function read8(cpu::CPU, addr::UInt16)::UInt8
@@ -95,11 +144,6 @@ function pop16!(cpu::CPU)
     hi .. lo
 end
 
-function brk(cpu::CPU)::Bool
-    opcode = read8(cpu, cpu.program_counter)
-    opcode == 0x00
-end
-
 function Base.setproperty!(cpu::CPU, name::Symbol, value)
     if (name == :register_a || name == :register_x || name == :register_y)
         update_z_n!(cpu, value)
@@ -112,7 +156,7 @@ function update_z_n!(cpu::CPU, value::UInt8)
     n!(cpu.status, value & 0b1000_0000 != 0)
 end
 
-function tick!(cpu::CPU, cycles::UInt16)
+function tick!(cpu::CPU, cycles::UInt8)
     tick!(cpu.bus, cycles)
 end
 
@@ -126,7 +170,7 @@ function interrupt_nmi!(cpu::CPU)
 
     i!(cpu.status, true)
 
-    tick!(cpu, 0x0007)
+    tick!(cpu, 0x07)
     cpu.program_counter = read16(cpu, 0xfffa)
 end
 
