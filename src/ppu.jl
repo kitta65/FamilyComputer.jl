@@ -125,25 +125,35 @@ end
 function tick!(ppu::PPU, cycles::UInt16)
     ppu.cycles += cycles
     if ppu.cycles >= 341
+        if is_sprite_zero_hit(ppu)
+            sprite_zero_hit!(ppu.status, true)
+        end
         ppu.cycles -= 341
         ppu.scanline += 1
 
         if ppu.scanline == 241
             vblank_started!(ppu.status, true)
-            # TODO handle sprite zero hit
+            sprite_zero_hit!(ppu.status, false)
             if generate_nmi(ppu.ctrl)
                 ppu.nmi_interrupt = true
             end
         end
 
         if ppu.scanline >= 262
-            # TODO handle sprite zero hit
             ppu.scanline = 0
-            vblank_started!(ppu.status, false)
+            ppu.nmi_interrupt = false # TODO is it needed?
+            vblank_started!(ppu.status, false) # TODO is it needed?
+            sprite_zero_hit!(ppu.status, false)
             return true
         end
     end
     return false
+end
+
+function is_sprite_zero_hit(ppu::PPU)::Bool
+    x = ppu.oam_data[3+0]
+    y = ppu.oam_data[1+0]
+    y == ppu.scanline && x <= ppu.cycles && show_sprites(ppu.mask)
 end
 
 function render(ppu::PPU)
