@@ -85,7 +85,7 @@ end
 
 function run!(cpu::CPU)
     reset!(cpu)
-    while !brk(cpu)
+    while !b(cpu.status)
         if cpu.bus.ppu.nmi_interrupt
             cpu.bus.ppu.nmi_interrupt = false
             interrupt_nmi!(cpu)
@@ -142,11 +142,6 @@ function pop16!(cpu::CPU)
     lo = pop8!(cpu)
     hi = pop8!(cpu)
     hi .. lo
-end
-
-function brk(cpu::CPU)::Bool
-    opcode = read8(cpu, cpu.program_counter)
-    opcode == 0x00
 end
 
 function Base.setproperty!(cpu::CPU, name::Symbol, value)

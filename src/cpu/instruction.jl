@@ -41,7 +41,9 @@ function asl!(cpu::CPU, mode::AddressingMode)
     write!(cpu, addr, value) # may be updated twice, but no problem
 end
 
-function brk!() end
+function brk!(cpu::CPU)
+    b!(cpu.status, true)
+end
 
 function bcc!(cpu::CPU, mode::AddressingMode)
     addr, _ = address(cpu, mode)
