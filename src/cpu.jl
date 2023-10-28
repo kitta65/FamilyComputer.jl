@@ -170,7 +170,7 @@ function interrupt_nmi!(cpu::CPU)
 
     i!(cpu.status, true)
 
-    tick!(cpu, 0x0007)
+    tick!(cpu, 0x07)
     cpu.program_counter = read16(cpu, 0xfffa)
 end
 
