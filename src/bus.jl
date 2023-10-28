@@ -152,7 +152,7 @@ function set!(bus::Bus, pad::Pad)
     bus.pad1 = pad
 end
 
-function tick!(bus::Bus, cycles::UInt16)
+function tick!(bus::Bus, cycles::UInt8)
     bus.cycles += cycles
     finished = tick!(bus.ppu, cycles * 0x0003)
     if finished

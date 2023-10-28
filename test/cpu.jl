@@ -6,12 +6,14 @@ function nestest_registers()
     cpu.program_counter = 0xc000
 
     open("../download/nestest.log", "r") do log
-        for _ = 1:8991
+        for i = 1:8991
+            if i > 1
+                FC.step!(cpu)
+            end
             actual = string(cpu)
             expected = readline(log)
             expected = "$(expected[1:4]) $(expected[49:73])"
             @test actual == expected
-            FC.step!(cpu)
         end
     end
 end
@@ -28,14 +30,16 @@ function nestest_cycle()
     cpu.program_counter = 0xc000
 
     open("../download/nestest.log", "r") do log
-        for _ = 1:8991
+        for i = 1:8991
+            if i > 1
+                FC.step!(cpu)
+            end
             line = @sprintf "%3d" cpu.bus.ppu.scanline
             ppu_cycle = @sprintf "%3d" cpu.bus.ppu.cycles
             cpu_cycle = @sprintf "%d" cpu.bus.cycles
             actual = "PPU:$line,$ppu_cycle CYC:$cpu_cycle"
             expected = readline(log)[75:end]
             @test actual == expected
-            FC.step!(cpu)
         end
     end
 end

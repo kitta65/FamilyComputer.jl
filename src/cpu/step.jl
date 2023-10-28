@@ -1,972 +1,244 @@
-function step!(cpu::CPU)
-    opcode = read8(cpu, cpu.program_counter)
-    cpu.program_counter += 0x01
-
-    if opcode == 0x69 # ADC
-        adc!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-    elseif opcode == 0x65
-        adc!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0003)
-    elseif opcode == 0x75
-        adc!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x6d
-        adc!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x7d
-        adc!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x79
-        adc!(cpu, absolute_y)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x61
-        adc!(cpu, indirect_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x71
-        adc!(cpu, indirect_y)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-
-    elseif opcode == 0x29 # AND
-        and!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-    elseif opcode == 0x25
-        and!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0003)
-    elseif opcode == 0x35
-        and!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x2d
-        and!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x3d
-        and!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x39
-        and!(cpu, absolute_y)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x21
-        and!(cpu, indirect_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x31
-        and!(cpu, indirect_y)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-
-    elseif opcode == 0x0a # ASL
-        asl!(cpu, accumulator)
-        tick!(cpu, 0x0002)
-    elseif opcode == 0x06
-        asl!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-    elseif opcode == 0x16
-        asl!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x0e
-        asl!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x1e
-        asl!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0007)
-
-    elseif opcode == 0x90 # BCC
-        bcc!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0xb0 # BCS
-        bcs!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0xf0 # BEQ
-        beq!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0x24 # BIT
-        bit!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0003)
-    elseif opcode == 0x2c
-        bit!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-
-    elseif opcode == 0x30 # BMI
-        bmi!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0xd0 # BNE
-        bne!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0x10 # BPL
-        bpl!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0x00 # BRK
-        brk!()
-
-    elseif opcode == 0x50 # BVC
-        bvc!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0x70 # BVS
-        bvs!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0x18 # CLC
-        clc!(cpu)
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0xd8 # CLD
-        cld!(cpu)
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0xb8 # CLV
-        clv!(cpu)
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0xc9 # CMP
-        cmp!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-    elseif opcode == 0xc5
-        cmp!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0003)
-    elseif opcode == 0xd5
-        cmp!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0004)
-    elseif opcode == 0xcd
-        cmp!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0xdd
-        cmp!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0xd9
-        cmp!(cpu, absolute_y)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0xc1
-        cmp!(cpu, indirect_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0xd1
-        cmp!(cpu, indirect_y)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-
-    elseif opcode == 0xe0 # CPX
-        cpx!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-    elseif opcode == 0xe4
-        cpx!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0003)
-    elseif opcode == 0xec
-        cpx!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-
-    elseif opcode == 0xc0 # CPY
-        cpy!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-    elseif opcode == 0xc4
-        cpy!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0003)
-    elseif opcode == 0xcc
-        cpy!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-
-    elseif opcode == 0xc7 # DCP
-        dcp!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-    elseif opcode == 0xd7
-        dcp!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0xcf
-        dcp!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0006)
-    elseif opcode == 0xdf
-        dcp!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0007)
-    elseif opcode == 0xdb
-        dcp!(cpu, absolute_y)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0007)
-    elseif opcode == 0xc3
-        dcp!(cpu, indirect_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0008)
-    elseif opcode == 0xd3
-        dcp!(cpu, indirect_y)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0008)
-
-    elseif opcode == 0xc6 # DEC
-        dec!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-    elseif opcode == 0xd6
-        dec!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0xce
-        dec!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0006)
-    elseif opcode == 0xde
-        dec!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0007)
-
-    elseif opcode == 0xCA # DEX
-        dex!(cpu)
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0x88 # DEY
-        dey!(cpu)
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0x49 # EOR
-        eor!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-    elseif opcode == 0x45
-        eor!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0003)
-    elseif opcode == 0x55
-        eor!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x4d
-        eor!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x5d
-        eor!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x59
-        eor!(cpu, absolute_y)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x41
-        eor!(cpu, indirect_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x51
-        eor!(cpu, indirect_y)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-
-    elseif opcode == 0xe6 # INC
-        inc!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-    elseif opcode == 0xf6
-        inc!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0xee
-        inc!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0006)
-    elseif opcode == 0xfe
-        inc!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0007)
-
-    elseif opcode == 0xe8 # INX
-        inx!(cpu)
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0xc8 # INY
-        iny!(cpu)
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0xe7 # ISC
-        isc!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-    elseif opcode == 0xf7
-        isc!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0xef
-        isc!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0006)
-    elseif opcode == 0xff
-        isc!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0007)
-    elseif opcode == 0xfb
-        isc!(cpu, absolute_y)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0007)
-    elseif opcode == 0xe3
-        isc!(cpu, indirect_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0008)
-    elseif opcode == 0xf3
-        isc!(cpu, indirect_y)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0008)
-
-    elseif opcode == 0x4c # JMP
-        jmp!(cpu, absolute)
-        tick!(cpu, 0x0003)
-    elseif opcode == 0x6c
-        jmp!(cpu, indirect)
-        tick!(cpu, 0x0005)
-
-    elseif opcode == 0x20 # JSR
-        jsr!(cpu, absolute)
-        tick!(cpu, 0x0006)
-
-    elseif opcode == 0xa7 # LAX
-        lax!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0003)
-    elseif opcode == 0xb7
-        lax!(cpu, zeropage_y)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0004)
-    elseif opcode == 0xaf
-        lax!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0xbf
-        lax!(cpu, absolute_y)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0xa3
-        lax!(cpu, indirect_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0xb3
-        lax!(cpu, indirect_y)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-
-    elseif opcode == 0xa9 # LDA
-        lda!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-    elseif opcode == 0xa5
-        lda!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0003)
-    elseif opcode == 0xb5
-        lda!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0004)
-    elseif opcode == 0xad
-        lda!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0xbd
-        lda!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0xb9
-        lda!(cpu, absolute_y)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0xa1
-        lda!(cpu, indirect_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0xb1
-        lda!(cpu, indirect_y)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-
-    elseif opcode == 0xa2 # LDX
-        ldx!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-    elseif opcode == 0xa6
-        ldx!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0003)
-    elseif opcode == 0xb6
-        ldx!(cpu, zeropage_y)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0004)
-    elseif opcode == 0xae
-        ldx!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0xbe
-        ldx!(cpu, absolute_y)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-
-    elseif opcode == 0xa0 # LDY
-        ldy!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-    elseif opcode == 0xa4
-        ldy!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0003)
-    elseif opcode == 0xb4
-        ldy!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0004)
-    elseif opcode == 0xac
-        ldy!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0xbc
-        ldy!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-
-    elseif opcode == 0x4a # LSR
-        lsr!(cpu, accumulator)
-        tick!(cpu, 0x0002)
-    elseif opcode == 0x46
-        lsr!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-    elseif opcode == 0x56
-        lsr!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x4e
-        lsr!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x5e
-        lsr!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0007)
-
-    elseif opcode == 0xea # NOP
-        tick!(cpu, 0x0002)
-    elseif (
-        opcode == 0x1a ||
-        opcode == 0x3a ||
-        opcode == 0x5a ||
-        opcode == 0x7a ||
-        opcode == 0xda ||
-        opcode == 0xfa
-    )
-        tick!(cpu, 0x0002)
-    elseif opcode == 0x80
-        nop!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-    elseif opcode == 0x04 || opcode == 0x44 || opcode == 0x64
-        nop!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0003)
-    elseif (
-        opcode == 0x14 ||
-        opcode == 0x34 ||
-        opcode == 0x54 ||
-        opcode == 0x74 ||
-        opcode == 0xd4 ||
-        opcode == 0xf4
-    )
-        nop!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x0c
-        nop!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif (
-        opcode == 0x1c ||
-        opcode == 0x3c ||
-        opcode == 0x5c ||
-        opcode == 0x7c ||
-        opcode == 0xdc ||
-        opcode == 0xfc
-    )
-        nop!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-
-    elseif opcode == 0x09 # ORA
-        ora!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-    elseif opcode == 0x05
-        ora!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0003)
-    elseif opcode == 0x15
-        ora!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x0d
-        ora!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x1d
-        ora!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x19
-        ora!(cpu, absolute_y)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x01
-        ora!(cpu, indirect_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x11
-        ora!(cpu, indirect_y)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-
-    elseif opcode == 0x48 # PHA
-        pha!(cpu)
-        tick!(cpu, 0x0003)
-
-    elseif opcode == 0x08 # PHP
-        php!(cpu)
-        tick!(cpu, 0x0003)
-
-    elseif opcode == 0x68 # PLA
-        pla!(cpu)
-        tick!(cpu, 0x0004)
-
-    elseif opcode == 0x28 # PLP
-        plp!(cpu)
-        tick!(cpu, 0x0004)
-
-    elseif opcode == 0x27 # RLA
-        rla!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-    elseif opcode == 0x37
-        rla!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x2f
-        rla!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x3f
-        rla!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0007)
-    elseif opcode == 0x3b
-        rla!(cpu, absolute_y)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0007)
-    elseif opcode == 0x23
-        rla!(cpu, indirect_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0008)
-    elseif opcode == 0x33
-        rla!(cpu, indirect_y)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0008)
-
-    elseif opcode == 0x2a # ROL
-        rol!(cpu, accumulator)
-        tick!(cpu, 0x0002)
-    elseif opcode == 0x26
-        rol!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-    elseif opcode == 0x36
-        rol!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x2e
-        rol!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x3e
-        rol!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0007)
-
-    elseif opcode == 0x6a # ROR
-        ror!(cpu, accumulator)
-        tick!(cpu, 0x0002)
-    elseif opcode == 0x66
-        ror!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-    elseif opcode == 0x76
-        ror!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x6e
-        ror!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x7e
-        ror!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0007)
-
-    elseif opcode == 0x67 # RRA
-        rra!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-    elseif opcode == 0x77
-        rra!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x6f
-        rra!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x7f
-        rra!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0007)
-    elseif opcode == 0x7b
-        rra!(cpu, absolute_y)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0007)
-    elseif opcode == 0x63
-        rra!(cpu, indirect_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0008)
-    elseif opcode == 0x73
-        rra!(cpu, indirect_y)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0008)
-
-    elseif opcode == 0x40 # RTI
-        rti!(cpu)
-        tick!(cpu, 0x0006)
-
-    elseif opcode == 0x60 # RTS
-        rts!(cpu)
-        tick!(cpu, 0x0006)
-
-    elseif opcode == 0x87 # SAX
-        sax!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0003)
-    elseif opcode == 0x97
-        sax!(cpu, zeropage_y)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x8f
-        sax!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x83
-        sax!(cpu, indirect_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-
-    elseif opcode == 0xe9 # SBC
-        sbc!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-    elseif opcode == 0xe5
-        sbc!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0003)
-    elseif opcode == 0xf5
-        sbc!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0004)
-    elseif opcode == 0xed
-        sbc!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0xfd
-        sbc!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0xf9
-        sbc!(cpu, absolute_y)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0xe1
-        sbc!(cpu, indirect_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0xf1
-        sbc!(cpu, indirect_y)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-    elseif opcode == 0xeb
-        sbc!(cpu, immediate)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0x38 # SEC
-        sec!(cpu)
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0xf8 # SED
-        sed!(cpu)
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0x78 # SEI
-        sei!(cpu)
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0x07 # SLO
-        slo!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-    elseif opcode == 0x17
-        slo!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x0f
-        slo!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x1f
-        slo!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0007)
-    elseif opcode == 0x1b
-        slo!(cpu, absolute_y)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0007)
-    elseif opcode == 0x03
-        slo!(cpu, indirect_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0008)
-    elseif opcode == 0x13
-        slo!(cpu, indirect_y)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0008)
-
-    elseif opcode == 0x47 # SRE
-        sre!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0005)
-    elseif opcode == 0x57
-        sre!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x4f
-        sre!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x5f
-        sre!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0007)
-    elseif opcode == 0x5b
-        sre!(cpu, absolute_y)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0007)
-    elseif opcode == 0x43
-        sre!(cpu, indirect_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0008)
-    elseif opcode == 0x53
-        sre!(cpu, indirect_y)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0008)
-
-    elseif opcode == 0x85 # STA
-        sta!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0003)
-    elseif opcode == 0x95
-        sta!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x8d
-        sta!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x9d
-        sta!(cpu, absolute_x)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0005)
-    elseif opcode == 0x99
-        sta!(cpu, absolute_y)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0005)
-    elseif opcode == 0x81
-        sta!(cpu, indirect_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-    elseif opcode == 0x91
-        sta!(cpu, indirect_y)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0006)
-
-    elseif opcode == 0x86 # STX
-        stx!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0003)
-    elseif opcode == 0x96
-        stx!(cpu, zeropage_y)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x8e
-        stx!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-
-    elseif opcode == 0x84 # STY
-        sty!(cpu, zeropage)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0003)
-    elseif opcode == 0x94
-        sty!(cpu, zeropage_x)
-        cpu.program_counter += 0x01
-        tick!(cpu, 0x0004)
-    elseif opcode == 0x8c
-        sty!(cpu, absolute)
-        cpu.program_counter += 0x02
-        tick!(cpu, 0x0004)
-
-    elseif opcode == 0xaa # TAX
-        tax!(cpu)
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0xa8 # TAY
-        tay!(cpu)
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0xba # TSX
-        tsx!(cpu)
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0x8a # TXA
-        txa!(cpu)
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0x9a # TXS
-        txs!(cpu)
-        tick!(cpu, 0x0002)
-
-    elseif opcode == 0x98 # TYA
-        tya!(cpu)
-        tick!(cpu, 0x0002)
-
-    else
-        throw(@sprintf "0x%02x is not implemented" opcode)
+struct Instruction
+    func::Function
+    mode::Union{AddressingMode,Nothing}
+    cycle::UInt8 # NOTE this is minimum cycle
+    skip_increment_program_counter::Bool
+
+    function Instruction(
+        func::Function,
+        mode::Union{AddressingMode,Nothing},
+        cycle::UInt8;
+        skip_increment_program_counter = false,
+    )::Instruction
+        new(func, mode, cycle, skip_increment_program_counter)
     end
 end
 
-function reset!(cpu::CPU)
-    cpu.register_a = 0x00
-    cpu.register_x = 0x00
-    cpu.register_y = 0x00
-    cpu.status = CPUStatus(INIT_STATUS)
-    cpu.stack_pointer = INIT_STACK_POINTER
-    cpu.program_counter = read16(cpu, 0xfffc)
-    cpu.bus.cycles = 0x00
-    tick!(cpu, 0x0007)
-end
-
-function address(cpu::CPU, mode::AddressingMode)::Tuple{Address,Bool}
-    page_cross = false # default
-
-    if mode == immediate
-        addr = UInt16Address(cpu.program_counter)
-    elseif mode == zeropage
-        value = read8(cpu, cpu.program_counter)
-        addr = UInt16Address(value)
-    elseif mode == absolute
-        value = read16(cpu, cpu.program_counter)
-        addr = UInt16Address(value)
-    elseif mode == zeropage_x
-        base = read8(cpu, cpu.program_counter)
-        addr = UInt16Address(base + cpu.register_x)
-    elseif mode == zeropage_y
-        base = read8(cpu, cpu.program_counter)
-        addr = UInt16Address(base + cpu.register_y)
-    elseif mode == absolute_x
-        base = read16(cpu, cpu.program_counter)
-        addr = base + cpu.register_x
-        if addr >> 8 != base >> 8
-            page_cross = true
-        end
-        addr = UInt16Address(addr)
-    elseif mode == absolute_y
-        base = read16(cpu, cpu.program_counter)
-        addr = base + cpu.register_y
-        if addr >> 8 != base >> 8
-            page_cross = true
-        end
-        addr = UInt16Address(addr)
-    elseif mode == indirect
-        addr = read16(cpu, cpu.program_counter)
-        addr = if addr & 0xFF == 0xFF
-            lo = read8(cpu, addr)
-            hi = read8(cpu, addr & 0xFF00)
-            hi .. lo
-        else
-            read16(cpu, addr)
-        end
-        addr = UInt16Address(addr)
-    elseif mode == indirect_x
-        base = read8(cpu, cpu.program_counter)
-        ptr = base + cpu.register_x
-        # NOTE do not use read16() here
-        lo = read8(cpu, UInt16(ptr))
-        hi = read8(cpu, UInt16(ptr + 0x01))
-        addr = UInt16Address(hi .. lo)
-    elseif mode == indirect_y
-        base = read8(cpu, cpu.program_counter)
-        # NOTE do not use read16() here
-        lo = read8(cpu, UInt16(base))
-        hi = read8(cpu, UInt16(base + 0x01))
-        base = hi .. lo
-        addr = base + cpu.register_y
-        if addr >> 8 != base >> 8
-            page_cross = true
-        end
-        addr = UInt16Address(addr)
-    elseif mode == accumulator
-        addr = Accumulator()
-    else
-        throw("unexpected AddressingMode: $mode")
-    end
-
-    addr, page_cross
-end
+const INSTRUCTIONS = Dict{UInt8,Instruction}(
+    0x69 => Instruction(adc!, immediate, 0x02),
+    0x65 => Instruction(adc!, zeropage, 0x03),
+    0x75 => Instruction(adc!, zeropage_x, 0x04),
+    0x6d => Instruction(adc!, absolute, 0x04),
+    0x7d => Instruction(adc!, absolute_x, 0x04),
+    0x79 => Instruction(adc!, absolute_y, 0x04),
+    0x61 => Instruction(adc!, indirect_x, 0x06),
+    0x71 => Instruction(adc!, indirect_y, 0x05),
+    0x29 => Instruction(and!, immediate, 0x02),
+    0x25 => Instruction(and!, zeropage, 0x03),
+    0x35 => Instruction(and!, zeropage_x, 0x04),
+    0x2d => Instruction(and!, absolute, 0x04),
+    0x3d => Instruction(and!, absolute_x, 0x04),
+    0x39 => Instruction(and!, absolute_y, 0x04),
+    0x21 => Instruction(and!, indirect_x, 0x06),
+    0x31 => Instruction(and!, indirect_y, 0x05),
+    0x0a => Instruction(asl!, accumulator, 0x02),
+    0x06 => Instruction(asl!, zeropage, 0x05),
+    0x16 => Instruction(asl!, zeropage_x, 0x06),
+    0x0e => Instruction(asl!, absolute, 0x06),
+    0x1e => Instruction(asl!, absolute_x, 0x07),
+    0x90 => Instruction(bcc!, immediate, 0x02),
+    0xb0 => Instruction(bcs!, immediate, 0x02),
+    0xf0 => Instruction(beq!, immediate, 0x02),
+    0x24 => Instruction(bit!, zeropage, 0x03),
+    0x2c => Instruction(bit!, absolute, 0x04),
+    0x30 => Instruction(bmi!, immediate, 0x02),
+    0xd0 => Instruction(bne!, immediate, 0x02),
+    0x10 => Instruction(bpl!, immediate, 0x02),
+    0x00 => Instruction(brk!, nothing, 0x00), # don't care about cycle
+    0x50 => Instruction(bvc!, immediate, 0x02),
+    0x70 => Instruction(bvs!, immediate, 0x02),
+    0x18 => Instruction(clc!, nothing, 0x02),
+    0xd8 => Instruction(cld!, nothing, 0x02),
+    0xb8 => Instruction(clv!, nothing, 0x02),
+    0xc9 => Instruction(cmp!, immediate, 0x02),
+    0xc5 => Instruction(cmp!, zeropage, 0x03),
+    0xd5 => Instruction(cmp!, zeropage_x, 0x04),
+    0xcd => Instruction(cmp!, absolute, 0x04),
+    0xdd => Instruction(cmp!, absolute_x, 0x04),
+    0xd9 => Instruction(cmp!, absolute_y, 0x04),
+    0xc1 => Instruction(cmp!, indirect_x, 0x06),
+    0xd1 => Instruction(cmp!, indirect_y, 0x05),
+    0xe0 => Instruction(cpx!, immediate, 0x02),
+    0xe4 => Instruction(cpx!, zeropage, 0x03),
+    0xec => Instruction(cpx!, absolute, 0x04),
+    0xc0 => Instruction(cpy!, immediate, 0x02),
+    0xc4 => Instruction(cpy!, zeropage, 0x03),
+    0xcc => Instruction(cpy!, absolute, 0x04),
+    0xc7 => Instruction(dcp!, zeropage, 0x05),
+    0xd7 => Instruction(dcp!, zeropage_x, 0x06),
+    0xcf => Instruction(dcp!, absolute, 0x06),
+    0xdf => Instruction(dcp!, absolute_x, 0x07),
+    0xdb => Instruction(dcp!, absolute_y, 0x07),
+    0xc3 => Instruction(dcp!, indirect_x, 0x08),
+    0xd3 => Instruction(dcp!, indirect_y, 0x08),
+    0xc6 => Instruction(dec!, zeropage, 0x05),
+    0xd6 => Instruction(dec!, zeropage_x, 0x06),
+    0xce => Instruction(dec!, absolute, 0x06),
+    0xde => Instruction(dec!, absolute_x, 0x07),
+    0xca => Instruction(dex!, nothing, 0x02),
+    0x88 => Instruction(dey!, nothing, 0x02),
+    0x49 => Instruction(eor!, immediate, 0x02),
+    0x45 => Instruction(eor!, zeropage, 0x03),
+    0x55 => Instruction(eor!, zeropage_x, 0x04),
+    0x4d => Instruction(eor!, absolute, 0x04),
+    0x5d => Instruction(eor!, absolute_x, 0x04),
+    0x59 => Instruction(eor!, absolute_y, 0x04),
+    0x41 => Instruction(eor!, indirect_x, 0x06),
+    0x51 => Instruction(eor!, indirect_y, 0x05),
+    0xe6 => Instruction(inc!, zeropage, 0x05),
+    0xf6 => Instruction(inc!, zeropage_x, 0x06),
+    0xee => Instruction(inc!, absolute, 0x06),
+    0xfe => Instruction(inc!, absolute_x, 0x07),
+    0xe8 => Instruction(inx!, nothing, 0x02),
+    0xc8 => Instruction(iny!, nothing, 0x02),
+    0xe7 => Instruction(isc!, zeropage, 0x05),
+    0xf7 => Instruction(isc!, zeropage_x, 0x06),
+    0xef => Instruction(isc!, absolute, 0x06),
+    0xff => Instruction(isc!, absolute_x, 0x07),
+    0xfb => Instruction(isc!, absolute_y, 0x07),
+    0xe3 => Instruction(isc!, indirect_x, 0x08),
+    0xf3 => Instruction(isc!, indirect_y, 0x08),
+    0x4c => Instruction(jmp!, absolute, 0x03, skip_increment_program_counter = true),
+    0x6c => Instruction(jmp!, indirect, 0x05, skip_increment_program_counter = true),
+    0x20 => Instruction(jsr!, absolute, 0x06, skip_increment_program_counter = true),
+    0xa7 => Instruction(lax!, zeropage, 0x03),
+    0xb7 => Instruction(lax!, zeropage_y, 0x04),
+    0xaf => Instruction(lax!, absolute, 0x04),
+    0xbf => Instruction(lax!, absolute_y, 0x04),
+    0xa3 => Instruction(lax!, indirect_x, 0x06),
+    0xb3 => Instruction(lax!, indirect_y, 0x05),
+    0xa9 => Instruction(lda!, immediate, 0x02),
+    0xa5 => Instruction(lda!, zeropage, 0x03),
+    0xb5 => Instruction(lda!, zeropage_x, 0x04),
+    0xad => Instruction(lda!, absolute, 0x04),
+    0xbd => Instruction(lda!, absolute_x, 0x04),
+    0xb9 => Instruction(lda!, absolute_y, 0x04),
+    0xa1 => Instruction(lda!, indirect_x, 0x06),
+    0xb1 => Instruction(lda!, indirect_y, 0x05),
+    0xa2 => Instruction(ldx!, immediate, 0x02),
+    0xa6 => Instruction(ldx!, zeropage, 0x03),
+    0xb6 => Instruction(ldx!, zeropage_y, 0x04),
+    0xae => Instruction(ldx!, absolute, 0x04),
+    0xbe => Instruction(ldx!, absolute_y, 0x04),
+    0xa0 => Instruction(ldy!, immediate, 0x02),
+    0xa4 => Instruction(ldy!, zeropage, 0x03),
+    0xb4 => Instruction(ldy!, zeropage_x, 0x04),
+    0xac => Instruction(ldy!, absolute, 0x04),
+    0xbc => Instruction(ldy!, absolute_x, 0x04),
+    0x4a => Instruction(lsr!, accumulator, 0x02),
+    0x46 => Instruction(lsr!, zeropage, 0x05),
+    0x56 => Instruction(lsr!, zeropage_x, 0x06),
+    0x4e => Instruction(lsr!, absolute, 0x06),
+    0x5e => Instruction(lsr!, absolute_x, 0x07),
+    0xea => Instruction(nop!, nothing, 0x02),
+    0x1a => Instruction(nop!, nothing, 0x02),
+    0x3a => Instruction(nop!, nothing, 0x02),
+    0x5a => Instruction(nop!, nothing, 0x02),
+    0x7a => Instruction(nop!, nothing, 0x02),
+    0xda => Instruction(nop!, nothing, 0x02),
+    0xfa => Instruction(nop!, nothing, 0x02),
+    0x80 => Instruction(nop!, immediate, 0x02),
+    0x04 => Instruction(nop!, zeropage, 0x03),
+    0x44 => Instruction(nop!, zeropage, 0x03),
+    0x64 => Instruction(nop!, zeropage, 0x03),
+    0x14 => Instruction(nop!, zeropage_x, 0x04),
+    0x34 => Instruction(nop!, zeropage_x, 0x04),
+    0x54 => Instruction(nop!, zeropage_x, 0x04),
+    0x74 => Instruction(nop!, zeropage_x, 0x04),
+    0xd4 => Instruction(nop!, zeropage_x, 0x04),
+    0xf4 => Instruction(nop!, zeropage_x, 0x04),
+    0x0c => Instruction(nop!, absolute, 0x04),
+    0x1c => Instruction(nop!, absolute_x, 0x04),
+    0x3c => Instruction(nop!, absolute_x, 0x04),
+    0x5c => Instruction(nop!, absolute_x, 0x04),
+    0x7c => Instruction(nop!, absolute_x, 0x04),
+    0xdc => Instruction(nop!, absolute_x, 0x04),
+    0xfc => Instruction(nop!, absolute_x, 0x04),
+    0x09 => Instruction(ora!, immediate, 0x02),
+    0x05 => Instruction(ora!, zeropage, 0x03),
+    0x15 => Instruction(ora!, zeropage_x, 0x04),
+    0x0d => Instruction(ora!, absolute, 0x04),
+    0x1d => Instruction(ora!, absolute_x, 0x04),
+    0x19 => Instruction(ora!, absolute_y, 0x04),
+    0x01 => Instruction(ora!, indirect_x, 0x06),
+    0x11 => Instruction(ora!, indirect_y, 0x05),
+    0x48 => Instruction(pha!, nothing, 0x03),
+    0x08 => Instruction(php!, nothing, 0x03),
+    0x68 => Instruction(pla!, nothing, 0x04),
+    0x28 => Instruction(plp!, nothing, 0x04),
+    0x27 => Instruction(rla!, zeropage, 0x05),
+    0x37 => Instruction(rla!, zeropage_x, 0x06),
+    0x2f => Instruction(rla!, absolute, 0x06),
+    0x3f => Instruction(rla!, absolute_x, 0x07),
+    0x3b => Instruction(rla!, absolute_y, 0x07),
+    0x23 => Instruction(rla!, indirect_x, 0x08),
+    0x33 => Instruction(rla!, indirect_y, 0x08),
+    0x2a => Instruction(rol!, accumulator, 0x02),
+    0x26 => Instruction(rol!, zeropage, 0x05),
+    0x36 => Instruction(rol!, zeropage_x, 0x06),
+    0x2e => Instruction(rol!, absolute, 0x06),
+    0x3e => Instruction(rol!, absolute_x, 0x07),
+    0x6a => Instruction(ror!, accumulator, 0x02),
+    0x66 => Instruction(ror!, zeropage, 0x05),
+    0x76 => Instruction(ror!, zeropage_x, 0x06),
+    0x6e => Instruction(ror!, absolute, 0x06),
+    0x7e => Instruction(ror!, absolute_x, 0x07),
+    0x67 => Instruction(rra!, zeropage, 0x05),
+    0x77 => Instruction(rra!, zeropage_x, 0x06),
+    0x6f => Instruction(rra!, absolute, 0x06),
+    0x7f => Instruction(rra!, absolute_x, 0x07),
+    0x7b => Instruction(rra!, absolute_y, 0x07),
+    0x63 => Instruction(rra!, indirect_x, 0x08),
+    0x73 => Instruction(rra!, indirect_y, 0x08),
+    0x40 => Instruction(rti!, nothing, 0x06),
+    0x60 => Instruction(rts!, nothing, 0x06),
+    0x87 => Instruction(sax!, zeropage, 0x03),
+    0x97 => Instruction(sax!, zeropage_y, 0x04),
+    0x8f => Instruction(sax!, absolute, 0x04),
+    0x83 => Instruction(sax!, indirect_x, 0x06),
+    0xe9 => Instruction(sbc!, immediate, 0x02),
+    0xe5 => Instruction(sbc!, zeropage, 0x03),
+    0xf5 => Instruction(sbc!, zeropage_x, 0x04),
+    0xed => Instruction(sbc!, absolute, 0x04),
+    0xfd => Instruction(sbc!, absolute_x, 0x04),
+    0xf9 => Instruction(sbc!, absolute_y, 0x04),
+    0xe1 => Instruction(sbc!, indirect_x, 0x06),
+    0xf1 => Instruction(sbc!, indirect_y, 0x05),
+    0xeb => Instruction(sbc!, immediate, 0x02),
+    0x38 => Instruction(sec!, nothing, 0x02),
+    0xf8 => Instruction(sed!, nothing, 0x02),
+    0x78 => Instruction(sei!, nothing, 0x02),
+    0x07 => Instruction(slo!, zeropage, 0x05),
+    0x17 => Instruction(slo!, zeropage_x, 0x06),
+    0x0f => Instruction(slo!, absolute, 0x06),
+    0x1f => Instruction(slo!, absolute_x, 0x07),
+    0x1b => Instruction(slo!, absolute_y, 0x07),
+    0x03 => Instruction(slo!, indirect_x, 0x08),
+    0x13 => Instruction(slo!, indirect_y, 0x08),
+    0x47 => Instruction(sre!, zeropage, 0x05),
+    0x57 => Instruction(sre!, zeropage_x, 0x06),
+    0x4f => Instruction(sre!, absolute, 0x06),
+    0x5f => Instruction(sre!, absolute_x, 0x07),
+    0x5b => Instruction(sre!, absolute_y, 0x07),
+    0x43 => Instruction(sre!, indirect_x, 0x08),
+    0x53 => Instruction(sre!, indirect_y, 0x08),
+    0x85 => Instruction(sta!, zeropage, 0x03),
+    0x95 => Instruction(sta!, zeropage_x, 0x04),
+    0x8d => Instruction(sta!, absolute, 0x04),
+    0x9d => Instruction(sta!, absolute_x, 0x05),
+    0x99 => Instruction(sta!, absolute_y, 0x05),
+    0x81 => Instruction(sta!, indirect_x, 0x06),
+    0x91 => Instruction(sta!, indirect_y, 0x06),
+    0x86 => Instruction(stx!, zeropage, 0x03),
+    0x96 => Instruction(stx!, zeropage_y, 0x04),
+    0x8e => Instruction(stx!, absolute, 0x04),
+    0x84 => Instruction(sty!, zeropage, 0x03),
+    0x94 => Instruction(sty!, zeropage_x, 0x04),
+    0x8c => Instruction(sty!, absolute, 0x04),
+    0xaa => Instruction(tax!, nothing, 0x02),
+    0xa8 => Instruction(tay!, nothing, 0x02),
+    0xba => Instruction(tsx!, nothing, 0x02),
+    0x8a => Instruction(txa!, nothing, 0x02),
+    0x9a => Instruction(txs!, nothing, 0x02),
+    0x98 => Instruction(tya!, nothing, 0x02),
+)

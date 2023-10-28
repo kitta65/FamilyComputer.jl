@@ -45,6 +45,45 @@ include("cpu/address.jl")
 include("cpu/opcode.jl")
 include("cpu/step.jl")
 
+function step!(cpu::CPU)
+    code = read8(cpu, cpu.program_counter)
+    instruction = INSTRUCTIONS[code]
+    cpu.program_counter += 0x01
+
+    if isnothing(instruction.mode)
+        instruction.func(cpu)
+    else
+        instruction.func(cpu, instruction.mode)
+    end
+
+    n_param_bytes =
+        if (
+            instruction.mode == immediate ||
+            instruction.mode == zeropage ||
+            instruction.mode == zeropage_x ||
+            instruction.mode == zeropage_y ||
+            instruction.mode == indirect ||
+            instruction.mode == indirect_x ||
+            instruction.mode == indirect_y
+        )
+            0x01
+        elseif (
+            instruction.mode == absolute ||
+            instruction.mode == absolute_x ||
+            instruction.mode == absolute_y
+        )
+            0x02
+        else
+            0x00
+        end
+
+    if !instruction.skip_increment_program_counter
+        cpu.program_counter += n_param_bytes
+    end
+
+    tick!(cpu, instruction.cycle)
+end
+
 function run!(cpu::CPU)
     reset!(cpu)
     while !brk(cpu)
@@ -54,6 +93,17 @@ function run!(cpu::CPU)
         end
         step!(cpu)
     end
+end
+
+function reset!(cpu::CPU)
+    cpu.register_a = 0x00
+    cpu.register_x = 0x00
+    cpu.register_y = 0x00
+    cpu.status = CPUStatus(INIT_STATUS)
+    cpu.stack_pointer = INIT_STACK_POINTER
+    cpu.program_counter = read16(cpu, 0xfffc)
+    cpu.bus.cycles = 0x00
+    tick!(cpu, 0x07)
 end
 
 function read8(cpu::CPU, addr::UInt16)::UInt8
@@ -112,7 +162,7 @@ function update_z_n!(cpu::CPU, value::UInt8)
     n!(cpu.status, value & 0b1000_0000 != 0)
 end
 
-function tick!(cpu::CPU, cycles::UInt16)
+function tick!(cpu::CPU, cycles::UInt8)
     tick!(cpu.bus, cycles)
 end
 
@@ -139,4 +189,72 @@ function Base.print(io::IO, cpu::CPU)
     s = @sprintf "%02X" cpu.stack_pointer
     str = "$pc A:$a X:$x Y:$y P:$p SP:$s"
     print(io, str)
+end
+
+function address(cpu::CPU, mode::AddressingMode)::Tuple{Address,Bool}
+    page_cross = false # default
+
+    if mode == immediate
+        addr = UInt16Address(cpu.program_counter)
+    elseif mode == zeropage
+        value = read8(cpu, cpu.program_counter)
+        addr = UInt16Address(value)
+    elseif mode == absolute
+        value = read16(cpu, cpu.program_counter)
+        addr = UInt16Address(value)
+    elseif mode == zeropage_x
+        base = read8(cpu, cpu.program_counter)
+        addr = UInt16Address(base + cpu.register_x)
+    elseif mode == zeropage_y
+        base = read8(cpu, cpu.program_counter)
+        addr = UInt16Address(base + cpu.register_y)
+    elseif mode == absolute_x
+        base = read16(cpu, cpu.program_counter)
+        addr = base + cpu.register_x
+        if addr >> 8 != base >> 8
+            page_cross = true
+        end
+        addr = UInt16Address(addr)
+    elseif mode == absolute_y
+        base = read16(cpu, cpu.program_counter)
+        addr = base + cpu.register_y
+        if addr >> 8 != base >> 8
+            page_cross = true
+        end
+        addr = UInt16Address(addr)
+    elseif mode == indirect
+        addr = read16(cpu, cpu.program_counter)
+        addr = if addr & 0xFF == 0xFF
+            lo = read8(cpu, addr)
+            hi = read8(cpu, addr & 0xFF00)
+            hi .. lo
+        else
+            read16(cpu, addr)
+        end
+        addr = UInt16Address(addr)
+    elseif mode == indirect_x
+        base = read8(cpu, cpu.program_counter)
+        ptr = base + cpu.register_x
+        # NOTE do not use read16() here
+        lo = read8(cpu, UInt16(ptr))
+        hi = read8(cpu, UInt16(ptr + 0x01))
+        addr = UInt16Address(hi .. lo)
+    elseif mode == indirect_y
+        base = read8(cpu, cpu.program_counter)
+        # NOTE do not use read16() here
+        lo = read8(cpu, UInt16(base))
+        hi = read8(cpu, UInt16(base + 0x01))
+        base = hi .. lo
+        addr = base + cpu.register_y
+        if addr >> 8 != base >> 8
+            page_cross = true
+        end
+        addr = UInt16Address(addr)
+    elseif mode == accumulator
+        addr = Accumulator()
+    else
+        throw("unexpected AddressingMode: $mode")
+    end
+
+    addr, page_cross
 end

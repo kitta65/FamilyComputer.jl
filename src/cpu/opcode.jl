@@ -31,11 +31,11 @@ function bcc!(cpu::CPU, mode::AddressingMode)
     addr, _ = address(cpu, mode)
     value = read(cpu, addr)
     if !c(cpu.status)
-        tick!(cpu, 0x0001)
+        tick!(cpu, 0x01)
         value = reinterpret(Int8, value)
         to = cpu.program_counter + value
         if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
-            tick!(cpu, 0x0001)
+            tick!(cpu, 0x01)
         end
         cpu.program_counter = to
     end
@@ -45,11 +45,11 @@ function bcs!(cpu::CPU, mode::AddressingMode)
     addr, _ = address(cpu, mode)
     value = read(cpu, addr)
     if c(cpu.status)
-        tick!(cpu, 0x0001)
+        tick!(cpu, 0x01)
         value = reinterpret(Int8, value)
         to = cpu.program_counter + value
         if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
-            tick!(cpu, 0x0001)
+            tick!(cpu, 0x01)
         end
         cpu.program_counter = to
     end
@@ -59,11 +59,11 @@ function beq!(cpu::CPU, mode::AddressingMode)
     addr, _ = address(cpu, mode)
     value = read(cpu, addr)
     if z(cpu.status)
-        tick!(cpu, 0x0001)
+        tick!(cpu, 0x01)
         value = reinterpret(Int8, value)
         to = cpu.program_counter + value
         if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
-            tick!(cpu, 0x0001)
+            tick!(cpu, 0x01)
         end
         cpu.program_counter = to
     end
@@ -83,11 +83,11 @@ function bmi!(cpu::CPU, mode::AddressingMode)
     addr, _ = address(cpu, mode)
     value = read(cpu, addr)
     if n(cpu.status)
-        tick!(cpu, 0x0001)
+        tick!(cpu, 0x01)
         value = reinterpret(Int8, value)
         to = cpu.program_counter + value
         if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
-            tick!(cpu, 0x0001)
+            tick!(cpu, 0x01)
         end
         cpu.program_counter = to
     end
@@ -97,11 +97,11 @@ function bne!(cpu::CPU, mode::AddressingMode)
     addr, _ = address(cpu, mode)
     value = read(cpu, addr)
     if !z(cpu.status)
-        tick!(cpu, 0x0001)
+        tick!(cpu, 0x01)
         value = reinterpret(Int8, value)
         to = cpu.program_counter + value
         if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
-            tick!(cpu, 0x0001)
+            tick!(cpu, 0x01)
         end
         cpu.program_counter = to
     end
@@ -111,11 +111,11 @@ function bpl!(cpu::CPU, mode::AddressingMode)
     addr, _ = address(cpu, mode)
     value = read(cpu, addr)
     if !n(cpu.status)
-        tick!(cpu, 0x0001)
+        tick!(cpu, 0x01)
         value = reinterpret(Int8, value)
         to = cpu.program_counter + value
         if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
-            tick!(cpu, 0x0001)
+            tick!(cpu, 0x01)
         end
         cpu.program_counter = to
     end
@@ -125,11 +125,11 @@ function bvc!(cpu::CPU, mode::AddressingMode)
     addr, _ = address(cpu, mode)
     value = read(cpu, addr)
     if !v(cpu.status)
-        tick!(cpu, 0x0001)
+        tick!(cpu, 0x01)
         value = reinterpret(Int8, value)
         to = cpu.program_counter + value
         if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
-            tick!(cpu, 0x0001)
+            tick!(cpu, 0x01)
         end
         cpu.program_counter = to
     end
@@ -139,11 +139,11 @@ function bvs!(cpu::CPU, mode::AddressingMode)
     addr, _ = address(cpu, mode)
     value = read(cpu, addr)
     if v(cpu.status)
-        tick!(cpu, 0x0001)
+        tick!(cpu, 0x01)
         value = reinterpret(Int8, value)
         to = cpu.program_counter + value
         if (to + 0x01) >> 8 != (cpu.program_counter + 0x01) >> 8
-            tick!(cpu, 0x0001)
+            tick!(cpu, 0x01)
         end
         cpu.program_counter = to
     end
@@ -277,7 +277,7 @@ function lax!(cpu::CPU, mode::AddressingMode)
     addr, cross = address(cpu, mode)
     value = read(cpu, addr)
     if cross
-        tick!(cpu, 0x0001)
+        tick!(cpu, 0x01)
     end
     cpu.register_a = value # LDA
     cpu.register_x = cpu.register_a # TAX
@@ -287,7 +287,7 @@ function lda!(cpu::CPU, mode::AddressingMode)
     addr, cross = address(cpu, mode)
     value = read(cpu, addr)
     if cross
-        tick!(cpu, 0x0001)
+        tick!(cpu, 0x01)
     end
 
     cpu.register_a = value
@@ -297,7 +297,7 @@ function ldx!(cpu::CPU, mode::AddressingMode)
     addr, cross = address(cpu, mode)
     value = read(cpu, addr)
     if cross
-        tick!(cpu, 0x0001)
+        tick!(cpu, 0x01)
     end
     cpu.register_x = value
 end
@@ -306,7 +306,7 @@ function ldy!(cpu::CPU, mode::AddressingMode)
     addr, cross = address(cpu, mode)
     value = read(cpu, addr)
     if cross
-        tick!(cpu, 0x0001)
+        tick!(cpu, 0x01)
     end
     cpu.register_y = value
 end
@@ -320,10 +320,12 @@ function lsr!(cpu::CPU, mode::AddressingMode)
     update_z_n!(cpu, value) # may be updated twice, but no problem
 end
 
+function nop!(::CPU) end
+
 function nop!(cpu::CPU, mode::AddressingMode)
     _, cross = address(cpu, mode)
     if cross
-        tick!(cpu, 0x0001)
+        tick!(cpu, 0x01)
     end
 end
 
