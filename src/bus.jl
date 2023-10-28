@@ -161,3 +161,11 @@ function tick!(bus::Bus, cycles::UInt8)
     end
     update!(bus.pad1)
 end
+
+function Base.print(io::IO, bus::Bus)
+    line = @sprintf "%3d" bus.ppu.scanline
+    ppu_cycle = @sprintf "%3d" bus.ppu.cycles
+    cpu_cycle = @sprintf "%d" bus.cycles
+    str = "PPU:$line,$ppu_cycle CYC:$cpu_cycle"
+    print(io, str)
+end
