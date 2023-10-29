@@ -154,12 +154,16 @@ end
 
 function tick!(bus::Bus, cycles::UInt8)
     bus.cycles += cycles
-    finished = tick!(bus.ppu, cycles * 0x0003)
-    if finished
+    nmi_before = bus.ppu.nmi_interrupt
+    tick!(bus.ppu, cycles * 0x0003)
+    nmi_after = bus.ppu.nmi_interrupt
+
+    if !nmi_before && nmi_after
+        sleep(0.002)
         pixels = render(bus.ppu)
         update(bus.monitor, pixels)
+        update!(bus.pad1)
     end
-    update!(bus.pad1)
 end
 
 function Base.print(io::IO, bus::Bus)
