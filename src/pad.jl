@@ -43,10 +43,11 @@ function Base.read(pad::SdlPad)::UInt8
         return 1
     end
 
-    mask = 0b01 & (0b01 << pad.idx)
-    response = (pad.buttons & mask) == 0 ? 0 : 1
-    pad.idx += 0x01
-
+    mask = 0b01 << pad.idx
+    response = (pad.buttons.bits & mask) == 0 ? 0 : 1
+    if !pad.strobe
+        pad.idx += 0x01
+    end
     response
 end
 
@@ -97,5 +98,4 @@ function update!(pad::SdlPad)
             end
         end
     end
-    # println(SDL_PollEvent(e))
 end
